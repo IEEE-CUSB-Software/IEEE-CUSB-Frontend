@@ -14,6 +14,9 @@ export const ROUTES = {
   REGISTER: '/register',
   DASHBOARD: '/dashboard',
   PROFILE: '/profile',
+  UI_DEMO: '/ui-demo',
+  UI_DEMO_BUTTONS: '/ui-demo/buttons',
+  UI_DEMO_DATEPICKER: '/ui-demo/datepicker',
 } as const;
 
 export const PAGINATION = {
