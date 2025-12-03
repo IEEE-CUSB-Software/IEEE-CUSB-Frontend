@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { DatePicker } from '@/shared/components/ui';
+import { PageWrapper } from '@/shared/components/generic';
 
 /**
  * DatePicker Demo Page
@@ -18,7 +19,7 @@ export const DatePickerDemoPage = () => {
   const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
 
   return (
-    <div className="space-y-12">
+    <PageWrapper className="space-y-12">
       {/* Basic DatePicker */}
       <section className="bg-card rounded-lg shadow-lg p-8 border border-border">
         <h2 className="text-2xl font-bold text-text-primary mb-6">
@@ -384,6 +385,6 @@ function MyComponent() {
           </pre>
         </div>
       </section>
-    </div>
+    </PageWrapper>
   );
 };

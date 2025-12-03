@@ -10,6 +10,7 @@ import {
   UIDemoPage,
   ButtonsDemoPage,
   DatePickerDemoPage,
+  PageWrapperDemoPage,
 } from './pages';
 
 /**
@@ -49,6 +50,10 @@ const routes: RouteObject[] = [
           {
             path: ROUTES.UI_DEMO_DATEPICKER,
             element: <DatePickerDemoPage />,
+          },
+          {
+            path: ROUTES.UI_DEMO_PAGEWRAPPER,
+            element: <PageWrapperDemoPage />,
           },
         ],
       },

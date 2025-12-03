@@ -1,5 +1,6 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { ROUTES } from '@/constants';
+import { PageWrapper } from '@/shared/components/generic';
 
 /**
  * UI Demo Page
@@ -12,6 +13,7 @@ export const UIDemoPage = () => {
   const demoLinks = [
     { to: ROUTES.UI_DEMO_BUTTONS, label: 'Buttons', icon: '🔘' },
     { to: ROUTES.UI_DEMO_DATEPICKER, label: 'Date Picker', icon: '📅' },
+    { to: ROUTES.UI_DEMO_PAGEWRAPPER, label: 'Page Wrapper', icon: '📐' },
   ];
 
   return (
@@ -56,47 +58,45 @@ export const UIDemoPage = () => {
       </div>
 
       {/* Content */}
-      <div className="container mx-auto px-4 py-8">
-        {isMainPage ? (
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-card rounded-lg shadow-lg p-8 border border-border">
-              <h2 className="text-2xl font-bold text-text-primary mb-4">
-                Welcome to the UI Component Library
-              </h2>
-              <p className="text-muted-foreground mb-6">
-                Browse through our collection of reusable UI components built
-                with React, TypeScript, and Tailwind CSS, themed with IEEE brand
-                colors.
-              </p>
+      {isMainPage ? (
+        <PageWrapper maxWidth="2xl">
+          <div className="bg-card rounded-lg shadow-lg p-8 border border-border">
+            <h2 className="text-2xl font-bold text-text-primary mb-4">
+              Welcome to the UI Component Library
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              Browse through our collection of reusable UI components built with
+              React, TypeScript, and Tailwind CSS, themed with IEEE brand
+              colors.
+            </p>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                {demoLinks.map(link => (
-                  <Link
-                    key={link.to}
-                    to={link.to}
-                    className="
-                      group p-6 rounded-lg border-2 border-border
-                      hover:border-primary hover:shadow-lg
-                      transition-all duration-200
-                      bg-surface hover:bg-background-light
-                    "
-                  >
-                    <div className="text-4xl mb-3">{link.icon}</div>
-                    <h3 className="text-lg font-semibold text-text-primary mb-2 group-hover:text-primary">
-                      {link.label}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      View {link.label.toLowerCase()} examples and variants
-                    </p>
-                  </Link>
-                ))}
-              </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              {demoLinks.map(link => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="
+                    group p-6 rounded-lg border-2 border-border
+                    hover:border-primary hover:shadow-lg
+                    transition-all duration-200
+                    bg-surface hover:bg-background-light
+                  "
+                >
+                  <div className="text-4xl mb-3">{link.icon}</div>
+                  <h3 className="text-lg font-semibold text-text-primary mb-2 group-hover:text-primary">
+                    {link.label}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    View {link.label.toLowerCase()} examples and variants
+                  </p>
+                </Link>
+              ))}
             </div>
           </div>
-        ) : (
-          <Outlet />
-        )}
-      </div>
+        </PageWrapper>
+      ) : (
+        <Outlet />
+      )}
     </div>
   );
 };

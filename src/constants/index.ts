@@ -17,6 +17,7 @@ export const ROUTES = {
   UI_DEMO: '/ui-demo',
   UI_DEMO_BUTTONS: '/ui-demo/buttons',
   UI_DEMO_DATEPICKER: '/ui-demo/datepicker',
+  UI_DEMO_PAGEWRAPPER: '/ui-demo/pagewrapper',
 } as const;
 
 export const PAGINATION = {
