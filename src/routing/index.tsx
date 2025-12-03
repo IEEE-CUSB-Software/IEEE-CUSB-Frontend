@@ -7,6 +7,9 @@ import {
   DashboardPage,
   ProfilePage,
   NotFoundPage,
+  UIDemoPage,
+  ButtonsDemoPage,
+  DatePickerDemoPage,
 } from './pages';
 
 /**
@@ -34,6 +37,20 @@ const routes: RouteObject[] = [
       {
         path: ROUTES.PROFILE,
         element: <ProfilePage />,
+      },
+      {
+        path: ROUTES.UI_DEMO,
+        element: <UIDemoPage />,
+        children: [
+          {
+            path: ROUTES.UI_DEMO_BUTTONS,
+            element: <ButtonsDemoPage />,
+          },
+          {
+            path: ROUTES.UI_DEMO_DATEPICKER,
+            element: <DatePickerDemoPage />,
+          },
+        ],
       },
       {
         path: '*',

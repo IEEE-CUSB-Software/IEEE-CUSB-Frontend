@@ -71,6 +71,18 @@ export const Layout = () => {
             >
               Profile
             </NavLink>
+            <NavLink
+              to={ROUTES.UI_DEMO}
+              className={({ isActive }) =>
+                `px-4 py-2 rounded-md transition-colors ${
+                  isActive
+                    ? 'bg-primary text-primary-foreground font-semibold'
+                    : 'hover:bg-accent hover:text-accent-foreground'
+                }`
+              }
+            >
+              🎨 UI Demo
+            </NavLink>
           </nav>
         </aside>
       )}
