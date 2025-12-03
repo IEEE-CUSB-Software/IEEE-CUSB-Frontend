@@ -13,11 +13,6 @@ interface DatePickerProps {
   className?: string;
 }
 
-/**
- * DatePicker Component
- * A comprehensive date picker with desktop and mobile views
- * Follows IEEE brand colors and Material Design principles
- */
 export const DatePicker = ({
   label,
   value,
@@ -36,19 +31,8 @@ export const DatePicker = ({
       ? new Date(value.getFullYear(), value.getMonth(), 1)
       : new Date(new Date().getFullYear(), new Date().getMonth(), 1)
   );
-  const [isMobile, setIsMobile] = useState(false);
   const [showYearPicker, setShowYearPicker] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
-
-  // Detect mobile view
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   // Close picker when clicking outside
   useEffect(() => {
@@ -295,30 +279,25 @@ export const DatePicker = ({
       {isOpen && (
         <>
           {/* Overlay for mobile */}
-          {isMobile && <div className="fixed inset-0 bg-black/20 z-40" />}
+          <div className="md:hidden fixed inset-0 bg-black/20 z-40" />
 
           <div
-            className={`
-              ${
-                isMobile
-                  ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50'
-                  : 'absolute top-full left-0 mt-1 z-10'
-              }
-              bg-card shadow-2xl rounded-lg overflow-hidden
-              border border-border
-              ${isMobile ? 'w-[90vw] max-w-sm' : 'w-80'}
-            `}
+            className="
+              fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[90vw] max-w-sm
+              md:absolute md:top-full md:left-0 md:mt-1 md:z-10 md:w-80 md:translate-x-0 md:translate-y-0
+              bg-card shadow-2xl rounded-lg overflow-hidden border border-border
+            "
           >
             {/* Month/Year Navigation */}
-            <div className="flex items-center justify-between px-4 py-3 bg-primary text-primary-foreground">
+            <div className="flex items-center justify-between px-3 py-2 md:px-4 md:py-3 bg-primary text-primary-foreground">
               <button
                 onClick={handlePrevMonth}
-                className="p-2 rounded-full hover:bg-white/10 transition-colors"
+                className="p-1.5 md:p-2 rounded-full hover:bg-white/10 transition-colors"
                 type="button"
                 aria-label="Previous month"
               >
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 md:w-5 md:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -332,12 +311,12 @@ export const DatePicker = ({
                 </svg>
               </button>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 md:gap-2">
                 {/* Month Dropdown */}
                 <select
                   value={currentMonth.getMonth()}
                   onChange={e => handleMonthChange(Number(e.target.value))}
-                  className="bg-white/10 hover:bg-white/20 px-2 py-1 rounded text-sm font-medium cursor-pointer outline-none focus:ring-2 focus:ring-white/30 transition-colors"
+                  className="bg-white/10 hover:bg-white/20 px-1.5 py-0.5 md:px-2 md:py-1 rounded text-xs md:text-sm font-medium cursor-pointer outline-none focus:ring-2 focus:ring-white/30 transition-colors"
                   onClick={e => e.stopPropagation()}
                 >
                   {months.map((month, index) => (
@@ -354,12 +333,12 @@ export const DatePicker = ({
                 {/* Year Dropdown/Picker Toggle */}
                 <button
                   onClick={() => setShowYearPicker(!showYearPicker)}
-                  className="bg-white/10 hover:bg-white/20 px-2 py-1 rounded text-sm font-medium transition-colors"
+                  className="bg-white/10 hover:bg-white/20 px-1.5 py-0.5 md:px-2 md:py-1 rounded text-xs md:text-sm font-medium transition-colors"
                   type="button"
                 >
                   {currentMonth.getFullYear()}
                   <svg
-                    className={`w-3 h-3 inline-block ml-1 transition-transform ${showYearPicker ? 'rotate-180' : ''}`}
+                    className={`w-3 h-3 inline-block ml-0.5 md:ml-1 transition-transform ${showYearPicker ? 'rotate-180' : ''}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -376,12 +355,12 @@ export const DatePicker = ({
 
               <button
                 onClick={handleNextMonth}
-                className="p-2 rounded-full hover:bg-white/10 transition-colors"
+                className="p-1.5 md:p-2 rounded-full hover:bg-white/10 transition-colors"
                 type="button"
                 aria-label="Next month"
               >
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 md:w-5 md:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -398,21 +377,21 @@ export const DatePicker = ({
 
             {/* Year Picker or Calendar Grid */}
             {showYearPicker ? (
-              <div className="p-4 bg-card max-h-64 overflow-y-auto">
-                <div className="grid grid-cols-4 gap-2">
+              <div className="p-3 md:p-4 bg-card max-h-64 overflow-y-auto">
+                <div className="grid grid-cols-3 md:grid-cols-4 gap-1.5 md:gap-2">
                   {generateYears().map(year => (
                     <button
                       key={year}
                       onClick={() => handleYearChange(year)}
                       type="button"
                       className={`
-                        px-3 py-2 rounded-lg text-sm font-medium transition-all
+                        px-2 py-1.5 md:px-3 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-all
                         ${
                           year === currentMonth.getFullYear()
-                            ? 'bg-primary text-primary-foreground shadow-md scale-105'
+                            ? 'bg-primary text-primary-foreground shadow-md scale-105 hover:bg-primary/90'
                             : year === new Date().getFullYear()
-                              ? 'bg-accent/20 text-accent-foreground font-bold'
-                              : 'text-text-primary hover:bg-muted'
+                              ? 'bg-accent/20 text-accent-foreground font-bold hover:bg-accent/30'
+                              : 'text-text-primary hover:bg-muted hover:scale-105'
                         }
                       `}
                     >
@@ -422,13 +401,13 @@ export const DatePicker = ({
                 </div>
               </div>
             ) : (
-              <div className="p-4 bg-card">
+              <div className="p-3 md:p-4 bg-card">
                 {/* Week Days */}
-                <div className="grid grid-cols-7 gap-1 mb-2">
+                <div className="grid grid-cols-7 gap-0.5 md:gap-1 mb-1.5 md:mb-2">
                   {weekDays.map(day => (
                     <div
                       key={day}
-                      className="text-center text-xs font-medium text-muted-foreground py-2"
+                      className="text-center text-[10px] md:text-xs font-medium text-muted-foreground py-1.5 md:py-2"
                     >
                       {day}
                     </div>
@@ -436,26 +415,28 @@ export const DatePicker = ({
                 </div>
 
                 {/* Days Grid */}
-                <div className="grid grid-cols-7 gap-1">
+                <div className="grid grid-cols-7 gap-0.5 md:gap-1">
                   {days.map((day, index) => (
                     <button
                       key={index}
-                      onClick={() => day && handleDateSelect(day)}
-                      disabled={!day || isDateDisabled(day)}
+                      onClick={() => {
+                        if (day && !isDateDisabled(day)) {
+                          handleDateSelect(day);
+                        }
+                      }}
                       type="button"
                       className={`
                         aspect-square flex items-center justify-center rounded-full
-                        text-sm font-medium transition-all
+                        text-xs md:text-sm font-medium transition-all
                         ${!day ? 'invisible' : ''}
                         ${
                           day && isSelected(day)
-                            ? 'bg-primary text-primary-foreground shadow-md scale-105'
+                            ? 'bg-primary text-primary-foreground shadow-md scale-105 hover:bg-primary/90'
                             : day && isToday(day)
-                              ? 'bg-accent text-accent-foreground font-bold'
-                              : 'text-text-primary hover:bg-muted'
+                              ? 'bg-accent text-accent-foreground font-bold hover:bg-accent/90 hover:scale-105'
+                              : 'text-text-primary hover:bg-muted hover:scale-110'
                         }
                         ${day && isDateDisabled(day) ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}
-                        disabled:cursor-not-allowed disabled:hover:bg-transparent
                       `}
                     >
                       {day}
@@ -466,12 +447,13 @@ export const DatePicker = ({
             )}
 
             {/* Action Buttons */}
-            <div className="flex items-center justify-between px-4 py-3 bg-surface border-t border-border gap-2">
+            <div className="flex items-center justify-between px-3 py-2 md:px-4 md:py-3 bg-surface border-t border-border gap-2">
               <Button
                 variant="outline"
                 size="small"
                 onClick={handleToday}
                 type="button"
+                className="text-xs md:text-sm px-2 md:px-3"
               >
                 Today
               </Button>
@@ -480,6 +462,7 @@ export const DatePicker = ({
                 size="small"
                 onClick={() => setIsOpen(false)}
                 type="button"
+                className="text-xs md:text-sm px-2 md:px-3"
               >
                 Done
               </Button>
