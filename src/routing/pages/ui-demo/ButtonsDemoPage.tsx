@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/shared/components/ui';
+import { PageWrapper } from '@/shared/components/generic';
 
 /**
  * Buttons Demo Page
@@ -18,7 +19,7 @@ export const ButtonsDemoPage = () => {
   };
 
   return (
-    <div className="space-y-12">
+    <PageWrapper className="space-y-12">
       {/* Variants Section */}
       <section className="bg-card rounded-lg shadow-lg p-8 border border-border">
         <h2 className="text-2xl font-bold text-text-primary mb-6">
@@ -224,7 +225,7 @@ export const ButtonsDemoPage = () => {
             <div className="flex flex-wrap gap-3">
               <Button
                 variant="ghost"
-                className="!px-3"
+                className="px-3!"
                 leftIcon={
                   <svg
                     className="w-5 h-5"
@@ -243,7 +244,7 @@ export const ButtonsDemoPage = () => {
               />
               <Button
                 variant="ghost"
-                className="!px-3"
+                className="px-3!"
                 leftIcon={
                   <svg
                     className="w-5 h-5"
@@ -262,7 +263,7 @@ export const ButtonsDemoPage = () => {
               />
               <Button
                 variant="ghost"
-                className="!px-3"
+                className="px-3!"
                 leftIcon={
                   <svg
                     className="w-5 h-5"
@@ -321,6 +322,6 @@ export const ButtonsDemoPage = () => {
           </pre>
         </div>
       </section>
-    </div>
+    </PageWrapper>
   );
 };

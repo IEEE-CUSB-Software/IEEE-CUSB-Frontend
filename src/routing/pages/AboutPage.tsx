@@ -1,9 +1,11 @@
+import { PageWrapper } from '@/shared/components/generic';
+
 /**
  * About Page
  */
 export const AboutPage = () => {
   return (
-    <div>
+    <PageWrapper>
       <h1>About</h1>
       <p>
         This is a React + TypeScript + Vite project with Redux Toolkit and React
@@ -20,6 +22,6 @@ export const AboutPage = () => {
         <li>✅ ESLint + Prettier</li>
         <li>✅ Husky pre-commit hooks</li>
       </ul>
-    </div>
+    </PageWrapper>
   );
 };
