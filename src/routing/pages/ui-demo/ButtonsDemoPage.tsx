@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button } from '@/shared/components/ui';
+import { Button } from '@ieee-ui/ui';
 import { PageWrapper } from '@/shared/components/generic';
 
 /**

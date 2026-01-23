@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DatePicker } from '@/shared/components/ui';
+import { DatePicker } from '@ieee-ui/ui';
 import { PageWrapper } from '@/shared/components/generic';
 
 /**
