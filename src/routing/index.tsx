@@ -21,7 +21,7 @@ import {
 const routes: RouteObject[] = [
   {
     path: '/',
-    element: <Layout />,
+    element: <HomePage />,
     children: [
       {
         index: true,
