@@ -15,8 +15,8 @@ export const Footer = () => {
       <div className="max-w-[1440px] mx-auto px-6 md:px-12">
         {/* Top Section: Logos Left | Links Right */}
         <div className="flex flex-row justify-between items-start gap-10 md:gap-20 mb-16">
-          {/* Column 1: Logos (Left) - Hidden on mobile via custom CSS */}
-          <div className="footer-logos items-center gap-10 opacity-90">
+          {/* Column 1: Logos (Left) - Hidden on mobile */}
+          <div className="hidden md:flex items-center gap-10 opacity-90">
             <img
               src={logoFooter}
               alt="IEEE CUSB"

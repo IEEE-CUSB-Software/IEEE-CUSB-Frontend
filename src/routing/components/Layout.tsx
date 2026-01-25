@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { PageLoader } from '@ieee-ui/ui';
 import { Navbar } from './Navbar';
+import { MobileNavbar } from './MobileNavbar';
 import { Footer } from './Footer';
 import { useEffect, useState } from 'react';
 
@@ -17,7 +18,7 @@ export const Layout = () => {
     // Hide loader after a short delay (simulating page load)
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2000);
+    }, 500);
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
@@ -30,16 +31,20 @@ export const Layout = () => {
         </div>
       )}
 
-      {/* Navbar - Fixed Position */}
-      <Navbar />
+      {/* Desktop Navbar - Hidden on mobile */}
+      <div className="max-md:hidden">
+        <Navbar />
+      </div>
 
       {/* Main Content - Add padding for fixed navbar */}
-      <main className="flex-1 w-full pt-32 px-4 md:px-8">
+      <main className="flex-1 w-full pt-32 md:pt-32 px-4 md:px-8 pb-24 md:pb-0">
         <Outlet />
       </main>
 
       {/* Footer */}
       <Footer />
+
+      <MobileNavbar />
     </div>
   );
 };
