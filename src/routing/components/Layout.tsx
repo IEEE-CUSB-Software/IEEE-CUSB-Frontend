@@ -12,13 +12,14 @@ import { useEffect, useState } from 'react';
 
 export const Layout = () => {
   const location = useLocation();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // Hide loader after a short delay (simulating page load)
+    setIsLoading(true);
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 500);
+    }, 200);
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
