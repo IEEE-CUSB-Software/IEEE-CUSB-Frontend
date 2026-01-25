@@ -1,25 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 @import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
 
 /* Light theme - IEEE Brand Colors */
 @theme {
-  /* Primary Brand Colors */
-  --color-primary: #00529b; /* IEEE Blue – PMS 3015 C */
+  /* ... existing theme colors ... */
+  --color-primary: #00529b;
   --color-primary-foreground: #ffffff;
-  --color-secondary: #bd0d2a; /* Red – PMS 200 C */
+  --color-secondary: #bd0d2a;
   --color-secondary-foreground: #ffffff;
-  --color-accent: #ffa300; /* Orange – PMS 137 C */
+  --color-accent: #ffa300;
   --color-accent-foreground: #1a1a1a;
-  --color-success: #78be20; /* Green – PMS 368 C */
+  --color-success: #78be20;
   --color-success-foreground: #ffffff;
-  --color-info: #00aeef; /* Cyan – PMS Cyan */
+  --color-info: #00aeef;
   --color-info-foreground: #ffffff;
-  --color-highlight: #009ec3; /* Turquoise – PMS 320 C */
+  --color-highlight: #009ec3;
   --color-highlight-foreground: #ffffff;
-  --color-destructive: #bd0d2a; /* Red – PMS 200 C */
+  --color-destructive: #bd0d2a;
   --color-destructive-foreground: #ffffff;
 
-  /* Neutral / Background */
   --color-background: #ffffff;
   --color-background-light: #eef6fc;
   --color-foreground: #1a1a1a;
@@ -28,13 +28,11 @@
   --color-input: #d0d8e0;
   --color-ring: #00529b;
 
-  /* Text Colors */
   --color-text-primary: #1a1a1a;
   --color-text-muted: #4a5568;
   --color-muted: #f9fbfd;
   --color-muted-foreground: #4a5568;
 
-  /* UI Elements */
   --color-card: #ffffff;
   --color-card-foreground: #1a1a1a;
   --color-modal: #ffffff;
@@ -43,30 +41,27 @@
   --color-button-secondary: #ffa300;
   --color-button-danger: #bd0d2a;
 
-  /* Border radius */
   --radius: 0.5rem;
 }
 
 /* Dark theme override when .dark class is present */
 @layer base {
   .dark {
-    /* Primary Brand Colors (Dark Variants) */
-    --color-primary: #00427a; /* 80% PMS 3015 C */
+    --color-primary: #00427a;
     --color-primary-foreground: #ffffff;
-    --color-secondary: #a54e62; /* 80% PMS 200 C */
+    --color-secondary: #a54e62;
     --color-secondary-foreground: #ffffff;
-    --color-accent: #ffc352; /* 80% PMS 137 C */
+    --color-accent: #ffc352;
     --color-accent-foreground: #1a1a1a;
-    --color-success: #4aa63c; /* PMS 370 C – 100% */
+    --color-success: #4aa63c;
     --color-success-foreground: #ffffff;
     --color-info: #0075a1;
     --color-info-foreground: #ffffff;
     --color-highlight: #006f82;
     --color-highlight-foreground: #ffffff;
-    --color-destructive: #a54e62; /* 80% PMS 200 C */
+    --color-destructive: #a54e62;
     --color-destructive-foreground: #ffffff;
 
-    /* Neutral / Background (Dark) */
     --color-background: #0f1214;
     --color-background-light: #1a1d21;
     --color-foreground: #ffffff;
@@ -75,13 +70,11 @@
     --color-input: #2a2f33;
     --color-ring: #0062a3;
 
-    /* Text Colors (Dark) */
     --color-text-primary: #ffffff;
     --color-text-muted: #a0a0a0;
     --color-muted: #1a1d21;
     --color-muted-foreground: #a0a0a0;
 
-    /* UI Elements (Dark Mode) */
     --color-card: #1a1d21;
     --color-card-foreground: #ffffff;
     --color-modal: #1a1d21;
