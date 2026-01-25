@@ -1,17 +1,39 @@
-import { PageWrapper } from '@/shared/components/generic';
+import { useEffect, useState } from 'react';
+import { initSmoothScroll } from '@/shared/utils/smoothScroll';
+import { Navigation } from './components/Navigation';
+import { HeroSection } from './components/HeroSection';
+import { StatsSection } from './components/StatsSection';
+import { LatestNewsSection } from './components/LatestNewsSection';
+import { EmpoweringSection } from './components/EmpoweringSection';
+import { Footer } from './components/Footer';
 
-/**
- * Home Page
- */
 export const HomePage = () => {
+  // Initialize smooth scroll
+  useEffect(() => {
+    const cleanup = initSmoothScroll();
+    return cleanup;
+  }, []);
+
+  // Auto-expanding cards state
+  const [activeCardIndex, setActiveCardIndex] = useState(0);
+
+  // Auto-rotate cards every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveCardIndex((prev) => (prev + 1) % 3);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <PageWrapper>
-      <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-        <h1 className="text-4xl font-bold mb-4 text-primary">IEEE CUSB</h1>
-        <p className="text-xl text-muted-foreground">
-          Welcome to IEEE CUSB Frontend
-        </p>
-      </div>
-    </PageWrapper>
+    <div className="min-h-screen bg-white">
+      <Navigation />
+      <HeroSection activeCardIndex={activeCardIndex} onCardExpand={setActiveCardIndex} />
+      <StatsSection />
+      <LatestNewsSection />
+      <EmpoweringSection />
+      <Footer />
+    </div>
   );
 };

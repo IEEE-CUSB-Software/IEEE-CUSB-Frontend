@@ -10,13 +10,7 @@ import { HomePage, NotFoundPage } from './pages';
 const routes: RouteObject[] = [
   {
     path: '/',
-    element: <Layout />,
-    errorElement: (
-      <div className="p-10 text-red-500">
-        <h1>Application Error</h1>
-        <p>Check console for details.</p>
-      </div>
-    ),
+    element: <HomePage />,
     children: [
       {
         index: true,
