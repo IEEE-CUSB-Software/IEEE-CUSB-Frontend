@@ -1,6 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
 // Import feature reducers
-import { exampleReducer } from '@/features/example/store';
 // Import shared reducers
 import { uiReducer } from './slices/uiSlice';
 
@@ -21,7 +20,6 @@ export const store = configureStore({
     ui: uiReducer,
 
     // Feature stores
-    example: exampleReducer,
     // Add more feature reducers here as you create new features
   },
   middleware: getDefaultMiddleware =>

@@ -1,17 +1,6 @@
 import { createBrowserRouter, RouteObject } from 'react-router-dom';
-import { ROUTES } from '@/constants';
 import { Layout } from './components/Layout';
-import {
-  HomePage,
-  AboutPage,
-  DashboardPage,
-  ProfilePage,
-  NotFoundPage,
-  UIDemoPage,
-  ButtonsDemoPage,
-  DatePickerDemoPage,
-  PageWrapperDemoPage,
-} from './pages';
+import { HomePage, NotFoundPage } from './pages';
 
 /**
  * Application Routes Configuration
@@ -22,40 +11,16 @@ const routes: RouteObject[] = [
   {
     path: '/',
     element: <Layout />,
+    errorElement: (
+      <div className="p-10 text-red-500">
+        <h1>Application Error</h1>
+        <p>Check console for details.</p>
+      </div>
+    ),
     children: [
       {
         index: true,
         element: <HomePage />,
-      },
-      {
-        path: ROUTES.ABOUT,
-        element: <AboutPage />,
-      },
-      {
-        path: ROUTES.DASHBOARD,
-        element: <DashboardPage />,
-      },
-      {
-        path: ROUTES.PROFILE,
-        element: <ProfilePage />,
-      },
-      {
-        path: ROUTES.UI_DEMO,
-        element: <UIDemoPage />,
-        children: [
-          {
-            path: ROUTES.UI_DEMO_BUTTONS,
-            element: <ButtonsDemoPage />,
-          },
-          {
-            path: ROUTES.UI_DEMO_DATEPICKER,
-            element: <DatePickerDemoPage />,
-          },
-          {
-            path: ROUTES.UI_DEMO_PAGEWRAPPER,
-            element: <PageWrapperDemoPage />,
-          },
-        ],
       },
       {
         path: '*',
