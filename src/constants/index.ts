@@ -9,15 +9,8 @@ export const APP_NAME = 'IEEE CUSB Frontend';
 
 export const ROUTES = {
   HOME: '/',
-  ABOUT: '/about',
   LOGIN: '/login',
   REGISTER: '/register',
-  DASHBOARD: '/dashboard',
-  PROFILE: '/profile',
-  UI_DEMO: '/ui-demo',
-  UI_DEMO_BUTTONS: '/ui-demo/buttons',
-  UI_DEMO_DATEPICKER: '/ui-demo/datepicker',
-  UI_DEMO_PAGEWRAPPER: '/ui-demo/pagewrapper',
 } as const;
 
 export const PAGINATION = {
