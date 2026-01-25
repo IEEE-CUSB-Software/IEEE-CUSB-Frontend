@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+// import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { store } from '@/shared/store';
 import { queryClient } from './queryClient';
 
@@ -20,7 +20,7 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
       <QueryClientProvider client={queryClient}>
         {children}
         {/* React Query Devtools - only shows in development */}
-        <ReactQueryDevtools initialIsOpen={false} />
+        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
       </QueryClientProvider>
     </ReduxProvider>
   );
