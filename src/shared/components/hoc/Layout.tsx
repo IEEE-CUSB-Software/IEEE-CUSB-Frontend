@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { PageLoader } from '@ieee-ui/ui';
-import { Navbar } from './Navbar';
-import { MobileNavbar } from './MobileNavbar';
+import { Navbar } from '@/shared/components/hoc/Navbar';
+import { MobileNavbar } from '@/shared/components/hoc/MobileNavbar';
 import { Footer } from './Footer';
 import { useEffect, useState } from 'react';
 
@@ -12,14 +12,12 @@ import { useEffect, useState } from 'react';
 
 export const Layout = () => {
   const location = useLocation();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Hide loader after a short delay (simulating page load)
-    setIsLoading(true);
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 200);
+    }, 400); // Slightly longer to show loader on navigation
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
