@@ -1,5 +1,5 @@
 import { createBrowserRouter, RouteObject } from 'react-router-dom';
-import { Layout } from './components/Layout';
+import { Layout } from '../shared/components/hoc/Layout';
 import { HomePage, NotFoundPage } from './pages';
 
 /**
@@ -10,7 +10,7 @@ import { HomePage, NotFoundPage } from './pages';
 const routes: RouteObject[] = [
   {
     path: '/',
-    element: <HomePage />,
+    element: <Layout />,
     children: [
       {
         index: true,
