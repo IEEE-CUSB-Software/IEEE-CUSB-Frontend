@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouteObject } from 'react-router-dom';
 import { Layout } from '../shared/components/hoc/Layout';
 import { HomePage, NotFoundPage } from './pages';
+import EventsPage from './pages/EventsPage';
 
 /**
  * Application Routes Configuration
@@ -15,6 +16,10 @@ const routes: RouteObject[] = [
       {
         index: true,
         element: <HomePage />,
+      },
+      {
+        path:'/events',
+        element: <EventsPage />,
       },
       {
         path: '*',
