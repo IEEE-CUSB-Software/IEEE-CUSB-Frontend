@@ -2,6 +2,11 @@ import { createBrowserRouter, RouteObject } from 'react-router-dom';
 import { Layout } from '../shared/components/hoc/Layout';
 import { HomePage, NotFoundPage } from './pages';
 import EventsPage from './pages/EventsPage';
+import { AdminLayout } from '../features/admin/layouts/AdminLayout';
+import { DashboardPage } from '../features/admin/pages/DashboardPage';
+import { EventsPage as AdminEventsPage } from '../features/admin/pages/EventsPage';
+import { WorkshopsPage } from '../features/admin/pages/WorkshopsPage';
+import { PostsPage } from '../features/admin/pages/PostsPage';
 
 /**
  * Application Routes Configuration
@@ -9,6 +14,28 @@ import EventsPage from './pages/EventsPage';
  */
 
 const routes: RouteObject[] = [
+  {
+    path: '/admin',
+    element: <AdminLayout />,
+    children: [
+      {
+        index: true,
+        element: <DashboardPage />,
+      },
+      {
+        path: 'events',
+        element: <AdminEventsPage />,
+      },
+      {
+        path: 'workshops',
+        element: <WorkshopsPage />,
+      },
+      {
+        path: 'posts',
+        element: <PostsPage />,
+      },
+    ],
+  },
   {
     path: '/',
     element: <Layout />,
@@ -18,7 +45,7 @@ const routes: RouteObject[] = [
         element: <HomePage />,
       },
       {
-        path:'/events',
+        path: '/events',
         element: <EventsPage />,
       },
       {
