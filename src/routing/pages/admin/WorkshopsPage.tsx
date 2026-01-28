@@ -106,8 +106,8 @@ export const WorkshopsPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Workshops</h1>
-          <p className="text-gray-500">
+          <h1 className="text-2xl font-bold text-gray-900 sm:text-center">Workshops</h1>
+          <p className="text-gray-500 sm:text-center">
             Manage technical workshops and sessions
           </p>
         </div>

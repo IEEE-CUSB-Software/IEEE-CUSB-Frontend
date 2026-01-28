@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { MdAdd } from 'react-icons/md';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { Table, type ColumnDef } from '@ieee-ui/ui';
-import AddEditPostModal from '../components/posts/AddEditPostModal';
+import AddEditPostModal from '../../../features/admin/components/posts/AddEditPostModal';
 
 // Mock Data
 const posts = [
@@ -86,8 +86,12 @@ export const PostsPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Blog Posts</h1>
-          <p className="text-gray-500">Manage blog posts and articles</p>
+          <h1 className="text-2xl font-bold text-gray-900 sm:text-center">
+            Blog Posts
+          </h1>
+          <p className="text-gray-500 sm:text-center">
+            Manage blog posts and articles
+          </p>
         </div>
 
         <button

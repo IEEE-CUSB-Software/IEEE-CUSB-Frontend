@@ -2,8 +2,8 @@ import { useState, useMemo } from 'react';
 // import { useSearchParams } from 'react-router-dom';
 import { MdAdd } from 'react-icons/md';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
-import AddEditEventModal from '../components/eventAdminPanel/AddEditEventModal';
-import type { EventFormData } from '../types/eventModalTypes';
+import AddEditEventModal from '../../../features/admin/components/eventAdminPanel/AddEditEventModal';
+import type { EventFormData } from '../../../features/admin/types/eventModalTypes';
 import { Table, type ColumnDef } from '@ieee-ui/ui';
 
 // Mock Data
@@ -82,8 +82,12 @@ export const EventsPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Event Management</h1>
-          <p className="text-gray-500">Create and manage upcoming events</p>
+          <h1 className="text-2xl font-bold text-gray-900 sm:text-center">
+            Event Management
+          </h1>
+          <p className="text-gray-500 sm:text-center">
+            Create and manage upcoming events
+          </p>
         </div>
 
         <button
