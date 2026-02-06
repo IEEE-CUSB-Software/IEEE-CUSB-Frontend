@@ -2,8 +2,8 @@ import { useState, useMemo } from 'react';
 // import { useSearchParams } from 'react-router-dom';
 import { MdAdd } from 'react-icons/md';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
-import AddEditEventModal from '../../../features/admin/components/eventAdminPanel/AddEditEventModal';
-import type { EventFormData } from '../../../features/admin/types/eventModalTypes';
+import AddEditEventModal from '@/features/admin/components/eventAdminPanel/AddEditEventModal';
+import type { EventFormData } from '@/features/admin/types/eventModalTypes';
 import { Table, type ColumnDef } from '@ieee-ui/ui';
 
 // Mock Data
