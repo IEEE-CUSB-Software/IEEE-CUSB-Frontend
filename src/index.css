@@ -2,6 +2,9 @@
 @import 'tailwindcss';
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
 
+/* Disable automatic dark mode based on system preference */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Light theme - IEEE Brand Colors */
 @theme {
   /* ... existing theme colors ... */
