@@ -6,6 +6,7 @@ import {
   LoginPage,
   RegisterPage,
   UnderConstructionPage,
+  EventDetailsPage,
 } from './pages';
 import EventsPage from './pages/EventsPage';
 import { AdminLayout } from '../features/admin/layouts/AdminLayout';
@@ -85,6 +86,10 @@ const routes: RouteObject[] = [
       {
         path: 'events',
         element: <EventsPage />, // Events - Working
+      },
+      {
+        path: 'events/:id',
+        element: <EventDetailsPage />, // Event Details - Working
       },
       {
         path: 'workshops',

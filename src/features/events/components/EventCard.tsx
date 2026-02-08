@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { HiCalendar, HiLocationMarker, HiClock } from 'react-icons/hi';
+import { useNavigate } from 'react-router-dom';
 
 interface EventCardProps {
   event: {
@@ -19,6 +20,8 @@ interface EventCardProps {
 }
 
 export const EventCard = ({ event, index }: EventCardProps) => {
+  const navigate = useNavigate();
+
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
       case 'technical':
@@ -115,6 +118,7 @@ export const EventCard = ({ event, index }: EventCardProps) => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             transition={{ duration: 0.15 }}
+            onClick={() => navigate(`/events/${event.id}`)}
             className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 hover:shadow-lg ${
               event.status === 'Completed'
                 ? 'bg-gray-100 text-gray-500 hover:bg-gray-500 hover:text-gray-100'
