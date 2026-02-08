@@ -1,12 +1,16 @@
 import { createBrowserRouter, RouteObject } from 'react-router-dom';
 import { Layout } from '../shared/components/hoc/Layout';
-import { HomePage, NotFoundPage } from './pages';
+import { ProtectedRoute } from '../shared/components/hoc/ProtectedRoute';
+import {
+  NotFoundPage,
+  LoginPage,
+  RegisterPage,
+  UnderConstructionPage,
+} from './pages';
 import EventsPage from './pages/EventsPage';
 import { AdminLayout } from '../features/admin/layouts/AdminLayout';
-import { DashboardPage } from './pages/admin/DashboardPage';
 import { EventsPage as AdminEventsPage } from './pages/admin/EventsPage';
-import { WorkshopsPage } from './pages/admin/WorkshopsPage';
-import { PostsPage } from './pages/admin/PostsPage';
+import { RoleName } from '@/shared/types/auth.types';
 
 /**
  * Application Routes Configuration
@@ -14,25 +18,51 @@ import { PostsPage } from './pages/admin/PostsPage';
  */
 
 const routes: RouteObject[] = [
+  // Auth Routes (no layout)
+  {
+    path: '/login',
+    element: <LoginPage />,
+  },
+  {
+    path: '/register',
+    element: <RegisterPage />,
+  },
+  // Admin Routes (Protected - requires Admin or Super Admin role)
   {
     path: '/admin',
-    element: <AdminLayout />,
+    element: (
+      <ProtectedRoute requiredRoles={[RoleName.ADMIN, RoleName.SUPER_ADMIN]}>
+        <AdminLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,
-        element: <DashboardPage />,
+        element: <UnderConstructionPage />, // Dashboard - Under Construction
       },
       {
         path: 'events',
-        element: <AdminEventsPage />,
+        element: <AdminEventsPage />, // Events - Working
       },
       {
         path: 'workshops',
-        element: <WorkshopsPage />,
+        element: <UnderConstructionPage />, // Workshops - Under Construction
       },
       {
         path: 'posts',
-        element: <PostsPage />,
+        element: <UnderConstructionPage />, // Posts - Under Construction
+      },
+      {
+        path: 'locations',
+        element: <UnderConstructionPage />, // Locations - Under Construction
+      },
+      {
+        path: 'users',
+        element: <UnderConstructionPage />, // Users - Under Construction
+      },
+      {
+        path: 'statistics',
+        element: <UnderConstructionPage />, // Statistics - Under Construction
       },
     ],
   },
@@ -42,11 +72,27 @@ const routes: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <HomePage />,
+        element: <UnderConstructionPage />, // Home - Under Construction
       },
       {
-        path: '/events',
-        element: <EventsPage />,
+        path: 'about',
+        element: <UnderConstructionPage />, // About Us - Under Construction
+      },
+      {
+        path: 'committees',
+        element: <UnderConstructionPage />, // Committees - Under Construction
+      },
+      {
+        path: 'events',
+        element: <EventsPage />, // Events - Working
+      },
+      {
+        path: 'workshops',
+        element: <UnderConstructionPage />, // Workshops - Under Construction
+      },
+      {
+        path: 'join',
+        element: <UnderConstructionPage />, // Join Us - Under Construction
       },
       {
         path: '*',
