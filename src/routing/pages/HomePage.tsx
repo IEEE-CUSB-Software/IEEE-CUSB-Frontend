@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { initSmoothScroll } from '@/shared/utils/smoothScroll';
-import { Navigation } from './components/Navigation';
-import { HeroSection } from './components/HeroSection';
-import { StatsSection } from './components/StatsSection';
-import { LatestNewsSection } from './components/LatestNewsSection';
-import { EmpoweringSection } from './components/EmpoweringSection';
-import { Footer } from './components/Footer';
+import { HeroSection } from '@/features/home/components/HeroSection';
+import { StatsSection } from '@/features/home/components/StatsSection';
+import { LatestNewsSection } from '@/features/home/components/LatestNewsSection';
+import { EmpoweringSection } from '@/features/home/components/EmpoweringSection';
 
 export const HomePage = () => {
   // Initialize smooth scroll
@@ -20,20 +18,21 @@ export const HomePage = () => {
   // Auto-rotate cards every 4 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveCardIndex((prev) => (prev + 1) % 3);
+      setActiveCardIndex(prev => (prev + 1) % 3);
     }, 4000);
 
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navigation />
-      <HeroSection activeCardIndex={activeCardIndex} onCardExpand={setActiveCardIndex} />
+    <div className="bg-white">
+      <HeroSection
+        activeCardIndex={activeCardIndex}
+        onCardExpand={setActiveCardIndex}
+      />
       <StatsSection />
       <LatestNewsSection />
       <EmpoweringSection />
-      <Footer />
     </div>
   );
 };
