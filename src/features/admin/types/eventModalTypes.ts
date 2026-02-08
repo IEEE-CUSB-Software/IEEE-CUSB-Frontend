@@ -1,10 +1,10 @@
-import type Event from '@/shared/types/events';
+import type { AdminEvent } from '../utils/eventConversion';
 import type { EventFormData } from './eventFormTypes';
 export type { EventFormData };
 
 export interface AddEditEventModalProps {
   isOpen: boolean;
-  event?: Event;
+  event?: AdminEvent;
   onClose: () => void;
   onSave: (eventFormData: EventFormData) => void;
 }
@@ -18,30 +18,19 @@ export interface MediaItem {
 export interface EventFormValues {
   title: string;
   description: string;
-  eventPoster: File | string;
-  eventPosterPreview?: string;
-  media: MediaItem[];
-  sponsors: string[];
-  date: string;
+  startTime: string;
+  endTime: string;
+  registrationDeadline: string;
   location: string;
-  eventType: string;
-  category: string;
   capacity: string;
-  registeredCount: string;
-  attendeeCount: string;
 }
 
 export interface FormErrors {
   title?: string;
   description?: string;
-  eventPoster?: string;
-  media?: string;
-  sponsors?: string;
-  date?: string;
+  startTime?: string;
+  endTime?: string;
+  registrationDeadline?: string;
   location?: string;
-  eventType?: string;
-  category?: string;
   capacity?: string;
-  registeredCount?: string;
-  attendeeCount?: string;
 }

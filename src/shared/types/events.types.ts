@@ -90,6 +90,10 @@ export interface EventApiResponse<T> {
  */
 export interface PaginatedEventsResponse {
   data: Event[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
   count: number;
   message: string;
 }

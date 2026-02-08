@@ -1,11 +1,10 @@
-import EVENT_TYPES from "@/constants/EventTypes";
-import type Event from "@/shared/types/events";
-import type { EventFormValues, FormErrors } from "../types/eventModalTypes";
-import type { EventFormData } from "../types/eventFormTypes";
+import type { AdminEvent } from './eventConversion';
+import type { EventFormValues, FormErrors } from '../types/eventModalTypes';
+import type { EventFormData } from '../types/eventFormTypes';
 import {
   EVENT_FORM_CONSTRAINTS,
   ERROR_MESSAGES,
-} from "../constants/eventModalConstants";
+} from '../constants/eventModalConstants';
 
 export const validateFile = (file: File): string | undefined => {
   // Check file size
@@ -14,7 +13,7 @@ export const validateFile = (file: File): string | undefined => {
   }
   // Check file type
   const allowedTypes = EVENT_FORM_CONSTRAINTS.file.allowedImageTypes;
-  if (!allowedTypes.some((type) => type === file.type)) {
+  if (!allowedTypes.some(type => type === file.type)) {
     return ERROR_MESSAGES.format.eventPosterFile;
   }
 
@@ -31,7 +30,7 @@ export const validateEventPoster = (
   }
 
   // If it's a string, validate as URL
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     if (!value.trim()) return ERROR_MESSAGES.required.eventPoster;
     if (!/^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i.test(value)) {
       return ERROR_MESSAGES.format.eventPoster;
@@ -43,23 +42,13 @@ export const validateEventPoster = (
 
 export const validateField = (
   field: keyof EventFormValues,
-  value: string | File,
+  value: string,
   formValues?: EventFormValues
 ): string | undefined => {
-  // Special handling for eventPoster which can be File or string
-  if (field === "eventPoster") {
-    return validateEventPoster(value);
-  }
-
-  // For all other fields, ensure value is a string
-  if (value instanceof File) {
-    return "Invalid field type";
-  }
-
   const stringValue = value as string;
 
   switch (field) {
-    case "title": {
+    case 'title': {
       if (!stringValue.trim()) return ERROR_MESSAGES.required.title;
       if (stringValue.trim().length < EVENT_FORM_CONSTRAINTS.title.minLength) {
         return ERROR_MESSAGES.length.titleMin;
@@ -70,7 +59,7 @@ export const validateField = (
       break;
     }
 
-    case "description": {
+    case 'description': {
       if (!stringValue.trim()) return ERROR_MESSAGES.required.description;
       if (
         stringValue.trim().length < EVENT_FORM_CONSTRAINTS.description.minLength
@@ -85,15 +74,32 @@ export const validateField = (
       break;
     }
 
-    case "date": {
-      if (!stringValue.trim()) return ERROR_MESSAGES.required.date;
+    case 'startTime':
+    case 'endTime':
+    case 'registrationDeadline': {
+      if (!stringValue.trim()) return `${field} is required`;
       const eventDate = new Date(stringValue);
-      if (isNaN(eventDate.getTime())) return ERROR_MESSAGES.format.invalidDate;
-      // Allow past dates for past events
+      if (isNaN(eventDate.getTime())) return 'Invalid date/time format';
+
+      // Validate end time is after start time
+      if (field === 'endTime' && formValues?.startTime) {
+        const startDate = new Date(formValues.startTime);
+        if (eventDate <= startDate) {
+          return 'End time must be after start time';
+        }
+      }
+
+      // Validate registration deadline is before start time
+      if (field === 'registrationDeadline' && formValues?.startTime) {
+        const startDate = new Date(formValues.startTime);
+        if (eventDate >= startDate) {
+          return 'Registration deadline must be before event start time';
+        }
+      }
       break;
     }
 
-    case "location": {
+    case 'location': {
       if (!stringValue.trim()) return ERROR_MESSAGES.required.location;
       if (
         stringValue.trim().length < EVENT_FORM_CONSTRAINTS.location.minLength
@@ -108,30 +114,7 @@ export const validateField = (
       break;
     }
 
-    case "eventType": {
-      if (!stringValue.trim()) return ERROR_MESSAGES.required.eventType;
-      const validTypes = EVENT_TYPES.map((t) => t.value);
-      if (!validTypes.includes(stringValue))
-        return ERROR_MESSAGES.validation.invalidEventType;
-      break;
-    }
-
-    case "category": {
-      if (!stringValue.trim()) return ERROR_MESSAGES.required.category;
-      if (
-        stringValue.trim().length < EVENT_FORM_CONSTRAINTS.category.minLength
-      ) {
-        return ERROR_MESSAGES.length.categoryMin;
-      }
-      if (
-        stringValue.trim().length > EVENT_FORM_CONSTRAINTS.category.maxLength
-      ) {
-        return ERROR_MESSAGES.length.categoryMax;
-      }
-      break;
-    }
-
-    case "capacity": {
+    case 'capacity': {
       if (!value.trim()) return ERROR_MESSAGES.required.capacity;
       const capacity = parseInt(value, 10);
       if (isNaN(capacity)) return ERROR_MESSAGES.validation.mustBeNumber;
@@ -141,67 +124,24 @@ export const validateField = (
       if (capacity > EVENT_FORM_CONSTRAINTS.capacity.max) {
         return ERROR_MESSAGES.validation.capacityMax;
       }
-
-      // Check if capacity is less than registered count
-      if (formValues) {
-        const registered = parseInt(formValues.registeredCount || "0", 10);
-        if (!isNaN(registered) && capacity < registered) {
-          return ERROR_MESSAGES.validation.capacityLessThanRegistered;
-        }
-      }
       break;
     }
 
-    case "registeredCount": {
-      if (!value.trim()) return ERROR_MESSAGES.required.registeredCount;
-      const registered = parseInt(value, 10);
-      if (isNaN(registered)) return ERROR_MESSAGES.validation.mustBeNumber;
-      if (registered < 0) return ERROR_MESSAGES.validation.registeredNegative;
-
-      // Check if registered count exceeds capacity
-      if (formValues) {
-        const capacity = parseInt(formValues.capacity || "0", 10);
-        if (!isNaN(capacity) && registered > capacity) {
-          return ERROR_MESSAGES.validation.registeredExceedsCapacity;
-        }
-      }
+    default:
       break;
-    }
-
-    case "attendeeCount": {
-      if (!value.trim()) return ERROR_MESSAGES.required.attendeeCount;
-      const attendees = parseInt(value, 10);
-      if (isNaN(attendees)) return ERROR_MESSAGES.validation.mustBeNumber;
-      if (attendees < 0) return ERROR_MESSAGES.validation.attendeeNegative;
-
-      // Check if attendee count exceeds registered count
-      if (formValues) {
-        const registered = parseInt(formValues.registeredCount || "0", 10);
-        if (!isNaN(registered) && attendees > registered) {
-          return ERROR_MESSAGES.validation.attendeeExceedsRegistered;
-        }
-      }
-      break;
-    }
   }
+
   return undefined;
 };
 
 export const validateAllFields = (formValues: EventFormValues): FormErrors => {
   const newErrors: FormErrors = {};
 
-  // Validate each field, skip eventPosterPreview as it's just for display
-  (Object.keys(formValues) as Array<keyof EventFormValues>).forEach((field) => {
-    if (
-      field === "eventPosterPreview" ||
-      field === "media" ||
-      field === "sponsors"
-    )
-      return; // Skip preview, media, and sponsors fields
-
+  // Validate each field
+  (Object.keys(formValues) as Array<keyof EventFormValues>).forEach(field => {
     const value = formValues[field];
     if (value !== undefined) {
-      const error = validateField(field, value as string | File, formValues);
+      const error = validateField(field, value as string, formValues);
       if (error) {
         newErrors[field as keyof FormErrors] = error;
       }
@@ -211,74 +151,58 @@ export const validateAllFields = (formValues: EventFormValues): FormErrors => {
   return newErrors;
 };
 
-export const convertEventToFormValues = (event?: Event): EventFormValues => {
+export const convertEventToFormValues = (
+  event?: AdminEvent
+): EventFormValues => {
   if (!event) {
     return {
-      title: "",
-      description: "",
-      eventPoster: "",
-      eventPosterPreview: "",
-      media: [],
-      sponsors: [],
-      date: "",
-      location: "",
-      eventType: "",
-      category: "",
-      capacity: "",
-      registeredCount: "0",
-      attendeeCount: "0",
+      title: '',
+      description: '',
+      startTime: '',
+      endTime: '',
+      registrationDeadline: '',
+      location: '',
+      capacity: '',
     };
   }
 
-  // Convert media array to MediaItem[]
-  const mediaItems =
-    event.media?.map((url, index) => ({
-      id: `media-${index}`,
-      file: url,
-      preview: url,
-    })) || [];
+  // Convert date from AdminEvent format (ISO string) to datetime-local format
+  const startDate = new Date(event.date);
+  const formattedStartTime = startDate.toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
+
+  // Default end time 2 hours after start
+  const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
+  const formattedEndTime = endDate.toISOString().slice(0, 16);
+
+  // Default registration deadline 1 day before start
+  const deadlineDate = new Date(startDate.getTime() - 24 * 60 * 60 * 1000);
+  const formattedDeadline = deadlineDate.toISOString().slice(0, 16);
 
   return {
     title: event.title,
     description: event.description,
-    eventPoster: event.eventPoster, // Keep as string URL
-    eventPosterPreview: event.eventPoster, // Set preview to existing URL
-    media: mediaItems,
-    sponsors: event.sponsors || [], // Array of sponsor IDs
-    date: new Date(event.date).toISOString().slice(0, 16),
+    startTime: formattedStartTime,
+    endTime: formattedEndTime,
+    registrationDeadline: formattedDeadline,
     location: event.location,
-    eventType: event.eventType,
-    category: event.category,
     capacity: event.capacity.toString(),
-    registeredCount: event.registeredCount.toString(),
-    attendeeCount: event.attendeeCount.toString(),
   };
 };
 
 export const convertFormValuesToEventFormData = (
   formValues: EventFormValues,
-  existingEvent?: Event
+  existingEvent?: AdminEvent
 ): EventFormData => {
-  const eventPoster = formValues.eventPoster;
-  const posterValue =
-    typeof eventPoster === "string" ? eventPoster.trim() : eventPoster;
-
-  // Convert media items to File | string array
-  const mediaArray = formValues.media.map((item) => item.file);
-
   return {
     id: existingEvent?.id,
     title: formValues.title.trim(),
     description: formValues.description.trim(),
-    eventPoster: posterValue,
-    eventType: formValues.eventType,
-    media: mediaArray.length > 0 ? mediaArray : undefined,
-    sponsors: formValues.sponsors.length > 0 ? formValues.sponsors : undefined, // Array of sponsor IDs
-    date: new Date(formValues.date).toISOString(),
     location: formValues.location.trim(),
-    category: formValues.category.trim(),
+    start_time: new Date(formValues.startTime).toISOString(),
+    end_time: new Date(formValues.endTime).toISOString(),
     capacity: parseInt(formValues.capacity, 10),
-    registeredCount: parseInt(formValues.registeredCount, 10),
-    attendeeCount: parseInt(formValues.attendeeCount, 10),
+    registration_deadline: new Date(
+      formValues.registrationDeadline
+    ).toISOString(),
   };
 };

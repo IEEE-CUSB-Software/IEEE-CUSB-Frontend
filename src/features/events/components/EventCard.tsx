@@ -3,7 +3,7 @@ import { HiCalendar, HiLocationMarker, HiClock } from 'react-icons/hi';
 
 interface EventCardProps {
   event: {
-    id: number;
+    id: string | number;
     title: string;
     category: string;
     categoryBadge: string;
@@ -49,13 +49,15 @@ export const EventCard = ({ event, index }: EventCardProps) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -12 }}
       transition={{
         duration: 0.5,
         delay: index * 0.1,
         ease: 'easeOut',
+        type: 'spring',
+        stiffness: 300,
+        damping: 20,
       }}
-      whileHover={{ y: -12 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       className={`bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-150 h-full flex flex-col group ${
         event.status === 'Completed' ? 'opacity-75' : ''
       }`}

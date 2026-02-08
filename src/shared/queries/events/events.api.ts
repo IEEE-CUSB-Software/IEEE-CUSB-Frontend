@@ -29,11 +29,12 @@ export const eventsApi = {
 
   /**
    * Get all events with pagination
+   * Backend returns: { data: { data: Event[], total, page, limit, totalPages }, count, message }
    */
   getEvents: async (
     params: PaginationParams
   ): Promise<PaginatedEventsResponse> => {
-    const response = await apiClient.get<PaginatedEventsResponse>(
+    const response = await apiClient.get<{ data: PaginatedEventsResponse }>(
       API_ENDPOINTS.EVENTS.GET_ALL,
       {
         params: {
@@ -42,7 +43,8 @@ export const eventsApi = {
         },
       }
     );
-    return response.data;
+    // Unwrap the nested data structure
+    return response.data.data;
   },
 
   /**
