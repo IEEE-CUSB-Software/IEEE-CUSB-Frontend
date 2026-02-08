@@ -1,11 +1,4 @@
-/**
- * Authentication Types
- * These types match the backend DTOs and entities
- */
 
-/**
- * Role enum matching backend RoleName enum
- */
 export enum RoleName {
   SUPER_ADMIN = 'Super Admin',
   ADMIN = 'Admin',
@@ -68,7 +61,6 @@ export interface LoginResponse {
 
 /**
  * Register Request DTO
- * Note: role is not included - defaults to Visitor on backend
  */
 export interface RegisterRequest {
   email: string;
