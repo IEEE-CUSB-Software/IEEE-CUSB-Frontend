@@ -100,6 +100,14 @@ const routes: RouteObject[] = [
         element: <UnderConstructionPage />, // Join Us - Under Construction
       },
       {
+        path: 'profile',
+        element: <UnderConstructionPage />, // Profile - Under Construction
+      },
+      {
+        path: 'settings',
+        element: <UnderConstructionPage />, // Settings - Under Construction
+      },
+      {
         path: '*',
         element: <NotFoundPage />,
       },
