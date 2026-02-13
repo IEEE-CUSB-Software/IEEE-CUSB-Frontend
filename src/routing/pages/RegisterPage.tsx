@@ -3,7 +3,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
 import { registerSchema, type RegisterFormData } from '@/features/auth/schemas';
 import { useRegister } from '@/shared/queries/auth';
-import { Button, InputField } from '@ieee-ui/ui';
+import { Button, InputField, Select } from '@ieee-ui/ui';
+import UniversityList from '@/constants/universityList';
+import FacultyList from '@/constants/facultyList';
+import DepartmentList from '@/constants/departmentList';
 import logo from '@/assets/logo.png';
 import { useTheme } from '@/shared/hooks/useTheme';
 
@@ -181,14 +184,14 @@ export const RegisterPage = () => {
                 >
                   University *
                 </label>
-                <InputField
+                <Select
                   id="university"
-                  type="text"
-                  placeholder="Cairo University"
                   {...registerField('university')}
+                  options={UniversityList.map(u => ({ value: u, label: u }))}
                   error={errors.university?.message}
                   disabled={isPending}
                   darkMode={isDark}
+                  placeholder="Select university"
                 />
               </div>
 
@@ -200,14 +203,14 @@ export const RegisterPage = () => {
                 >
                   Faculty *
                 </label>
-                <InputField
+                <Select
                   id="faculty"
-                  type="text"
-                  placeholder="Engineering"
                   {...registerField('faculty')}
+                  options={FacultyList.map(f => ({ value: f, label: f }))}
                   error={errors.faculty?.message}
                   disabled={isPending}
                   darkMode={isDark}
+                  placeholder="Select faculty"
                 />
               </div>
             </div>
@@ -221,35 +224,36 @@ export const RegisterPage = () => {
                 >
                   Academic Year *
                 </label>
-                <InputField
+                <Select
                   id="academic_year"
-                  type="number"
-                  min="1"
-                  max="6"
-                  placeholder="1"
-                  {...registerField('academic_year', { valueAsNumber: true })}
+                  {...registerField('academic_year')}
+                  options={Array.from({ length: 5 }, (_, i) => ({
+                    value: String(i + 1),
+                    label: `Year ${i + 1}`,
+                  }))}
                   error={errors.academic_year?.message}
                   disabled={isPending}
                   darkMode={isDark}
+                  placeholder="Select year"
                 />
               </div>
 
-              {/* Major */}
+              {/* Department (Major) */}
               <div>
                 <label
                   htmlFor="major"
                   className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
                 >
-                  Major
+                  Department
                 </label>
-                <InputField
+                <Select
                   id="major"
-                  type="text"
-                  placeholder="Computer Engineering"
                   {...registerField('major')}
+                  options={DepartmentList.map(d => ({ value: d, label: d }))}
                   error={errors.major?.message}
                   disabled={isPending}
                   darkMode={isDark}
+                  placeholder="Select department"
                 />
               </div>
             </div>

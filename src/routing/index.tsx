@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouteObject } from 'react-router-dom';
 import { Layout } from '../shared/components/hoc/Layout';
 import { ProtectedRoute } from '../shared/components/hoc/ProtectedRoute';
+import { PublicRoute } from '../shared/components/hoc/PublicRoute';
 import {
   NotFoundPage,
   LoginPage,
@@ -21,12 +22,17 @@ import { RoleName } from '@/shared/types/auth.types';
 const routes: RouteObject[] = [
   // Auth Routes (no layout)
   {
-    path: '/login',
-    element: <LoginPage />,
-  },
-  {
-    path: '/register',
-    element: <RegisterPage />,
+    element: <PublicRoute />,
+    children: [
+      {
+        path: '/login',
+        element: <LoginPage />,
+      },
+      {
+        path: '/register',
+        element: <RegisterPage />,
+      },
+    ],
   },
   // Admin Routes (Protected - requires Admin or Super Admin role)
   {
