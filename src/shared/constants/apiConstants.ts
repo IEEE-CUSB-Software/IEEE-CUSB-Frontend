@@ -40,16 +40,16 @@ export const API_ENDPOINTS = {
 
   // Events endpoints
   EVENTS: {
-    CREATE: '/events',
+    CREATE: '/admin/events',
     GET_ALL: '/events',
     GET_ONE: (id: string) => `/events/${id}`,
     UPDATE: (id: string) => `/admin/events/${id}`,
     DELETE: (id: string) => `/admin/events/${id}`,
     REGISTER: (id: string) => `/events/${id}/register`,
-    CANCEL_REGISTRATION: (id: string) => `/admin/events/${id}/cancel`,
+    CANCEL_REGISTRATION: (id: string) => `/events/${id}/cancel`,
     GET_REGISTRATIONS: (id: string) => `/admin/events/${id}/registrations`,
     UPDATE_REGISTRATION_STATUS: (eventId: string, registrationId: string) =>
-      `admin//events/${eventId}/registrations/${registrationId}/status`,
+      `admin/events/${eventId}/registrations/${registrationId}/status`,
   },
 } as const;
 
