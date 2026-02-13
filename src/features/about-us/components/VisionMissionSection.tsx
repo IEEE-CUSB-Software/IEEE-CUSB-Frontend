@@ -1,9 +1,15 @@
 import { motion } from 'framer-motion';
 import { HiEye, HiLightningBolt } from 'react-icons/hi';
 
-export const VisionMissionSection = () => {
+interface VisionMissionSectionProps {
+  darkMode?: boolean;
+}
+
+export const VisionMissionSection = ({
+  darkMode,
+}: VisionMissionSectionProps) => {
   return (
-    <section className="bg-white py-20 px-6">
+    <section className={`py-20 px-6 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12">
           {/* Our Vision */}
@@ -15,14 +21,32 @@ export const VisionMissionSection = () => {
             className="space-y-4"
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-info/10 rounded-xl flex items-center justify-center">
-                <HiEye className="w-6 h-6 text-info" />
+              <div
+                className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                  darkMode ? 'bg-blue-900/40' : 'bg-blue-50'
+                }`}
+              >
+                <HiEye
+                  className={`w-6 h-6 ${
+                    darkMode ? 'text-blue-300' : 'text-blue-600'
+                  }`}
+                />
               </div>
-              <h2 className="text-3xl font-bold text-gray-900">Our Vision</h2>
+              <h2
+                className={`text-3xl font-bold ${
+                  darkMode ? 'text-white' : 'text-gray-900'
+                }`}
+              >
+                Our Vision
+              </h2>
             </div>
 
             <div className="pl-15">
-              <p className="text-lg text-gray-700 leading-relaxed">
+              <p
+                className={`text-lg leading-relaxed ${
+                  darkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}
+              >
                 "To be the leading student organization empowering future
                 engineers to drive technological innovation globally."
               </p>
@@ -38,18 +62,36 @@ export const VisionMissionSection = () => {
             className="space-y-4"
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+              <div
+                className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                  darkMode ? 'bg-primary/20' : 'bg-primary/10'
+                }`}
+              >
                 <HiLightningBolt className="w-6 h-6 text-primary" />
               </div>
-              <h2 className="text-3xl font-bold text-gray-900">Our Mission</h2>
+              <h2
+                className={`text-3xl font-bold ${
+                  darkMode ? 'text-white' : 'text-gray-900'
+                }`}
+              >
+                Our Mission
+              </h2>
             </div>
 
-            <div className="pl-15 border-l-4 border-info/20 pl-6">
-              <p className="text-lg text-gray-700 leading-relaxed mb-4">
+            <div
+              className={`border-l-4 pl-6 ${
+                darkMode ? 'border-blue-900/40' : 'border-blue-50'
+              }`}
+            >
+              <p
+                className={`text-lg leading-relaxed mb-4 ${
+                  darkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}
+              >
                 Provide a platform for technical growth, professional networking
                 and soft skills development.
               </p>
-              <p className="text-gray-600">
+              <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 We aim to bridge the gap between academic knowledge and industry
                 requirements through workshops, competitions, and conferences.
               </p>

@@ -6,7 +6,11 @@ import { LegacyTimelineSection } from '@/features/about-us/components/LegacyTime
 import { TrophiesAwardsSection } from '@/features/about-us/components/TrophiesAwardsSection';
 import { JoinLegacyCTA } from '@/features/about-us/components/JoinLegacyCTA';
 
+import { useTheme } from '@/shared/hooks/useTheme';
+
 export const AboutUsPage = () => {
+  const { isDark } = useTheme();
+
   // Initialize smooth scroll
   useEffect(() => {
     const cleanup = initSmoothScroll();
@@ -15,11 +19,11 @@ export const AboutUsPage = () => {
 
   return (
     <div className="bg-background">
-      <AboutUsHeroSection />
-      <VisionMissionSection />
-      <LegacyTimelineSection />
-      <TrophiesAwardsSection />
-      <JoinLegacyCTA />
+      <AboutUsHeroSection darkMode={isDark} />
+      <VisionMissionSection darkMode={isDark} />
+      <LegacyTimelineSection darkMode={isDark} />
+      <TrophiesAwardsSection darkMode={isDark} />
+      <JoinLegacyCTA darkMode={isDark} />
     </div>
   );
 };

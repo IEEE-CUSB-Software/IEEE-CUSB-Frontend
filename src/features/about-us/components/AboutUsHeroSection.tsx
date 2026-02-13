@@ -1,11 +1,20 @@
 import { motion } from 'framer-motion';
-import { SwishUnderline } from '@/features/home/components/SwishUnderline';
 import { HiDownload } from 'react-icons/hi';
 
-export const AboutUsHeroSection = () => {
+interface AboutUsHeroSectionProps {
+  darkMode?: boolean;
+}
+
+export const AboutUsHeroSection = ({ darkMode }: AboutUsHeroSectionProps) => {
   return (
-    <section className="relative min-h-screen px-6 flex items-center bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-7xl mx-auto w-full py-20">
+    <section
+      className={`relative min-h-screen px-6 flex items-center ${
+        darkMode
+          ? 'bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900'
+          : 'bg-gradient-to-b from-gray-50 to-white'
+      }`}
+    >
+      <div className="max-w-7xl mx-auto w-full">
         {/* Split Column Layout */}
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Column - Heading & Description */}
@@ -33,7 +42,9 @@ export const AboutUsHeroSection = () => {
                 delay: 0.4,
                 ease: [0.4, 0.0, 0.2, 1],
               }}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-[1.1] mb-6"
+              className={`text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] mb-6 ${
+                darkMode ? 'text-white' : 'text-gray-900'
+              }`}
             >
               Engineering the <span className="text-info">Future Together</span>
             </motion.h1>
@@ -46,7 +57,9 @@ export const AboutUsHeroSection = () => {
                 delay: 0.6,
                 ease: [0.4, 0.0, 0.2, 1],
               }}
-              className="text-base md:text-lg text-gray-600 leading-relaxed mb-8"
+              className={`text-base md:text-lg leading-relaxed mb-8 ${
+                darkMode ? 'text-gray-300' : 'text-gray-600'
+              }`}
             >
               We are a community of passionate students at Cairo University,
               dedicated to advancing technology and fostering innovation through

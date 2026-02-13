@@ -60,9 +60,15 @@ const awards: Award[] = [
   },
 ];
 
-export const TrophiesAwardsSection = () => {
+interface TrophiesAwardsSectionProps {
+  darkMode?: boolean;
+}
+
+export const TrophiesAwardsSection = ({
+  darkMode,
+}: TrophiesAwardsSectionProps) => {
   return (
-    <section className="bg-white py-24 px-6">
+    <section className={`py-24 px-6 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <motion.div
@@ -76,10 +82,18 @@ export const TrophiesAwardsSection = () => {
             HALL OF FAME
           </div>
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
+            <h2
+              className={`text-4xl md:text-5xl font-bold ${
+                darkMode ? 'text-white' : 'text-gray-900'
+              }`}
+            >
               Trophies & Awards
             </h2>
-            <p className="text-gray-600 max-w-xl">
+            <p
+              className={`max-w-xl ${
+                darkMode ? 'text-gray-300' : 'text-gray-600'
+              }`}
+            >
               Recognition of our dedication to excellence in technical
               education, volunteering, and website development on a global
               scale.
@@ -104,26 +118,42 @@ export const TrophiesAwardsSection = () => {
               <motion.div
                 whileHover={{ y: -8, scale: 1.02 }}
                 transition={{ duration: 0.3 }}
-                className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 h-full border border-gray-100 hover:border-info/30 hover:shadow-xl transition-all group"
+                className={`rounded-2xl p-6 h-full border transition-all group ${
+                  darkMode
+                    ? 'bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 hover:border-info/30 hover:shadow-xl'
+                    : 'bg-gradient-to-br from-gray-50 to-white border-gray-100 hover:border-info/30 hover:shadow-xl'
+                }`}
               >
                 {/* Icon */}
                 <motion.div
                   whileHover={{ rotate: [0, -10, 10, -10, 0] }}
                   transition={{ duration: 0.5 }}
-                  className={`w-14 h-14 rounded-xl bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center mb-4 group-hover:from-info/10 group-hover:to-info/5 transition-all`}
+                  className={`w-14 h-14 rounded-xl flex items-center justify-center mb-4 transition-all group-hover:from-info/10 group-hover:to-info/5 ${
+                    darkMode
+                      ? 'bg-gradient-to-br from-gray-700 to-gray-800'
+                      : 'bg-gradient-to-br from-gray-100 to-gray-50'
+                  }`}
                 >
                   <award.icon className={`w-7 h-7 ${award.color}`} />
                 </motion.div>
 
                 {/* Content */}
                 <div className="space-y-3">
-                  <h3 className="text-xl font-bold text-gray-900">
+                  <h3
+                    className={`text-xl font-bold ${
+                      darkMode ? 'text-white' : 'text-gray-900'
+                    }`}
+                  >
                     {award.title}
                   </h3>
                   <div className="text-xs font-semibold tracking-wide text-info uppercase">
                     {award.year}
                   </div>
-                  <p className="text-gray-600 text-sm leading-relaxed">
+                  <p
+                    className={`text-sm leading-relaxed ${
+                      darkMode ? 'text-gray-300' : 'text-gray-600'
+                    }`}
+                  >
                     {award.description}
                   </p>
                 </div>

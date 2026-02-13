@@ -38,9 +38,21 @@ const timelineEvents: TimelineEvent[] = [
   },
 ];
 
-export const LegacyTimelineSection = () => {
+interface LegacyTimelineSectionProps {
+  darkMode?: boolean;
+}
+
+export const LegacyTimelineSection = ({
+  darkMode,
+}: LegacyTimelineSectionProps) => {
   return (
-    <section className="bg-gradient-to-b from-gray-50 to-white py-24 px-6">
+    <section
+      className={`py-24 px-6 ${
+        darkMode
+          ? 'bg-gradient-to-b from-gray-900 to-gray-800'
+          : 'bg-gradient-to-b from-gray-50 to-white'
+      }`}
+    >
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <motion.div
@@ -53,7 +65,11 @@ export const LegacyTimelineSection = () => {
           <div className="text-xs font-bold tracking-widest text-info uppercase mb-3">
             OUR JOURNEY
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h2
+            className={`text-4xl md:text-5xl font-bold mb-4 ${
+              darkMode ? 'text-white' : 'text-gray-900'
+            }`}
+          >
             A Legacy of Impact
           </h2>
         </motion.div>
@@ -111,7 +127,9 @@ export const LegacyTimelineSection = () => {
                       whileInView={{ scale: 1 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.4, delay: index * 0.1 + 0.2 }}
-                      className="w-6 h-6 bg-info rounded-full border-4 border-white shadow-lg"
+                      className={`w-6 h-6 bg-info rounded-full border-4 shadow-lg ${
+                        darkMode ? 'border-gray-800' : 'border-white'
+                      }`}
                     />
                   </div>
 
@@ -120,12 +138,22 @@ export const LegacyTimelineSection = () => {
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       transition={{ duration: 0.2 }}
-                      className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow"
+                      className={`rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow ${
+                        darkMode ? 'bg-gray-800' : 'bg-white'
+                      }`}
                     >
-                      <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                      <h3
+                        className={`text-2xl font-bold mb-3 ${
+                          darkMode ? 'text-white' : 'text-gray-900'
+                        }`}
+                      >
                         {event.title}
                       </h3>
-                      <p className="text-gray-600 leading-relaxed">
+                      <p
+                        className={`leading-relaxed ${
+                          darkMode ? 'text-gray-300' : 'text-gray-600'
+                        }`}
+                      >
                         {event.description}
                       </p>
                     </motion.div>
