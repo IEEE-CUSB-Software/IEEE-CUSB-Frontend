@@ -35,8 +35,8 @@ export const Navbar = () => {
     }`;
 
   const isAdmin =
-    user?.role.name === RoleName.ADMIN ||
-    user?.role.name === RoleName.SUPER_ADMIN;
+    user?.role?.name === RoleName.ADMIN ||
+    user?.role?.name === RoleName.SUPER_ADMIN;
 
   return (
     <div
@@ -125,7 +125,7 @@ export const Navbar = () => {
                       {user.email}
                     </p>
                     <span className="inline-block mt-2 px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                      {user.role.name}
+                      {user?.role?.name}
                     </span>
                   </div>
 

@@ -54,10 +54,50 @@ export const authApi = {
   getMe: async (): Promise<{
     user: import('@/shared/types/auth.types').User;
   }> => {
-    const response = await apiClient.get<
-      ApiResponse<{ user: import('@/shared/types/auth.types').User }>
-    >(API_ENDPOINTS.AUTH.ME);
-    return response.data.data;
+    // 1. Refresh the token
+    const storedRefreshToken = localStorage.getItem('refresh_token');
+    if (!storedRefreshToken) {
+      throw new Error('No refresh token found');
+    }
+
+    const refreshResponse = await authApi.refreshToken({
+      refresh_token: storedRefreshToken,
+    });
+    const accessToken = refreshResponse.access_token;
+
+    // 2. Decode the token to get user ID
+    const { parseJwt } = await import('@/shared/utils/helpers');
+    const decoded = parseJwt(accessToken);
+
+    if (!decoded || !decoded.id) {
+      throw new Error('Failed to decode token');
+    }
+
+    // 3. Fetch user details using the new token
+    // We need to manually set the Authorization header for this request
+    // because the interceptor might not have the new token yet
+    const userResponse = await apiClient.get<
+      ApiResponse<import('@/shared/types/auth.types').User>
+    >(API_ENDPOINTS.USERS.GET_USER(decoded.id), {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    // 4. Return user data
+    // The response is wrapped in ApiResponse, so user data is in userResponse.data.data
+    // Note: We also need to return the new access token so AuthProvider can update the store
+    // However, the current return type is just { user }.
+    // The AuthProvider will handle the token update if we ensure valid tokens are in place.
+    // Ideally, getMe should probably return the token too, but let's stick to the interface.
+    // The interceptor or AuthProvider should update the localStorage/store with the new token.
+
+    // Actually, since we are doing this manually, we should update localStorage here to be safe
+    // or rely on the caller to handle it.
+    // Let's update localStorage here for immediate consistency
+    localStorage.setItem('access_token', accessToken);
+
+    return { user: userResponse.data.data as any };
   },
 
   /**
