@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTheme } from '@/shared/hooks/useTheme';
 import { MdAdd } from 'react-icons/md';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { Table, type ColumnDef } from '@ieee-ui/ui';
@@ -30,6 +31,7 @@ const posts = [
 ];
 
 export const PostsPage = () => {
+  const { isDark } = useTheme();
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
 
   const columns = useMemo<ColumnDef<(typeof posts)[0]>[]>(
@@ -37,27 +39,31 @@ export const PostsPage = () => {
       {
         header: 'Post Title',
         accessorKey: 'title',
-        className: 'font-medium text-gray-900',
+        className: `font-medium transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`,
       },
       {
         header: 'Author',
         accessorKey: 'author',
-        className: 'text-gray-600',
+        className: `transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'}`,
       },
       {
         header: 'Date',
         accessorKey: 'date',
-        className: 'text-gray-600',
+        className: `transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'}`,
       },
       {
         header: 'Status',
         accessorKey: 'status',
         cell: item => (
           <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors duration-300 ${
               item.status === 'Published'
-                ? 'bg-green-50 text-green-700'
-                : 'bg-yellow-50 text-yellow-700'
+                ? isDark
+                  ? 'bg-green-900/30 text-green-300'
+                  : 'bg-green-50 text-green-700'
+                : isDark
+                  ? 'bg-yellow-900/30 text-yellow-300'
+                  : 'bg-yellow-50 text-yellow-700'
             }`}
           >
             {item.status}
@@ -67,29 +73,45 @@ export const PostsPage = () => {
       {
         header: 'Actions',
         className: 'text-right',
-        cell: item => (
+        cell: () => (
           <div className="flex items-center justify-end gap-2">
-            <button className="p-2 text-gray-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors">
+            <button
+              className={`p-2 rounded-lg transition-colors ${
+                isDark
+                  ? 'text-gray-500 hover:text-primary hover:bg-primary/10'
+                  : 'text-gray-400 hover:text-primary hover:bg-primary/5'
+              }`}
+            >
               <FiEdit2 className="w-4 h-4" />
             </button>
-            <button className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+            <button
+              className={`p-2 rounded-lg transition-colors ${
+                isDark
+                  ? 'text-gray-500 hover:text-red-400 hover:bg-red-400/10'
+                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+              }`}
+            >
               <FiTrash2 className="w-4 h-4" />
             </button>
           </div>
         ),
       },
     ],
-    []
+    [isDark]
   );
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 sm:text-center">
+          <h1
+            className={`text-2xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'} sm:text-center`}
+          >
             Blog Posts
           </h1>
-          <p className="text-gray-500 sm:text-center">
+          <p
+            className={`transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-500'} sm:text-center`}
+          >
             Manage blog posts and articles
           </p>
         </div>
@@ -103,7 +125,12 @@ export const PostsPage = () => {
         </button>
       </div>
 
-      <Table data={posts} columns={columns} emptyMessage="No posts found" />
+      <Table
+        data={posts}
+        columns={columns}
+        emptyMessage="No posts found"
+        darkMode={isDark}
+      />
 
       {isPostModalOpen && (
         <AddEditPostModal

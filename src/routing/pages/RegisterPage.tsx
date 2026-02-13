@@ -3,14 +3,19 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
 import { registerSchema, type RegisterFormData } from '@/features/auth/schemas';
 import { useRegister } from '@/shared/queries/auth';
-import { Button, InputField } from '@ieee-ui/ui';
+import { Button, InputField, Select } from '@ieee-ui/ui';
+import UniversityList from '@/constants/universityList';
+import FacultyList from '@/constants/facultyList';
+import DepartmentList from '@/constants/departmentList';
 import logo from '@/assets/logo.png';
+import { useTheme } from '@/shared/hooks/useTheme';
 
 /**
  * Register Page Component
  * Role is automatically set to "Visitor" on backend - users cannot select role
  */
 export const RegisterPage = () => {
+  const { isDark } = useTheme();
   const { mutate: register, isPending } = useRegister();
 
   const {
@@ -40,25 +45,49 @@ export const RegisterPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden">
       {/* Animated Gradient Background */}
-      <div className="absolute inset-0 bg-linear-to-br from-blue-50 via-purple-50 to-pink-50 animate-gradient-xy">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),rgba(255,255,255,0))]" />
+      <div
+        className={`absolute inset-0 bg-linear-to-br transition-colors duration-500 ${
+          isDark
+            ? 'from-gray-900 via-blue-900 to-gray-900'
+            : 'from-blue-50 via-purple-50 to-pink-50'
+        } animate-gradient-xy`}
+      >
+        <div
+          className={`absolute inset-0 ${
+            isDark
+              ? 'bg-[radial-gradient(circle_at_50%_50%,rgba(0,10,50,0.5),rgba(0,0,0,0))]'
+              : 'bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),rgba(255,255,255,0))]'
+          }`}
+        />
       </div>
 
       <div className="w-full max-w-2xl relative z-10">
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 p-8">
+        <div
+          className={`backdrop-blur-xl rounded-2xl shadow-2xl border transition-all duration-300 p-8 ${
+            isDark
+              ? 'bg-gray-800/80 border-gray-700/50 shadow-blue-900/20'
+              : 'bg-white/80 border-white/20 shadow-gray-200'
+          }`}
+        >
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
               <img
                 src={logo}
                 alt="IEEE CUSB Logo"
-                className="h-20 w-20 object-contain"
+                className={`h-20 w-20 object-contain transition-all duration-300 ${isDark ? 'drop-shadow-[0_0_10px_rgba(59,130,246,0.3)]' : ''}`}
               />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1
+              className={`text-3xl font-bold mb-2 transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`}
+            >
               Create Account
             </h1>
-            <p className="text-gray-600">Join IEEE CUSB community today</p>
+            <p
+              className={`transition-colors duration-300 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}
+            >
+              Join IEEE CUSB community today
+            </p>
           </div>
 
           {/* Register Form */}
@@ -69,7 +98,7 @@ export const RegisterPage = () => {
               <div>
                 <label
                   htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
                 >
                   Full Name *
                 </label>
@@ -80,6 +109,7 @@ export const RegisterPage = () => {
                   {...registerField('name')}
                   error={errors.name?.message}
                   disabled={isPending}
+                  darkMode={isDark}
                 />
               </div>
 
@@ -87,7 +117,7 @@ export const RegisterPage = () => {
               <div>
                 <label
                   htmlFor="username"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
                 >
                   Username *
                 </label>
@@ -98,6 +128,7 @@ export const RegisterPage = () => {
                   {...registerField('username')}
                   error={errors.username?.message}
                   disabled={isPending}
+                  darkMode={isDark}
                 />
               </div>
             </div>
@@ -108,7 +139,7 @@ export const RegisterPage = () => {
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
                 >
                   Email Address *
                 </label>
@@ -119,6 +150,7 @@ export const RegisterPage = () => {
                   {...registerField('email')}
                   error={errors.email?.message}
                   disabled={isPending}
+                  darkMode={isDark}
                 />
               </div>
 
@@ -126,7 +158,7 @@ export const RegisterPage = () => {
               <div>
                 <label
                   htmlFor="phone"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
                 >
                   Phone Number *
                 </label>
@@ -137,6 +169,7 @@ export const RegisterPage = () => {
                   {...registerField('phone')}
                   error={errors.phone?.message}
                   disabled={isPending}
+                  darkMode={isDark}
                 />
               </div>
             </div>
@@ -147,17 +180,18 @@ export const RegisterPage = () => {
               <div>
                 <label
                   htmlFor="university"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
                 >
                   University *
                 </label>
-                <InputField
+                <Select
                   id="university"
-                  type="text"
-                  placeholder="Cairo University"
                   {...registerField('university')}
+                  options={UniversityList.map(u => ({ value: u, label: u }))}
                   error={errors.university?.message}
                   disabled={isPending}
+                  darkMode={isDark}
+                  placeholder="Select university"
                 />
               </div>
 
@@ -165,17 +199,18 @@ export const RegisterPage = () => {
               <div>
                 <label
                   htmlFor="faculty"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
                 >
                   Faculty *
                 </label>
-                <InputField
+                <Select
                   id="faculty"
-                  type="text"
-                  placeholder="Engineering"
                   {...registerField('faculty')}
+                  options={FacultyList.map(f => ({ value: f, label: f }))}
                   error={errors.faculty?.message}
                   disabled={isPending}
+                  darkMode={isDark}
+                  placeholder="Select faculty"
                 />
               </div>
             </div>
@@ -185,37 +220,40 @@ export const RegisterPage = () => {
               <div>
                 <label
                   htmlFor="academic_year"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
                 >
                   Academic Year *
                 </label>
-                <InputField
+                <Select
                   id="academic_year"
-                  type="number"
-                  min="1"
-                  max="6"
-                  placeholder="1"
-                  {...registerField('academic_year', { valueAsNumber: true })}
+                  {...registerField('academic_year')}
+                  options={Array.from({ length: 5 }, (_, i) => ({
+                    value: String(i + 1),
+                    label: `Year ${i + 1}`,
+                  }))}
                   error={errors.academic_year?.message}
                   disabled={isPending}
+                  darkMode={isDark}
+                  placeholder="Select year"
                 />
               </div>
 
-              {/* Major */}
+              {/* Department (Major) */}
               <div>
                 <label
                   htmlFor="major"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
                 >
-                  Major
+                  Department
                 </label>
-                <InputField
+                <Select
                   id="major"
-                  type="text"
-                  placeholder="Computer Engineering"
                   {...registerField('major')}
+                  options={DepartmentList.map(d => ({ value: d, label: d }))}
                   error={errors.major?.message}
                   disabled={isPending}
+                  darkMode={isDark}
+                  placeholder="Select department"
                 />
               </div>
             </div>
@@ -226,7 +264,7 @@ export const RegisterPage = () => {
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
                 >
                   Password *
                 </label>
@@ -237,6 +275,7 @@ export const RegisterPage = () => {
                   {...registerField('password')}
                   error={errors.password?.message}
                   disabled={isPending}
+                  darkMode={isDark}
                 />
               </div>
 
@@ -244,7 +283,7 @@ export const RegisterPage = () => {
               <div>
                 <label
                   htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
                 >
                   Confirm Password *
                 </label>
@@ -255,6 +294,7 @@ export const RegisterPage = () => {
                   {...registerField('confirmPassword')}
                   error={errors.confirmPassword?.message}
                   disabled={isPending}
+                  darkMode={isDark}
                 />
                 {confirmPassword && !errors.confirmPassword && (
                   <span
@@ -269,8 +309,12 @@ export const RegisterPage = () => {
             </div>
 
             {/* Password Requirements - Live Validation */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-              <p className="text-xs text-blue-800 dark:text-blue-200 font-medium mb-2">
+            <div
+              className={`rounded-lg p-4 transition-colors duration-300 ${isDark ? 'bg-blue-900/20' : 'bg-blue-50'}`}
+            >
+              <p
+                className={`text-xs font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-blue-200' : 'text-blue-800'}`}
+              >
                 Password must contain:
               </p>
               <ul className="text-xs space-y-1">
@@ -278,7 +322,9 @@ export const RegisterPage = () => {
                   className={
                     password?.length >= 8
                       ? 'text-green-600'
-                      : 'text-blue-600 dark:text-blue-300'
+                      : isDark
+                        ? 'text-blue-300'
+                        : 'text-blue-600'
                   }
                 >
                   {password?.length >= 8 ? '✓' : '•'} At least 8 characters
@@ -287,7 +333,9 @@ export const RegisterPage = () => {
                   className={
                     /[A-Z]/.test(password || '')
                       ? 'text-green-600'
-                      : 'text-blue-600 dark:text-blue-300'
+                      : isDark
+                        ? 'text-blue-300'
+                        : 'text-blue-600'
                   }
                 >
                   {/[A-Z]/.test(password || '') ? '✓' : '•'} One uppercase
@@ -297,7 +345,9 @@ export const RegisterPage = () => {
                   className={
                     /[a-z]/.test(password || '')
                       ? 'text-green-600'
-                      : 'text-blue-600 dark:text-blue-300'
+                      : isDark
+                        ? 'text-blue-300'
+                        : 'text-blue-600'
                   }
                 >
                   {/[a-z]/.test(password || '') ? '✓' : '•'} One lowercase
@@ -307,7 +357,9 @@ export const RegisterPage = () => {
                   className={
                     /\d/.test(password || '')
                       ? 'text-green-600'
-                      : 'text-blue-600 dark:text-blue-300'
+                      : isDark
+                        ? 'text-blue-300'
+                        : 'text-blue-600'
                   }
                 >
                   {/\d/.test(password || '') ? '✓' : '•'} One number
@@ -316,7 +368,9 @@ export const RegisterPage = () => {
                   className={
                     /[@$!%*?&]/.test(password || '')
                       ? 'text-green-600'
-                      : 'text-blue-600 dark:text-blue-300'
+                      : isDark
+                        ? 'text-blue-300'
+                        : 'text-blue-600'
                   }
                 >
                   {/[@$!%*?&]/.test(password || '') ? '✓' : '•'} One special
@@ -333,17 +387,20 @@ export const RegisterPage = () => {
               className="w-full"
               disabled={isPending}
               loading={isPending}
+              darkMode={isDark}
             >
               {isPending ? 'Creating account...' : 'Create Account'}
             </Button>
           </form>
 
           {/* Sign In Link */}
-          <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+          <p
+            className={`mt-6 text-center text-sm transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}
+          >
             Already have an account?{' '}
             <Link
               to="/login"
-              className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+              className={`font-medium transition-colors duration-300 ${isDark ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'}`}
             >
               Sign in
             </Link>

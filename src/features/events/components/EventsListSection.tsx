@@ -4,6 +4,7 @@ import { EventCard } from './EventCard';
 import { useEvents } from '@/shared/queries/events';
 import { Pagination } from '@/shared/components/ui/Pagination';
 import type { Event } from '@/shared/types/events.types';
+import { useTheme } from '@/shared/hooks/useTheme';
 
 type FilterType = 'All' | 'Technical' | 'Non-Technical' | 'Social';
 
@@ -58,10 +59,13 @@ const transformEvent = (event: Event) => {
     categoryBadge: 'TECHNICAL',
     // Placeholder image - can be extended when API supports images
     image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800',
+    is_registered: event.is_registered,
+    registration_id: event.registration_id,
   };
 };
 
 export const EventsListSection = () => {
+  const { isDark } = useTheme();
   const [activeFilter, setActiveFilter] = useState<FilterType>('All');
   const [page, setPage] = useState(1);
   const limit = 12;
@@ -105,13 +109,19 @@ export const EventsListSection = () => {
   // Loading skeleton
   if (isLoading) {
     return (
-      <section className="bg-background py-16">
+      <section
+        className={`py-16 transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-background'}`}
+      >
         <div className="max-w-7xl mx-auto px-6">
           <div className="mb-8">
-            <h1 className="text-5xl font-bold text-gray-900 mb-4">
+            <h1
+              className={`text-5xl font-bold mb-4 transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`}
+            >
               Events & Workshops
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl">
+            <p
+              className={`text-xl max-w-2xl transition-colors duration-300 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}
+            >
               Discover our latest technical sessions, social gatherings, and
               hands-on workshops designed to empower future engineers.
             </p>
@@ -120,6 +130,7 @@ export const EventsListSection = () => {
           <EventsFilterBar
             activeFilter={activeFilter}
             onFilterChange={setActiveFilter}
+            darkMode={isDark}
           />
 
           {/* Loading skeleton grid */}
@@ -127,14 +138,28 @@ export const EventsListSection = () => {
             {[...Array(8)].map((_, index) => (
               <div
                 key={index}
-                className="bg-white rounded-2xl overflow-hidden shadow-lg animate-pulse"
+                className={`rounded-2xl overflow-hidden shadow-lg animate-pulse transition-colors duration-300 ${
+                  isDark
+                    ? 'bg-gray-800 shadow-blue-900/10'
+                    : 'bg-white shadow-gray-100'
+                }`}
               >
-                <div className="h-40 bg-gray-200" />
+                <div
+                  className={`h-40 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}
+                />
                 <div className="p-4">
-                  <div className="h-6 bg-gray-200 rounded mb-2" />
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
-                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-4" />
-                  <div className="h-10 bg-gray-200 rounded" />
+                  <div
+                    className={`h-6 rounded mb-2 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}
+                  />
+                  <div
+                    className={`h-4 rounded w-3/4 mb-2 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}
+                  />
+                  <div
+                    className={`h-4 rounded w-1/2 mb-4 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}
+                  />
+                  <div
+                    className={`h-10 rounded ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}
+                  />
                 </div>
               </div>
             ))}
@@ -147,18 +172,24 @@ export const EventsListSection = () => {
   // Error state
   if (isError) {
     return (
-      <section className="bg-background py-16">
+      <section
+        className={`py-16 transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-background'}`}
+      >
         <div className="max-w-7xl mx-auto px-6">
           <div className="mb-8">
-            <h1 className="text-5xl font-bold text-gray-900 mb-4">
+            <h1
+              className={`text-5xl font-bold mb-4 transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`}
+            >
               Events & Workshops
             </h1>
           </div>
           <div className="text-center py-12">
-            <p className="text-red-500 text-lg mb-4">
+            <p className="text-red-500 text-lg mb-4 font-medium transition-colors duration-300">
               Failed to load events. Please try again later.
             </p>
-            <p className="text-gray-500">
+            <p
+              className={`transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
+            >
               {error instanceof Error
                 ? error.message
                 : 'Unknown error occurred'}
@@ -170,14 +201,20 @@ export const EventsListSection = () => {
   }
 
   return (
-    <section className="bg-background py-16">
+    <section
+      className={`py-16 transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-background'}`}
+    >
       <div className="max-w-7xl mx-auto px-6">
         {/* Header Section */}
         <div className="mb-8">
-          <h1 className="text-5xl font-bold text-gray-900 mb-4">
+          <h1
+            className={`text-5xl font-bold mb-4 transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`}
+          >
             Events & Workshops
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl">
+          <p
+            className={`text-xl max-w-2xl transition-colors duration-300 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}
+          >
             Discover our latest technical sessions, social gatherings, and
             hands-on workshops designed to empower future engineers.
           </p>
@@ -187,12 +224,15 @@ export const EventsListSection = () => {
         <EventsFilterBar
           activeFilter={activeFilter}
           onFilterChange={setActiveFilter}
+          darkMode={isDark}
         />
 
         {/* Empty state */}
         {filteredEvents.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">
+            <p
+              className={`text-lg transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
+            >
               No events found. Check back later for upcoming events!
             </p>
           </div>
@@ -201,7 +241,12 @@ export const EventsListSection = () => {
             {/* Events Grid - 4 columns */}
             <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {filteredEvents.map((event, index) => (
-                <EventCard key={event.id} event={event} index={index} />
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  index={index}
+                  darkMode={isDark}
+                />
               ))}
             </div>
 

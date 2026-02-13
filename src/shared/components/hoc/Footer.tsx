@@ -1,8 +1,12 @@
 import logoImage from '@/assets/logo.jpg';
+import { useTheme } from '@/shared/hooks/useTheme';
 
 export const Footer = () => {
+  const { isDark } = useTheme();
   return (
-    <footer className="bg-gray-900 text-gray-300 py-16 px-6">
+    <footer
+      className={`py-16 px-6 transition-colors duration-300 ${isDark ? 'bg-gray-900 text-gray-300' : 'bg-gray-50 text-gray-600'}`}
+    >
       <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12">
         {/* Brand */}
         <div>
@@ -12,37 +16,59 @@ export const Footer = () => {
               alt="IEEE CUSB"
               className="w-12 h-12 rounded-full"
             />
-            <span className="font-bold text-xl text-white">IEEE CUSB</span>
+            <span
+              className={`font-bold text-xl transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`}
+            >
+              IEEE CUSB
+            </span>
           </div>
-          <p className="text-sm text-gray-400 mb-4">
+          <p
+            className={`text-sm mb-4 transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
+          >
             Advancing Technology for Humanity. The Official Student Branch of
             Cairo University.
           </p>
           <div className="flex gap-3">
             <a
               href="#"
-              className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary transition-colors"
+              className={`w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition-all ${
+                isDark
+                  ? 'bg-gray-800 text-white'
+                  : 'bg-white text-gray-600 shadow-sm border border-gray-100'
+              }`}
             >
-              <span className="text-sm">f</span>
+              <span className="text-sm font-bold">f</span>
             </a>
             <a
               href="#"
-              className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary transition-colors"
+              className={`w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition-all ${
+                isDark
+                  ? 'bg-gray-800 text-white'
+                  : 'bg-white text-gray-600 shadow-sm border border-gray-100'
+              }`}
             >
-              <span className="text-sm">in</span>
+              <span className="text-sm font-bold">in</span>
             </a>
             <a
               href="#"
-              className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary transition-colors"
+              className={`w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition-all ${
+                isDark
+                  ? 'bg-gray-800 text-white'
+                  : 'bg-white text-gray-600 shadow-sm border border-gray-100'
+              }`}
             >
-              <span className="text-sm">tw</span>
+              <span className="text-sm font-bold">tw</span>
             </a>
           </div>
         </div>
 
         {/* Quick Links */}
         <div>
-          <h3 className="font-bold text-white mb-4">Quick Links</h3>
+          <h3
+            className={`font-bold mb-4 transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`}
+          >
+            Quick Links
+          </h3>
           <ul className="space-y-2 text-sm">
             <li>
               <a href="#" className="hover:text-primary transition-colors">
@@ -72,7 +98,11 @@ export const Footer = () => {
 
         {/* Resources */}
         <div>
-          <h3 className="font-bold text-white mb-4">Resources</h3>
+          <h3
+            className={`font-bold mb-4 transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`}
+          >
+            Resources
+          </h3>
           <ul className="space-y-2 text-sm">
             <li>
               <a href="#" className="hover:text-primary transition-colors">
@@ -94,7 +124,11 @@ export const Footer = () => {
 
         {/* Contact Us */}
         <div>
-          <h3 className="font-bold text-white mb-4">Contact Us</h3>
+          <h3
+            className={`font-bold mb-4 transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`}
+          >
+            Contact Us
+          </h3>
           <ul className="space-y-2 text-sm">
             <li className="flex items-start gap-2">
               <span>📍</span>
@@ -108,7 +142,13 @@ export const Footer = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-gray-800 text-center text-sm text-gray-400">
+      <div
+        className={`max-w-7xl mx-auto mt-12 pt-8 border-t text-center text-sm transition-colors duration-300 ${
+          isDark
+            ? 'border-gray-800 text-gray-400'
+            : 'border-gray-200 text-gray-500'
+        }`}
+      >
         <p>
           © 2026 IEEE Cairo University Student Branch. All rights reserved.
           Privacy Policy | Terms of Service

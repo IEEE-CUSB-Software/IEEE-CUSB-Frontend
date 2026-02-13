@@ -2,8 +2,8 @@ import type {
   Event as ApiEvent,
   CreateEventRequest,
   UpdateEventRequest,
-} from '@/shared/types/events.types';
-import type { EventFormData } from '@/features/admin/types/eventFormTypes';
+} from '../../../shared/types/events.types';
+import type { EventFormData } from '../types/eventFormTypes';
 
 // Local Event type for admin compatibility (matching old interface)
 export type AdminEvent = {

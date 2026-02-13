@@ -1,6 +1,12 @@
 import { motion } from 'framer-motion';
 import { HiCalendar, HiLocationMarker, HiClock } from 'react-icons/hi';
 import { useNavigate } from 'react-router-dom';
+import { useAppSelector } from '@/shared/store/hooks';
+import {
+  useRegisterForEvent,
+  useCancelRegistration,
+} from '@/shared/queries/events';
+import { RoleName } from '@/shared/types/auth.types';
 
 interface EventCardProps {
   event: {
@@ -15,36 +21,82 @@ interface EventCardProps {
     location: string;
     image: string;
     description: string;
+    is_registered?: boolean;
+    registration_id?: string;
   };
   index: number;
+  darkMode?: boolean;
 }
 
-export const EventCard = ({ event, index }: EventCardProps) => {
+export const EventCard = ({ event, index, darkMode }: EventCardProps) => {
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAppSelector(state => state.auth);
+
+  const isAdmin =
+    user?.role?.name === RoleName.ADMIN ||
+    user?.role?.name === RoleName.SUPER_ADMIN;
+
+  const { mutate: register, isPending: isRegistering } = useRegisterForEvent();
+  const { mutate: cancelRegistration, isPending: isCancelling } =
+    useCancelRegistration();
+
+  const handleRegister = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    register(event.id.toString());
+  };
+
+  const handleCancelRegistration = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (event.id) {
+      cancelRegistration(event.id.toString());
+    }
+  };
+
+  const isPending = isRegistering || isCancelling;
 
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
       case 'technical':
-        return 'bg-blue-100 text-blue-700';
+        return darkMode
+          ? 'bg-blue-900/40 text-blue-300'
+          : 'bg-blue-100 text-blue-700';
       case 'social':
-        return 'bg-orange-100 text-orange-700';
+        return darkMode
+          ? 'bg-orange-900/40 text-orange-300'
+          : 'bg-orange-100 text-orange-700';
       case 'soft skills':
-        return 'bg-purple-100 text-purple-700';
+        return darkMode
+          ? 'bg-purple-900/40 text-purple-300'
+          : 'bg-purple-100 text-purple-700';
       case 'design':
-        return 'bg-pink-100 text-pink-700';
+        return darkMode
+          ? 'bg-pink-900/40 text-pink-300'
+          : 'bg-pink-100 text-pink-700';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return darkMode
+          ? 'bg-gray-800 text-gray-300'
+          : 'bg-gray-100 text-gray-700';
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'upcoming':
-        return 'bg-green-100 text-green-700';
+        return darkMode
+          ? 'bg-green-900/40 text-green-300'
+          : 'bg-green-100 text-green-700';
       case 'completed':
-        return 'bg-gray-100 text-gray-700';
+        return darkMode
+          ? 'bg-gray-800 text-gray-300'
+          : 'bg-gray-100 text-gray-700';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return darkMode
+          ? 'bg-gray-800 text-gray-300'
+          : 'bg-gray-100 text-gray-700';
     }
   };
 
@@ -61,9 +113,9 @@ export const EventCard = ({ event, index }: EventCardProps) => {
         stiffness: 300,
         damping: 20,
       }}
-      className={`bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-150 h-full flex flex-col group ${
-        event.status === 'Completed' ? 'opacity-75' : ''
-      }`}
+      className={`rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 h-full flex flex-col group ${
+        darkMode ? 'bg-gray-800 shadow-blue-900/5' : 'bg-white'
+      } ${event.status === 'Completed' ? 'opacity-75' : ''}`}
     >
       {/* Event Image */}
       <div className="relative h-40 overflow-hidden bg-gray-200">
@@ -92,14 +144,20 @@ export const EventCard = ({ event, index }: EventCardProps) => {
       {/* Event Content */}
       <div className="p-4 flex-1 flex flex-col">
         <h3
-          className={`text-lg font-bold mb-2 group-hover:text-primary transition-colors duration-150 ${
-            event.status === 'Completed' ? 'text-gray-500' : 'text-gray-900'
+          className={`text-lg font-bold mb-2 group-hover:text-primary transition-colors duration-300 ${
+            event.status === 'Completed'
+              ? 'text-gray-500'
+              : darkMode
+                ? 'text-white'
+                : 'text-gray-900'
           }`}
         >
           {event.title}
         </h3>
 
-        <div className="space-y-1.5 mb-3 text-xs text-gray-600">
+        <div
+          className={`space-y-1.5 mb-3 text-xs transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}
+        >
           <div className="flex items-center gap-2">
             <HiCalendar className="w-4 h-4 text-primary" />
             <span>{event.date}</span>
@@ -119,14 +177,42 @@ export const EventCard = ({ event, index }: EventCardProps) => {
             whileTap={{ scale: 0.98 }}
             transition={{ duration: 0.15 }}
             onClick={() => navigate(`/events/${event.id}`)}
-            className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 hover:shadow-lg ${
+            className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 hover:shadow-lg ${
               event.status === 'Completed'
-                ? 'bg-gray-100 text-gray-500 hover:bg-gray-500 hover:text-gray-100'
-                : 'bg-gray-200 text-gray-900 hover:bg-gray-900 hover:text-gray-200'
+                ? darkMode
+                  ? 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white'
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-500 hover:text-gray-100'
+                : darkMode
+                  ? 'bg-gray-700 text-gray-100 hover:bg-gray-100 hover:text-gray-900'
+                  : 'bg-gray-200 text-gray-900 hover:bg-gray-900 hover:text-gray-200'
             }`}
           >
             {event.status === 'Completed' ? 'View Recap' : 'View Details'}
           </motion.button>
+
+          {/* Registration Button - Only for non-completed events AND non-admin users */}
+          {event.status !== 'Completed' && !isAdmin && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.15 }}
+              onClick={
+                event.is_registered ? handleCancelRegistration : handleRegister
+              }
+              disabled={isPending}
+              className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 hover:shadow-lg mt-2 ${
+                event.is_registered
+                  ? 'bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30'
+                  : 'bg-primary text-white hover:bg-primary/90 shadow-primary/25'
+              } ${isPending ? 'opacity-70 cursor-not-allowed' : ''}`}
+            >
+              {isPending
+                ? 'Processing...'
+                : event.is_registered
+                  ? 'Cancel Registration'
+                  : 'Register Now'}
+            </motion.button>
+          )}
         </div>
       </div>
     </motion.div>

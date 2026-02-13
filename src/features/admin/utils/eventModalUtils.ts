@@ -127,6 +127,12 @@ export const validateField = (
       break;
     }
 
+    case 'category': {
+      if (!stringValue.trim())
+        return ERROR_MESSAGES.required.category || 'Category is required';
+      break;
+    }
+
     default:
       break;
   }
@@ -163,6 +169,7 @@ export const convertEventToFormValues = (
       registrationDeadline: '',
       location: '',
       capacity: '',
+      category: 'Technical',
     };
   }
 
@@ -186,6 +193,7 @@ export const convertEventToFormValues = (
     registrationDeadline: formattedDeadline,
     location: event.location,
     capacity: event.capacity.toString(),
+    category: event.category as 'Technical' | 'Non-Technical' | 'Social',
   };
 };
 
@@ -204,5 +212,6 @@ export const convertFormValuesToEventFormData = (
     registration_deadline: new Date(
       formValues.registrationDeadline
     ).toISOString(),
+    category: formValues.category,
   };
 };
