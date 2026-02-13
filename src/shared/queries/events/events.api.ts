@@ -102,16 +102,15 @@ export const eventsApi = {
     eventId: string,
     params: PaginationParams
   ): Promise<PaginatedRegistrationsResponse> => {
-    const response = await apiClient.get<PaginatedRegistrationsResponse>(
-      API_ENDPOINTS.EVENTS.GET_REGISTRATIONS(eventId),
-      {
-        params: {
-          page: params.page.toString(),
-          limit: params.limit.toString(),
-        },
-      }
-    );
-    return response.data;
+    const response = await apiClient.get<{
+      data: PaginatedRegistrationsResponse;
+    }>(API_ENDPOINTS.EVENTS.GET_REGISTRATIONS(eventId), {
+      params: {
+        page: params.page.toString(),
+        limit: params.limit.toString(),
+      },
+    });
+    return response.data.data;
   },
 
   /**

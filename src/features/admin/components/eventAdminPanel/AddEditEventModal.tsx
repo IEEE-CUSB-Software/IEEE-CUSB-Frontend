@@ -104,7 +104,7 @@ const AddEditEventModal: React.FC<AddEditEventModalProps> = ({
       title={isEditMode ? 'Edit Event' : 'Add New Event'}
       isOpen={isOpen}
       onClose={onClose}
-      className="max-w-4xl"
+      size="large"
       darkMode={isDark}
     >
       <div className="space-y-6">

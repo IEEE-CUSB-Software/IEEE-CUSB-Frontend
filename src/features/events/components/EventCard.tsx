@@ -1,6 +1,12 @@
 import { motion } from 'framer-motion';
 import { HiCalendar, HiLocationMarker, HiClock } from 'react-icons/hi';
 import { useNavigate } from 'react-router-dom';
+import { useAppSelector } from '@/shared/store/hooks';
+import {
+  useRegisterForEvent,
+  useCancelRegistration,
+} from '@/shared/queries/events';
+import { RoleName } from '@/shared/types/auth.types';
 
 interface EventCardProps {
   event: {
@@ -15,6 +21,8 @@ interface EventCardProps {
     location: string;
     image: string;
     description: string;
+    is_registered?: boolean;
+    registration_id?: string;
   };
   index: number;
   darkMode?: boolean;
@@ -22,6 +30,33 @@ interface EventCardProps {
 
 export const EventCard = ({ event, index, darkMode }: EventCardProps) => {
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAppSelector(state => state.auth);
+
+  const isAdmin =
+    user?.role?.name === RoleName.ADMIN ||
+    user?.role?.name === RoleName.SUPER_ADMIN;
+
+  const { mutate: register, isPending: isRegistering } = useRegisterForEvent();
+  const { mutate: cancelRegistration, isPending: isCancelling } =
+    useCancelRegistration();
+
+  const handleRegister = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    register(event.id.toString());
+  };
+
+  const handleCancelRegistration = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (event.id) {
+      cancelRegistration(event.id.toString());
+    }
+  };
+
+  const isPending = isRegistering || isCancelling;
 
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
@@ -154,6 +189,30 @@ export const EventCard = ({ event, index, darkMode }: EventCardProps) => {
           >
             {event.status === 'Completed' ? 'View Recap' : 'View Details'}
           </motion.button>
+
+          {/* Registration Button - Only for non-completed events AND non-admin users */}
+          {event.status !== 'Completed' && !isAdmin && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.15 }}
+              onClick={
+                event.is_registered ? handleCancelRegistration : handleRegister
+              }
+              disabled={isPending}
+              className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 hover:shadow-lg mt-2 ${
+                event.is_registered
+                  ? 'bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30'
+                  : 'bg-primary text-white hover:bg-primary/90 shadow-primary/25'
+              } ${isPending ? 'opacity-70 cursor-not-allowed' : ''}`}
+            >
+              {isPending
+                ? 'Processing...'
+                : event.is_registered
+                  ? 'Cancel Registration'
+                  : 'Register Now'}
+            </motion.button>
+          )}
         </div>
       </div>
     </motion.div>

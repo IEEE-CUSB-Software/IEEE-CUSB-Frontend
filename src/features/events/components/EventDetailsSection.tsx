@@ -2,31 +2,12 @@ import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { HiArrowLeft } from 'react-icons/hi';
+import { useTheme } from '@/shared/hooks/useTheme';
 import { EventDetailsHero } from './EventDetailsHero';
 import { EventDetailsSidebar } from './EventDetailsSidebar';
 import { EventDetailsContent } from './EventDetailsContent';
 import { useEvent } from '@/shared/queries/events';
 import type { Event } from '@/shared/types/events.types';
-
-// Helper function to format date
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
-};
-
-// Helper function to format time
-const formatTime = (dateString: string): string => {
-  const date = new Date(dateString);
-  return date.toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-  });
-};
 
 // Transform API event to display format
 const transformEvent = (event: Event) => {
@@ -34,10 +15,12 @@ const transformEvent = (event: Event) => {
     title: event.title,
     description: event.description,
     location: event.location,
-    date: formatDate(event.start_time),
-    time: formatTime(event.start_time),
-    endTime: formatTime(event.end_time),
+    startTime: event.start_time,
+    endTime: event.end_time,
     registrationDeadline: event.registration_deadline,
+    id: event.id,
+    is_registered: event.is_registered,
+    registration_id: event.registration_id,
     // Default values for fields not yet in API
     category: 'Workshop',
     categoryBadge: 'WORKSHOP',
@@ -54,6 +37,7 @@ const transformEvent = (event: Event) => {
 export const EventDetailsSection = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { isDark } = useTheme();
 
   // Fetch event data from API
   const { data: event, isLoading, isError } = useEvent(id || '');
@@ -141,6 +125,7 @@ export const EventDetailsSection = () => {
               image={eventData.image}
               category={eventData.category}
               categoryBadge={eventData.categoryBadge}
+              darkMode={isDark}
             />
 
             {/* Content Section */}
@@ -148,6 +133,7 @@ export const EventDetailsSection = () => {
               about={eventData.about}
               learningPoints={eventData.learningPoints}
               prerequisites={eventData.prerequisites}
+              darkMode={isDark}
             />
           </div>
 
@@ -155,12 +141,15 @@ export const EventDetailsSection = () => {
           <div className="lg:col-span-1">
             <div className="lg:sticky lg:top-24">
               <EventDetailsSidebar
-                date={eventData.date}
-                time={eventData.time}
+                startTime={eventData.startTime}
                 endTime={eventData.endTime}
                 location={eventData.location}
                 instructor={eventData.instructor}
                 registrationDeadline={eventData.registrationDeadline}
+                eventId={eventData.id}
+                isRegistered={eventData.is_registered}
+                registrationId={eventData.registration_id}
+                darkMode={isDark}
               />
             </div>
           </div>

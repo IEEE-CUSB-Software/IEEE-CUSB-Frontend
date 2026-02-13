@@ -7,6 +7,7 @@ interface EventDetailsHeroProps {
   image: string;
   category: string;
   categoryBadge: string;
+  darkMode?: boolean;
 }
 
 export const EventDetailsHero = ({
@@ -15,19 +16,30 @@ export const EventDetailsHero = ({
   image,
   category,
   categoryBadge,
+  darkMode,
 }: EventDetailsHeroProps) => {
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
       case 'technical':
-        return 'bg-blue-100 text-blue-700';
+        return darkMode
+          ? 'bg-blue-900/40 text-blue-300'
+          : 'bg-blue-100 text-blue-700';
       case 'social':
-        return 'bg-orange-100 text-orange-700';
+        return darkMode
+          ? 'bg-orange-900/40 text-orange-300'
+          : 'bg-orange-100 text-orange-700';
       case 'soft skills':
-        return 'bg-purple-100 text-purple-700';
+        return darkMode
+          ? 'bg-purple-900/40 text-purple-300'
+          : 'bg-purple-100 text-purple-700';
       case 'design':
-        return 'bg-pink-100 text-pink-700';
+        return darkMode
+          ? 'bg-pink-900/40 text-pink-300'
+          : 'bg-pink-100 text-pink-700';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return darkMode
+          ? 'bg-gray-800 text-gray-300'
+          : 'bg-gray-100 text-gray-700';
     }
   };
 
@@ -36,7 +48,7 @@ export const EventDetailsHero = ({
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
-      className="relative rounded-3xl overflow-hidden shadow-2xl mb-8"
+      className="relative rounded-3xl overflow-hidden shadow-2xl mb-8 bg-gray-900"
     >
       {/* Hero Image */}
       <div className="relative h-[400px] overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
@@ -50,7 +62,7 @@ export const EventDetailsHero = ({
         />
 
         {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
         {/* Content */}
         <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12">

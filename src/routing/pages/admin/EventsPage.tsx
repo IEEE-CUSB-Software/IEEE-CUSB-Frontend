@@ -1,8 +1,9 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { MdAdd } from 'react-icons/md';
-import { FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiUsers } from 'react-icons/fi';
 import AddEditEventModal from '@/features/admin/components/eventAdminPanel/AddEditEventModal';
+import { EventRegistrationsModal } from '@/features/admin/components/eventAdminPanel/EventRegistrationsModal';
 import { Table, type ColumnDef } from '@ieee-ui/ui';
 import { Pagination } from '@/shared/components/ui/Pagination';
 import {
@@ -51,6 +52,10 @@ export const EventsPage = () => {
   const [selectedAdminEvent, setSelectedAdminEvent] = useState<
     AdminEvent | undefined
   >(undefined);
+  const [isRegistrationsModalOpen, setIsRegistrationsModalOpen] =
+    useState(false);
+  const [selectedEventForRegistrations, setSelectedEventForRegistrations] =
+    useState<Event | undefined>(undefined);
   const [page, setPage] = useState(1);
   const limit = 10;
 
@@ -87,6 +92,11 @@ export const EventsPage = () => {
     },
     [deleteEventMutation]
   );
+
+  const handleViewRegistrations = useCallback((event: Event) => {
+    setSelectedEventForRegistrations(event);
+    setIsRegistrationsModalOpen(true);
+  }, []);
 
   const handleSaveEvent = async (formData: EventFormData) => {
     try {
@@ -179,6 +189,17 @@ export const EventsPage = () => {
               <FiEdit2 className="w-4 h-4" />
             </button>
             <button
+              onClick={() => handleViewRegistrations(item)}
+              className={`p-2 rounded-lg transition-colors ${
+                isDark
+                  ? 'text-gray-500 hover:text-blue-400 hover:bg-blue-400/10'
+                  : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50'
+              }`}
+              title="View registrations"
+            >
+              <FiUsers className="w-4 h-4" />
+            </button>
+            <button
               onClick={() => handleDeleteEvent(item)}
               className={`p-2 rounded-lg transition-colors ${
                 isDark
@@ -193,7 +214,7 @@ export const EventsPage = () => {
         ),
       },
     ],
-    [handleEditEvent, handleDeleteEvent, isDark]
+    [handleEditEvent, handleDeleteEvent, handleViewRegistrations, isDark]
   );
 
   // Loading state
@@ -317,6 +338,18 @@ export const EventsPage = () => {
           }}
           onSave={handleSaveEvent}
           event={selectedAdminEvent}
+        />
+      )}
+
+      {isRegistrationsModalOpen && selectedEventForRegistrations && (
+        <EventRegistrationsModal
+          isOpen={isRegistrationsModalOpen}
+          onClose={() => {
+            setIsRegistrationsModalOpen(false);
+            setSelectedEventForRegistrations(undefined);
+          }}
+          eventId={selectedEventForRegistrations.id}
+          eventTitle={selectedEventForRegistrations.title}
         />
       )}
     </div>
