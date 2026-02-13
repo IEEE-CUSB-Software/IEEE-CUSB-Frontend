@@ -1,0 +1,184 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
+
+/* Disable automatic dark mode based on system preference */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Light theme - IEEE Brand Colors */
+@theme {
+  /* ... existing theme colors ... */
+  --color-primary: #00529b;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #bd0d2a;
+  --color-secondary-foreground: #ffffff;
+  --color-accent: #ffa300;
+  --color-accent-foreground: #1a1a1a;
+  --color-success: #78be20;
+  --color-success-foreground: #ffffff;
+  --color-info: #00aeef;
+  --color-info-foreground: #ffffff;
+  --color-highlight: #009ec3;
+  --color-highlight-foreground: #ffffff;
+  --color-destructive: #bd0d2a;
+  --color-destructive-foreground: #ffffff;
+
+  --color-background: #f5f7fa;
+  --color-background-light: #eef6fc;
+  --color-foreground: #1a1a1a;
+  --color-surface: #f9fbfd;
+  --color-border: #d0d8e0;
+  --color-input: #d0d8e0;
+  --color-ring: #00529b;
+
+  --color-text-primary: #1a1a1a;
+  --color-text-muted: #4a5568;
+  --color-muted: #f9fbfd;
+  --color-muted-foreground: #4a5568;
+
+  --color-card: #ffffff;
+  --color-card-foreground: #1a1a1a;
+  --color-modal: #ffffff;
+  --color-navbar: #ffffff;
+  --color-button-primary: #00529b;
+  --color-button-secondary: #ffa300;
+  --color-button-danger: #bd0d2a;
+
+  --radius: 0.5rem;
+}
+
+/* Dark theme override when .dark class is present */
+@layer base {
+  .dark {
+    --color-primary: #00427a;
+    --color-primary-foreground: #ffffff;
+    --color-secondary: #a54e62;
+    --color-secondary-foreground: #ffffff;
+    --color-accent: #ffc352;
+    --color-accent-foreground: #1a1a1a;
+    --color-success: #4aa63c;
+    --color-success-foreground: #ffffff;
+    --color-info: #0075a1;
+    --color-info-foreground: #ffffff;
+    --color-highlight: #006f82;
+    --color-highlight-foreground: #ffffff;
+    --color-destructive: #a54e62;
+    --color-destructive-foreground: #ffffff;
+
+    --color-background: #0f1214;
+    --color-background-light: #1a1d21;
+    --color-foreground: #ffffff;
+    --color-surface: #1a1d21;
+    --color-border: #2a2f33;
+    --color-input: #2a2f33;
+    --color-ring: #0062a3;
+
+    --color-text-primary: #ffffff;
+    --color-text-muted: #a0a0a0;
+    --color-muted: #1a1d21;
+    --color-muted-foreground: #a0a0a0;
+
+    --color-card: #1a1d21;
+    --color-card-foreground: #ffffff;
+    --color-modal: #1a1d21;
+    --color-navbar: #0f1214;
+    --color-button-primary: #0062a3;
+    --color-button-secondary: #ffc352;
+    --color-button-danger: #a54e62;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family:
+      'Inter',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Roboto,
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Custom animations */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.8s ease-out forwards;
+  }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 20px rgba(0, 174, 239, 0.4);
+    }
+    to {
+      box-shadow: 0 0 30px rgba(0, 174, 239, 0.8);
+    }
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, #00629b 0%, #00aeef 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Gradient background utilities */
+  .gradient-bg-blue {
+    background: linear-gradient(135deg, #00629b 0%, #00aeef 100%);
+  }
+
+  .gradient-bg-blue-dark {
+    background: linear-gradient(135deg, #00427a 0%, #0075a1 100%);
+  }
+}

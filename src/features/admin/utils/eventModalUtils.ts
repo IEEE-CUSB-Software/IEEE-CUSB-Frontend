@@ -1,0 +1,217 @@
+import type { AdminEvent } from './eventConversion';
+import type { EventFormValues, FormErrors } from '../types/eventModalTypes';
+import type { EventFormData } from '../types/eventFormTypes';
+import {
+  EVENT_FORM_CONSTRAINTS,
+  ERROR_MESSAGES,
+} from '../constants/eventModalConstants';
+
+export const validateFile = (file: File): string | undefined => {
+  // Check file size
+  if (file.size > EVENT_FORM_CONSTRAINTS.file.maxSize) {
+    return ERROR_MESSAGES.format.fileTooLarge;
+  }
+  // Check file type
+  const allowedTypes = EVENT_FORM_CONSTRAINTS.file.allowedImageTypes;
+  if (!allowedTypes.some(type => type === file.type)) {
+    return ERROR_MESSAGES.format.eventPosterFile;
+  }
+
+  return undefined;
+};
+
+export const validateEventPoster = (
+  value: File | string
+): string | undefined => {
+  if (!value) return ERROR_MESSAGES.required.eventPoster;
+
+  if (value instanceof File) {
+    return validateFile(value);
+  }
+
+  // If it's a string, validate as URL
+  if (typeof value === 'string') {
+    if (!value.trim()) return ERROR_MESSAGES.required.eventPoster;
+    if (!/^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i.test(value)) {
+      return ERROR_MESSAGES.format.eventPoster;
+    }
+  }
+
+  return undefined;
+};
+
+export const validateField = (
+  field: keyof EventFormValues,
+  value: string,
+  formValues?: EventFormValues
+): string | undefined => {
+  const stringValue = value as string;
+
+  switch (field) {
+    case 'title': {
+      if (!stringValue.trim()) return ERROR_MESSAGES.required.title;
+      if (stringValue.trim().length < EVENT_FORM_CONSTRAINTS.title.minLength) {
+        return ERROR_MESSAGES.length.titleMin;
+      }
+      if (stringValue.trim().length > EVENT_FORM_CONSTRAINTS.title.maxLength) {
+        return ERROR_MESSAGES.length.titleMax;
+      }
+      break;
+    }
+
+    case 'description': {
+      if (!stringValue.trim()) return ERROR_MESSAGES.required.description;
+      if (
+        stringValue.trim().length < EVENT_FORM_CONSTRAINTS.description.minLength
+      ) {
+        return ERROR_MESSAGES.length.descriptionMin;
+      }
+      if (
+        stringValue.trim().length > EVENT_FORM_CONSTRAINTS.description.maxLength
+      ) {
+        return ERROR_MESSAGES.length.descriptionMax;
+      }
+      break;
+    }
+
+    case 'startTime':
+    case 'endTime':
+    case 'registrationDeadline': {
+      if (!stringValue.trim()) return `${field} is required`;
+      const eventDate = new Date(stringValue);
+      if (isNaN(eventDate.getTime())) return 'Invalid date/time format';
+
+      // Validate end time is after start time
+      if (field === 'endTime' && formValues?.startTime) {
+        const startDate = new Date(formValues.startTime);
+        if (eventDate <= startDate) {
+          return 'End time must be after start time';
+        }
+      }
+
+      // Validate registration deadline is before start time
+      if (field === 'registrationDeadline' && formValues?.startTime) {
+        const startDate = new Date(formValues.startTime);
+        if (eventDate >= startDate) {
+          return 'Registration deadline must be before event start time';
+        }
+      }
+      break;
+    }
+
+    case 'location': {
+      if (!stringValue.trim()) return ERROR_MESSAGES.required.location;
+      if (
+        stringValue.trim().length < EVENT_FORM_CONSTRAINTS.location.minLength
+      ) {
+        return ERROR_MESSAGES.length.locationMin;
+      }
+      if (
+        stringValue.trim().length > EVENT_FORM_CONSTRAINTS.location.maxLength
+      ) {
+        return ERROR_MESSAGES.length.locationMax;
+      }
+      break;
+    }
+
+    case 'capacity': {
+      if (!value.trim()) return ERROR_MESSAGES.required.capacity;
+      const capacity = parseInt(value, 10);
+      if (isNaN(capacity)) return ERROR_MESSAGES.validation.mustBeNumber;
+      if (capacity < EVENT_FORM_CONSTRAINTS.capacity.min) {
+        return ERROR_MESSAGES.validation.capacityMin;
+      }
+      if (capacity > EVENT_FORM_CONSTRAINTS.capacity.max) {
+        return ERROR_MESSAGES.validation.capacityMax;
+      }
+      break;
+    }
+
+    case 'category': {
+      if (!stringValue.trim())
+        return ERROR_MESSAGES.required.category || 'Category is required';
+      break;
+    }
+
+    default:
+      break;
+  }
+
+  return undefined;
+};
+
+export const validateAllFields = (formValues: EventFormValues): FormErrors => {
+  const newErrors: FormErrors = {};
+
+  // Validate each field
+  (Object.keys(formValues) as Array<keyof EventFormValues>).forEach(field => {
+    const value = formValues[field];
+    if (value !== undefined) {
+      const error = validateField(field, value as string, formValues);
+      if (error) {
+        newErrors[field as keyof FormErrors] = error;
+      }
+    }
+  });
+
+  return newErrors;
+};
+
+export const convertEventToFormValues = (
+  event?: AdminEvent
+): EventFormValues => {
+  if (!event) {
+    return {
+      title: '',
+      description: '',
+      startTime: '',
+      endTime: '',
+      registrationDeadline: '',
+      location: '',
+      capacity: '',
+      category: 'Technical',
+    };
+  }
+
+  // Convert date from AdminEvent format (ISO string) to datetime-local format
+  const startDate = new Date(event.date);
+  const formattedStartTime = startDate.toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
+
+  // Default end time 2 hours after start
+  const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
+  const formattedEndTime = endDate.toISOString().slice(0, 16);
+
+  // Default registration deadline 1 day before start
+  const deadlineDate = new Date(startDate.getTime() - 24 * 60 * 60 * 1000);
+  const formattedDeadline = deadlineDate.toISOString().slice(0, 16);
+
+  return {
+    title: event.title,
+    description: event.description,
+    startTime: formattedStartTime,
+    endTime: formattedEndTime,
+    registrationDeadline: formattedDeadline,
+    location: event.location,
+    capacity: event.capacity.toString(),
+    category: event.category as 'Technical' | 'Non-Technical' | 'Social',
+  };
+};
+
+export const convertFormValuesToEventFormData = (
+  formValues: EventFormValues,
+  existingEvent?: AdminEvent
+): EventFormData => {
+  return {
+    id: existingEvent?.id,
+    title: formValues.title.trim(),
+    description: formValues.description.trim(),
+    location: formValues.location.trim(),
+    start_time: new Date(formValues.startTime).toISOString(),
+    end_time: new Date(formValues.endTime).toISOString(),
+    capacity: parseInt(formValues.capacity, 10),
+    registration_deadline: new Date(
+      formValues.registrationDeadline
+    ).toISOString(),
+    category: formValues.category,
+  };
+};
