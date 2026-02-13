@@ -1,9 +1,12 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { FaHome, FaCalendarAlt, FaFlask, FaUserCircle } from 'react-icons/fa';
+import { HiSun, HiMoon } from 'react-icons/hi';
+import { useTheme } from '@/shared/hooks/useTheme';
 import logo from '@/assets/logo.png';
 
 export const MobileNavbar = () => {
   const { pathname } = useLocation();
+  const { isDark, toggleTheme } = useTheme();
 
   const NAV_ITEMS = [
     { icon: FaHome, to: '/', title: 'Home' },
@@ -27,16 +30,30 @@ export const MobileNavbar = () => {
           >
             <Icon size={22} />
             <span
-              className={`${
-                active ? 'text-primary' : 'text-gray-500'
-              } text-xs`}
+              className={`${active ? 'text-primary' : 'text-gray-500'} text-xs`}
             >
               {title}
             </span>
           </NavLink>
         );
       })}
-      
+
+      {/* Theme Toggle Button */}
+      <button
+        onClick={toggleTheme}
+        className="inline-flex flex-col items-center gap-1 cursor-pointer group transition-colors"
+        aria-label="Toggle Theme"
+      >
+        {isDark ? (
+          <HiSun size={22} className="text-yellow-400" />
+        ) : (
+          <HiMoon size={22} className="text-blue-600" />
+        )}
+        <span className="text-xs text-gray-500 group-hover:text-primary">
+          Theme
+        </span>
+      </button>
+
       {/* Profile/Join Us Button */}
       <NavLink
         to="/join"
@@ -46,7 +63,9 @@ export const MobileNavbar = () => {
           size={22}
           className="text-gray-500 group-hover:text-primary transition-colors duration-200"
         />
-        <span className="text-xs text-gray-500 group-hover:text-primary">Join</span>
+        <span className="text-xs text-gray-500 group-hover:text-primary">
+          Join
+        </span>
       </NavLink>
 
       {/* Centered Logo Badge */}
@@ -60,11 +79,7 @@ export const MobileNavbar = () => {
           {/* Badge */}
           <div className="rounded-full p-1.5 bg-white dark:bg-[#1E1E1E] border border-gray-200 dark:border-gray-700 shadow-[0_8px_20px_rgba(0,0,0,0.08)]">
             <div className="rounded-full p-1 bg-gradient-to-b from-white to-blue-50 dark:from-[#1E1E1E] dark:to-blue-950">
-              <img
-                src={logo}
-                alt="IEEE CUSB"
-                className="block h-10 w-10"
-              />
+              <img src={logo} alt="IEEE CUSB" className="block h-10 w-10" />
             </div>
           </div>
         </div>

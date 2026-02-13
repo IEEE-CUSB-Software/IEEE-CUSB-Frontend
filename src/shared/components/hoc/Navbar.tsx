@@ -2,6 +2,8 @@ import { Link, NavLink } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa';
 import { FiLogOut, FiUser, FiSettings } from 'react-icons/fi';
 import { MdAdminPanelSettings } from 'react-icons/md';
+import { HiSun, HiMoon } from 'react-icons/hi';
+import { useTheme } from '@/shared/hooks/useTheme';
 import logo from '@/assets/logo.png';
 import { useEffect, useState } from 'react';
 import { useAppSelector } from '@/shared/store/hooks';
@@ -13,6 +15,7 @@ export const Navbar = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const { user, isAuthenticated } = useAppSelector(state => state.auth);
   const { mutate: logout } = useLogout();
+  const { isDark, toggleTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -91,6 +94,23 @@ export const Navbar = () => {
 
       {/* Right Action (Avatar / Sign In) */}
       <div className="absolute right-6 lg:right-10 flex items-center">
+        {/* Theme Toggle Button */}
+        <button
+          onClick={toggleTheme}
+          className={`mr-4 p-2 rounded-full transition-all duration-300 ${
+            scrolled
+              ? 'text-white hover:bg-white/10'
+              : 'text-gray-600 hover:bg-gray-100'
+          }`}
+          aria-label="Toggle Theme"
+        >
+          {isDark ? (
+            <HiSun className="w-6 h-6 text-yellow-400" />
+          ) : (
+            <HiMoon className="w-6 h-6 text-blue-600" />
+          )}
+        </button>
+
         {isAuthenticated && user ? (
           <div className="relative">
             <button

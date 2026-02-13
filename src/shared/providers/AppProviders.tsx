@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast';
 import { store } from '@/shared/store';
 import { queryClient } from './queryClient';
 import { AuthProvider } from './AuthProvider';
+import { ThemeProvider } from './ThemeProvider';
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -22,8 +23,10 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
     <ReduxProvider store={store}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          {children}
-          <Toaster position="top-right" />
+          <ThemeProvider>
+            {children}
+            <Toaster position="top-right" />
+          </ThemeProvider>
         </AuthProvider>
         {/* React Query Devtools - only shows in development */}
         {/* <ReactQueryDevtools initialIsOpen={false} /> */}

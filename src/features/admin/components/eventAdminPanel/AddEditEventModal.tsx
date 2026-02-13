@@ -6,6 +6,7 @@ import {
   Modal,
   DateTimePicker,
   NumberField,
+  Select,
 } from '@ieee-ui/ui';
 import type {
   AddEditEventModalProps,
@@ -18,6 +19,7 @@ import {
   convertEventToFormValues,
   convertFormValuesToEventFormData,
 } from '../../utils/eventModalUtils';
+import { useTheme } from '@/shared/hooks/useTheme';
 
 const AddEditEventModal: React.FC<AddEditEventModalProps> = ({
   event,
@@ -25,6 +27,7 @@ const AddEditEventModal: React.FC<AddEditEventModalProps> = ({
   onClose,
   onSave,
 }) => {
+  const { isDark } = useTheme();
   const isEditMode = !!event;
 
   // Use a key-based approach to reset form when event changes
@@ -43,12 +46,11 @@ const AddEditEventModal: React.FC<AddEditEventModalProps> = ({
   React.useEffect(() => {
     setFormValues(convertEventToFormValues(event));
     setErrors({});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formKey]);
 
   const handleInputChange =
     (field: keyof EventFormValues) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       const value = event.target.value;
       setFormValues((prev: EventFormValues) => ({ ...prev, [field]: value }));
 
@@ -115,6 +117,7 @@ const AddEditEventModal: React.FC<AddEditEventModalProps> = ({
               onChange={handleInputChange('title')}
               id="title"
               error={errors.title}
+              darkMode={isDark}
             />
           </div>
 
@@ -128,6 +131,7 @@ const AddEditEventModal: React.FC<AddEditEventModalProps> = ({
               id="description"
               maxLength={EVENT_FORM_CONSTRAINTS.description.maxLength}
               error={errors.description}
+              darkMode={isDark}
             />
           </div>
 
@@ -142,6 +146,7 @@ const AddEditEventModal: React.FC<AddEditEventModalProps> = ({
             }
             onChange={handleDateChange('startTime')}
             error={errors.startTime}
+            darkMode={isDark}
           />
 
           {/* End Date & Time */}
@@ -155,6 +160,7 @@ const AddEditEventModal: React.FC<AddEditEventModalProps> = ({
             }
             onChange={handleDateChange('endTime')}
             error={errors.endTime}
+            darkMode={isDark}
           />
 
           {/* Registration Deadline */}
@@ -169,6 +175,7 @@ const AddEditEventModal: React.FC<AddEditEventModalProps> = ({
               }
               onChange={handleDateChange('registrationDeadline')}
               error={errors.registrationDeadline}
+              darkMode={isDark}
             />
           </div>
 
@@ -181,6 +188,24 @@ const AddEditEventModal: React.FC<AddEditEventModalProps> = ({
               onChange={handleInputChange('location')}
               id="location"
               error={errors.location}
+              darkMode={isDark}
+            />
+          </div>
+
+          {/* Category */}
+          <div className="md:col-span-2">
+            <Select
+              id="category"
+              label="Category"
+              value={formValues.category}
+              onChange={handleInputChange('category')}
+              options={[
+                { value: 'Technical', label: 'Technical' },
+                { value: 'Non-Technical', label: 'Non-Technical' },
+                { value: 'Social', label: 'Social' },
+              ]}
+              error={errors.category}
+              darkMode={isDark}
             />
           </div>
 
@@ -194,6 +219,7 @@ const AddEditEventModal: React.FC<AddEditEventModalProps> = ({
             min={EVENT_FORM_CONSTRAINTS.capacity.min.toString()}
             max={EVENT_FORM_CONSTRAINTS.capacity.max.toString()}
             error={errors.capacity}
+            darkMode={isDark}
           />
         </div>
 
@@ -204,12 +230,14 @@ const AddEditEventModal: React.FC<AddEditEventModalProps> = ({
             onClick={onClose}
             type="basic"
             width="fit"
+            darkMode={isDark}
           />
           <Button
             buttonText={isEditMode ? 'Save Changes' : 'Create Event'}
             onClick={handleSave}
             type="primary"
             width="fit"
+            darkMode={isDark}
           />
         </div>
       </div>
