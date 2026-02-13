@@ -9,7 +9,7 @@ import {
   type EditLocationFormData,
 } from '@/features/admin/schemas';
 import toast from 'react-hot-toast';
-import { getErrorMessage } from '@/shared/utils';
+import { getErrorMessage } from '@/shared/utils/helpers';
 
 interface EditLocationModalProps {
   location: Location;
@@ -154,7 +154,7 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
           label="Location Image"
           value={imageValue}
           onChange={base64 =>
-            setValue('image', base64, { shouldValidate: true })
+            setValue('image', base64 as string, { shouldValidate: true })
           }
           error={errors.image?.message}
         />

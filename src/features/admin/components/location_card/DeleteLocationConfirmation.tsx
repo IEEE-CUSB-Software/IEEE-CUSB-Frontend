@@ -3,7 +3,7 @@ import { Button, Modal } from '@ieee-ui/ui';
 import type { Location } from '@/shared/queries/admin';
 import toast from 'react-hot-toast';
 import { FaExclamationTriangle } from 'react-icons/fa';
-import { getErrorMessage } from '@/shared/utils';
+import { getErrorMessage } from '@/shared/utils/helpers';
 
 interface DeleteLocationConfirmationProps {
   location: Location;

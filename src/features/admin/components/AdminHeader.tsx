@@ -20,7 +20,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick }) => {
 
   return (
     <header
-      className={`sticky top-0 z-30 px-6 py-4 backdrop-blur-md border-b transition-all duration-300 ${
+      className={`sticky top-0 z-30 px-4 md:px-6 py-4 backdrop-blur-md border-b transition-all duration-300 ${
         isDark
           ? 'bg-gray-950/80 border-gray-800'
           : 'bg-white/80 border-gray-200'
@@ -116,7 +116,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick }) => {
           <div className="relative">
             <button
               onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className={`flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full transition-all border ${
+              className={`flex items-center gap-2 md:gap-3 pl-2 pr-2 md:pr-4 py-1.5 rounded-full transition-all border ${
                 isDark
                   ? 'hover:bg-gray-800 border-transparent hover:border-gray-700'
                   : 'hover:bg-gray-50 border-transparent hover:border-gray-200'

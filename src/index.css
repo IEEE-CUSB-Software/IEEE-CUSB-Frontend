@@ -98,7 +98,7 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply min-h-screen bg-gradient-to-b from-blue-50/30 via-white to-blue-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-foreground;
     font-family:
       'Inter',
       -apple-system,

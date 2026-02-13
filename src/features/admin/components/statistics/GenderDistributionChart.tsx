@@ -1,36 +1,36 @@
-import React from "react";
-import ReactECharts from "echarts-for-react";
-import { useThemeColors } from "@/shared/hooks/useThemeColors";
+import React from 'react';
+import ReactECharts from 'echarts-for-react';
+import { useThemeColors } from '@/shared/hooks/useThemeColors';
 
 const GenderDistributionChart: React.FC = () => {
   const colors = useThemeColors();
 
   const data = [
-    { value: 735, name: "Male" },
-    { value: 580, name: "Female" },
+    { value: 735, name: 'Male' },
+    { value: 580, name: 'Female' },
   ];
 
   const option = {
     color: [colors.secondary, colors.primary],
     tooltip: {
-      trigger: "item",
-      formatter: "{b}: {c} ({d}%)",
+      trigger: 'item',
+      formatter: '{b}: {c} ({d}%)',
     },
     legend: {
       show: false,
     },
     series: [
       {
-        name: "Gender",
-        type: "pie",
-        radius: "70%",
-        center: ["50%", "55%"],
+        name: 'Gender',
+        type: 'pie',
+        radius: '70%',
+        center: ['50%', '55%'],
         data: data,
         emphasis: {
           itemStyle: {
             shadowBlur: 10,
             shadowOffsetX: 0,
-            shadowColor: "rgba(0, 0, 0, 0.5)",
+            shadowColor: 'rgba(0, 0, 0, 0.5)',
           },
         },
         itemStyle: {
@@ -55,7 +55,7 @@ const GenderDistributionChart: React.FC = () => {
       <div className="flex-1 min-h-[200px]">
         <ReactECharts
           option={option}
-          style={{ height: "100%", width: "100%" }}
+          style={{ height: '100%', width: '100%' }}
         />
       </div>
 
@@ -66,7 +66,7 @@ const GenderDistributionChart: React.FC = () => {
             className="text-3xl font-bold"
             style={{ color: colors.secondary }}
           >
-            {data[0].value}
+            {data[0]?.value}
           </span>
           <div className="flex items-center gap-2">
             <span
@@ -81,7 +81,7 @@ const GenderDistributionChart: React.FC = () => {
             className="text-3xl font-bold"
             style={{ color: colors.primary }}
           >
-            {data[1].value}
+            {data[1]?.value}
           </span>
           <div className="flex items-center gap-2">
             <span

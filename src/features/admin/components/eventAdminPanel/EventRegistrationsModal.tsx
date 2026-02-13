@@ -10,6 +10,7 @@ import {
   EventRegistrationStatus,
 } from '@/shared/types/events.types';
 import { useTheme } from '@/shared/hooks/useTheme';
+import { MobileRegistrationCard } from './MobileRegistrationCard';
 
 interface EventRegistrationsModalProps {
   isOpen: boolean;
@@ -179,12 +180,28 @@ export const EventRegistrationsModal = ({
           </div>
         ) : (
           <>
-            <Table
-              data={registrations}
-              columns={columns}
-              darkMode={isDark}
-              emptyMessage="No registrations found"
-            />
+            {/* Mobile View - Cards */}
+            <div className="md:hidden space-y-3">
+              {registrations.map(reg => (
+                <MobileRegistrationCard
+                  key={reg.id}
+                  registration={reg}
+                  isDark={isDark}
+                  isUpdating={isUpdating}
+                  onUpdateStatus={handleUpdateStatus}
+                />
+              ))}
+            </div>
+
+            {/* Desktop View - Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <Table
+                data={registrations}
+                columns={columns}
+                darkMode={isDark}
+                emptyMessage="No registrations found"
+              />
+            </div>
             {totalPages > 1 && (
               <Pagination
                 currentPage={page}

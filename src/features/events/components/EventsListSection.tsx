@@ -110,7 +110,7 @@ export const EventsListSection = () => {
   if (isLoading) {
     return (
       <section
-        className={`py-16 transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-background'}`}
+        className={`py-8 md:py-16 transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-background'}`}
       >
         <div className="max-w-7xl mx-auto px-6">
           <div className="mb-8">
@@ -202,7 +202,7 @@ export const EventsListSection = () => {
 
   return (
     <section
-      className={`py-16 transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-background'}`}
+      className={`py-8 md:py-16 transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-background'}`}
     >
       <div className="max-w-7xl mx-auto px-6">
         {/* Header Section */}

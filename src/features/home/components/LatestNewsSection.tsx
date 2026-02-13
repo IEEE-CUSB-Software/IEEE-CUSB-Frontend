@@ -58,7 +58,7 @@ export const LatestNewsSection = () => {
   ];
 
   return (
-    <section id="news" className="py-24 px-6 bg-background">
+    <section id="news" className="py-12 md:py-24 px-6 bg-background">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-12">
           <div>
