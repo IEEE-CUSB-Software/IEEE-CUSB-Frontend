@@ -48,7 +48,7 @@ export const MobileNavbar = () => {
     <>
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end md:hidden">
+        <div className="fixed inset-0 z-50 hidden max-md:flex flex-col justify-end">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
@@ -224,7 +224,7 @@ export const MobileNavbar = () => {
 
       {/* Navigation Bar */}
       <nav
-        className={`fixed bottom-0 left-0 right-0 z-40 w-full grid md:hidden grid-cols-7 items-center h-16 border-t rounded-t-3xl shadow-lg transition-all duration-300 ${
+        className={`fixed bottom-0 left-0 right-0 z-40 w-full hidden max-md:grid grid-cols-7 items-center h-16 border-t rounded-t-3xl shadow-lg transition-all duration-300 ${
           isDark
             ? 'bg-gray-900/95 backdrop-blur-xl border-gray-800 shadow-blue-900/10'
             : 'bg-white/95 backdrop-blur-xl border-gray-100 shadow-gray-200/50'
