@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { InputField, Button, TextArea, Modal } from '@ieee-ui/ui';
+import {
+  InputField,
+  Button,
+  TextArea,
+  Modal,
+  DateTimePicker,
+  NumberField,
+} from '@ieee-ui/ui';
 import type {
   AddEditEventModalProps,
   EventFormValues,
@@ -11,11 +18,6 @@ import {
   convertEventToFormValues,
   convertFormValuesToEventFormData,
 } from '../../utils/eventModalUtils';
-import {
-  FormFieldWithError,
-  NumberInputField,
-  DateTimeInputField,
-} from './EventModalFormFields';
 
 const AddEditEventModal: React.FC<AddEditEventModalProps> = ({
   event,
@@ -66,6 +68,23 @@ const AddEditEventModal: React.FC<AddEditEventModalProps> = ({
     }
   };
 
+  const handleDateChange =
+    (field: keyof EventFormValues) => (timestamp: number) => {
+      const d = new Date(timestamp);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const hours = String(d.getHours()).padStart(2, '0');
+      const minutes = String(d.getMinutes()).padStart(2, '0');
+      const value = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+      setFormValues((prev: EventFormValues) => ({ ...prev, [field]: value }));
+
+      if (errors[field as keyof FormErrors]) {
+        setErrors((prev: FormErrors) => ({ ...prev, [field]: undefined }));
+      }
+    };
+
   const handleSave = () => {
     const validationErrors = validateAllFields(formValues);
 
@@ -89,95 +108,93 @@ const AddEditEventModal: React.FC<AddEditEventModalProps> = ({
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* Event Title */}
           <div className="md:col-span-2">
-            <FormFieldWithError error={errors.title}>
-              <InputField
-                label="Event Title"
-                value={formValues.title}
-                placeholder="Enter event title"
-                onChange={handleInputChange('title')}
-                id="title"
-                error={errors.title}
-              />
-            </FormFieldWithError>
+            <InputField
+              label="Event Title"
+              value={formValues.title}
+              placeholder="Enter event title"
+              onChange={handleInputChange('title')}
+              id="title"
+              error={errors.title}
+            />
           </div>
 
           {/* Event Description */}
           <div className="md:col-span-2">
-            <FormFieldWithError error={errors.description}>
-              <TextArea
-                label="Event Description"
-                value={formValues.description}
-                placeholder="Enter detailed event description"
-                onChange={handleTextAreaChange}
-                id="description"
-                maxLength={EVENT_FORM_CONSTRAINTS.description.maxLength}
-                error={errors.description}
-              />
-            </FormFieldWithError>
+            <TextArea
+              label="Event Description"
+              value={formValues.description}
+              placeholder="Enter detailed event description"
+              onChange={handleTextAreaChange}
+              id="description"
+              maxLength={EVENT_FORM_CONSTRAINTS.description.maxLength}
+              error={errors.description}
+            />
           </div>
 
           {/* Start Date & Time */}
-          <FormFieldWithError error={errors.startTime}>
-            <DateTimeInputField
-              id="startTime"
-              label="Start Date & Time"
-              value={formValues.startTime}
-              onChange={handleInputChange('startTime')}
-              error={errors.startTime}
-            />
-          </FormFieldWithError>
+          <DateTimePicker
+            id="startTime"
+            label="Start Date & Time"
+            value={
+              formValues.startTime
+                ? new Date(formValues.startTime).getTime()
+                : undefined
+            }
+            onChange={handleDateChange('startTime')}
+            error={errors.startTime}
+          />
 
           {/* End Date & Time */}
-          <FormFieldWithError error={errors.endTime}>
-            <DateTimeInputField
-              id="endTime"
-              label="End Date & Time"
-              value={formValues.endTime}
-              onChange={handleInputChange('endTime')}
-              error={errors.endTime}
-            />
-          </FormFieldWithError>
+          <DateTimePicker
+            id="endTime"
+            label="End Date & Time"
+            value={
+              formValues.endTime
+                ? new Date(formValues.endTime).getTime()
+                : undefined
+            }
+            onChange={handleDateChange('endTime')}
+            error={errors.endTime}
+          />
 
           {/* Registration Deadline */}
           <div className="md:col-span-2">
-            <FormFieldWithError error={errors.registrationDeadline}>
-              <DateTimeInputField
-                id="registrationDeadline"
-                label="Registration Deadline"
-                value={formValues.registrationDeadline}
-                onChange={handleInputChange('registrationDeadline')}
-                error={errors.registrationDeadline}
-              />
-            </FormFieldWithError>
+            <DateTimePicker
+              id="registrationDeadline"
+              label="Registration Deadline"
+              value={
+                formValues.registrationDeadline
+                  ? new Date(formValues.registrationDeadline).getTime()
+                  : undefined
+              }
+              onChange={handleDateChange('registrationDeadline')}
+              error={errors.registrationDeadline}
+            />
           </div>
 
           {/* Location */}
           <div className="md:col-span-2">
-            <FormFieldWithError error={errors.location}>
-              <InputField
-                label="Location"
-                value={formValues.location}
-                placeholder="Enter event location"
-                onChange={handleInputChange('location')}
-                id="location"
-                error={errors.location}
-              />
-            </FormFieldWithError>
+            <InputField
+              label="Location"
+              value={formValues.location}
+              placeholder="Enter event location"
+              onChange={handleInputChange('location')}
+              id="location"
+              error={errors.location}
+            />
           </div>
 
           {/* Capacity */}
-          <FormFieldWithError error={errors.capacity}>
-            <NumberInputField
-              id="capacity"
-              label="Capacity"
-              value={formValues.capacity}
-              onChange={handleInputChange('capacity')}
-              placeholder="Enter event capacity"
-              min={EVENT_FORM_CONSTRAINTS.capacity.min.toString()}
-              max={EVENT_FORM_CONSTRAINTS.capacity.max.toString()}
-              error={errors.capacity}
-            />
-          </FormFieldWithError>
+          <NumberField
+            id="capacity"
+            label="Capacity"
+            value={formValues.capacity}
+            onChange={handleInputChange('capacity')}
+            placeholder="Enter event capacity"
+            min={EVENT_FORM_CONSTRAINTS.capacity.min.toString()}
+            max={EVENT_FORM_CONSTRAINTS.capacity.max.toString()}
+            error={errors.capacity}
+          />
         </div>
 
         {/* Action Buttons */}
