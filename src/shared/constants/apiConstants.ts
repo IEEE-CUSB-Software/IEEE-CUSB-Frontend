@@ -43,13 +43,13 @@ export const API_ENDPOINTS = {
     CREATE: '/events',
     GET_ALL: '/events',
     GET_ONE: (id: string) => `/events/${id}`,
-    UPDATE: (id: string) => `/events/${id}`,
-    DELETE: (id: string) => `/events/${id}`,
+    UPDATE: (id: string) => `/admin/events/${id}`,
+    DELETE: (id: string) => `/admin/events/${id}`,
     REGISTER: (id: string) => `/events/${id}/register`,
-    CANCEL_REGISTRATION: (id: string) => `/events/${id}/cancel`,
-    GET_REGISTRATIONS: (id: string) => `/events/${id}/registrations`,
+    CANCEL_REGISTRATION: (id: string) => `/admin/events/${id}/cancel`,
+    GET_REGISTRATIONS: (id: string) => `/admin/events/${id}/registrations`,
     UPDATE_REGISTRATION_STATUS: (eventId: string, registrationId: string) =>
-      `/events/${eventId}/registrations/${registrationId}/status`,
+      `admin//events/${eventId}/registrations/${registrationId}/status`,
   },
 } as const;
 
