@@ -22,7 +22,7 @@ export const Layout = () => {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-background font-sans text-foreground">
+    <div className="flex min-h-screen flex-col bg-background font-sans text-foreground transition-colors duration-300">
       {/* Page Loader - Shows during route transitions */}
       {isLoading && (
         <div className="fixed inset-0 z-999">

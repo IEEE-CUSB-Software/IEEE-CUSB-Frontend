@@ -105,6 +105,7 @@ const AddEditEventModal: React.FC<AddEditEventModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       className="max-w-4xl"
+      darkMode={isDark}
     >
       <div className="space-y-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

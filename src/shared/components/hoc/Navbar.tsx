@@ -30,11 +30,17 @@ export const Navbar = () => {
     `text-lg font-medium transition-colors ${
       isActive
         ? scrolled
-          ? 'text-blue-400'
+          ? isDark
+            ? 'text-blue-400'
+            : 'text-primary'
           : 'text-primary'
         : scrolled
-          ? 'text-white/90 hover:text-blue-300'
-          : 'text-gray-600 hover:text-primary'
+          ? isDark
+            ? 'text-white/90 hover:text-blue-300'
+            : 'text-gray-900/90 hover:text-primary'
+          : isDark
+            ? 'text-gray-300 hover:text-white'
+            : 'text-gray-600 hover:text-primary'
     }`;
 
   const isAdmin =
@@ -46,8 +52,12 @@ export const Navbar = () => {
       className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-[1237px] h-[74px] rounded-full flex items-center px-4 lg:px-8 transition-all duration-300
         ${
           scrolled
-            ? 'bg-[#010619]/60 backdrop-blur-2xl border border-white/10 shadow-lg shadow-blue-900/10'
-            : 'bg-white/50 backdrop-blur-md border border-white/20'
+            ? isDark
+              ? 'bg-[#010619]/60 backdrop-blur-2xl border border-white/10 shadow-lg shadow-blue-900/10'
+              : 'bg-white/80 backdrop-blur-2xl border border-gray-200 shadow-lg shadow-gray-200/50'
+            : isDark
+              ? 'bg-gray-900/40 backdrop-blur-md border border-white/10'
+              : 'bg-white/50 backdrop-blur-md border border-white/20'
         }`}
     >
       {/* Centered Navigation Group */}
@@ -68,7 +78,15 @@ export const Navbar = () => {
         {/* Logo */}
         <Link to="/" className="shrink-0 mx-2">
           <div
-            className={`p-1.5 rounded-full shadow-lg transition-all duration-300 ${scrolled ? 'bg-white/90 shadow-primary/20' : 'bg-primary/5 shadow-none'}`}
+            className={`p-1.5 rounded-full shadow-lg transition-all duration-300 ${
+              scrolled
+                ? isDark
+                  ? 'bg-white/90 shadow-primary/20'
+                  : 'bg-primary shadow-primary/20'
+                : isDark
+                  ? 'bg-white/10 shadow-none'
+                  : 'bg-primary/5 shadow-none'
+            }`}
           >
             <img
               src={logo}
@@ -94,13 +112,16 @@ export const Navbar = () => {
 
       {/* Right Action (Avatar / Sign In) */}
       <div className="absolute right-6 lg:right-10 flex items-center">
-        {/* Theme Toggle Button */}
         <button
           onClick={toggleTheme}
           className={`mr-4 p-2 rounded-full transition-all duration-300 ${
             scrolled
-              ? 'text-white hover:bg-white/10'
-              : 'text-gray-600 hover:bg-gray-100'
+              ? isDark
+                ? 'text-white hover:bg-white/10'
+                : 'text-gray-900 hover:bg-gray-100'
+              : isDark
+                ? 'text-gray-300 hover:bg-white/10'
+                : 'text-gray-600 hover:bg-gray-100'
           }`}
           aria-label="Toggle Theme"
         >
@@ -115,7 +136,15 @@ export const Navbar = () => {
           <div className="relative">
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className={`flex items-center gap-2 transition-colors ${scrolled ? 'text-white hover:text-accent' : 'text-secondary hover:text-secondary/80'}`}
+              className={`flex items-center gap-2 transition-colors ${
+                scrolled
+                  ? isDark
+                    ? 'text-white hover:text-accent'
+                    : 'text-gray-900 hover:text-primary'
+                  : isDark
+                    ? 'text-gray-300 hover:text-white'
+                    : 'text-secondary hover:text-secondary/80'
+              }`}
             >
               {user.avatar_url ? (
                 <img
@@ -135,16 +164,34 @@ export const Navbar = () => {
                   className="fixed inset-0 z-40"
                   onClick={() => setShowUserMenu(false)}
                 />
-                <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                <div
+                  className={`absolute right-0 mt-2 w-64 rounded-2xl shadow-xl border overflow-hidden z-50 transition-all duration-300 ${
+                    isDark
+                      ? 'bg-gray-900 border-gray-800 text-white'
+                      : 'bg-white border-gray-100 text-gray-900'
+                  }`}
+                >
                   {/* User Info */}
-                  <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                    <p className="font-semibold text-gray-900 dark:text-white">
+                  <div
+                    className={`p-4 border-b transition-colors duration-300 ${isDark ? 'border-gray-800' : 'border-gray-100'}`}
+                  >
+                    <p
+                      className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}
+                    >
                       {user.name}
                     </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p
+                      className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
+                    >
                       {user.email}
                     </p>
-                    <span className="inline-block mt-2 px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    <span
+                      className={`inline-block mt-2 px-2 py-1 text-xs font-medium rounded-full ${
+                        isDark
+                          ? 'bg-blue-900/30 text-blue-300'
+                          : 'bg-blue-50 text-blue-700'
+                      }`}
+                    >
                       {user?.role?.name}
                     </span>
                   </div>
@@ -155,38 +202,56 @@ export const Navbar = () => {
                       <Link
                         to="/admin"
                         onClick={() => setShowUserMenu(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
+                          isDark
+                            ? 'text-gray-300 hover:bg-gray-800'
+                            : 'text-gray-700 hover:bg-gray-50'
+                        }`}
                       >
-                        <MdAdminPanelSettings className="w-5 h-5" />
+                        <MdAdminPanelSettings className="w-5 h-5 text-primary" />
                         <span>Admin Panel</span>
                       </Link>
                     )}
                     <Link
                       to="/profile"
                       onClick={() => setShowUserMenu(false)}
-                      className="flex items-center gap-3 px-4 py-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
+                        isDark
+                          ? 'text-gray-300 hover:bg-gray-800'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
                     >
-                      <FiUser className="w-5 h-5" />
+                      <FiUser className="w-5 h-5 text-primary" />
                       <span>My Profile</span>
                     </Link>
                     <Link
                       to="/settings"
                       onClick={() => setShowUserMenu(false)}
-                      className="flex items-center gap-3 px-4 py-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
+                        isDark
+                          ? 'text-gray-300 hover:bg-gray-800'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
                     >
-                      <FiSettings className="w-5 h-5" />
+                      <FiSettings className="w-5 h-5 text-primary" />
                       <span>Settings</span>
                     </Link>
                   </div>
 
                   {/* Logout */}
-                  <div className="border-t border-gray-200 dark:border-gray-700">
+                  <div
+                    className={`border-t transition-colors duration-300 ${isDark ? 'border-gray-800' : 'border-gray-100'}`}
+                  >
                     <button
                       onClick={() => {
                         setShowUserMenu(false);
                         logout();
                       }}
-                      className="flex items-center gap-3 w-full px-4 py-2.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                      className={`flex items-center gap-3 w-full px-4 py-2.5 transition-colors ${
+                        isDark
+                          ? 'text-red-400 hover:bg-red-950/20'
+                          : 'text-red-600 hover:bg-red-50'
+                      }`}
                     >
                       <FiLogOut className="w-5 h-5" />
                       <span>Logout</span>

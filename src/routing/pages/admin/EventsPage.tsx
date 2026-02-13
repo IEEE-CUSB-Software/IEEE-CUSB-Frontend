@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { useTheme } from '@/shared/hooks/useTheme';
 import { MdAdd } from 'react-icons/md';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import AddEditEventModal from '@/features/admin/components/eventAdminPanel/AddEditEventModal';
@@ -42,6 +43,7 @@ const getEventStatus = (event: Event): 'Upcoming' | 'Ongoing' | 'Completed' => {
 };
 
 export const EventsPage = () => {
+  const { isDark } = useTheme();
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | undefined>(
     undefined
@@ -119,31 +121,37 @@ export const EventsPage = () => {
       {
         header: 'Event Name',
         accessorKey: 'title',
-        className: 'font-medium text-gray-900',
+        className: `font-medium transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`,
       },
       {
         header: 'Date',
         cell: item => formatDate(item.start_time),
-        className: 'text-gray-600',
+        className: `transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'}`,
       },
       {
         header: 'Location',
         accessorKey: 'location',
-        className: 'text-gray-600',
+        className: `transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'}`,
       },
       {
         header: 'Capacity',
         accessorKey: 'capacity',
-        className: 'text-gray-600 text-center',
+        className: `text-center transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'}`,
       },
       {
         header: 'Status',
         cell: item => {
           const status = getEventStatus(item);
           const statusColors = {
-            Upcoming: 'bg-blue-50 text-blue-700',
-            Ongoing: 'bg-green-50 text-green-700',
-            Completed: 'bg-gray-50 text-gray-700',
+            Upcoming: isDark
+              ? 'bg-blue-900/30 text-blue-300'
+              : 'bg-blue-50 text-blue-700',
+            Ongoing: isDark
+              ? 'bg-green-900/30 text-green-300'
+              : 'bg-green-50 text-green-700',
+            Completed: isDark
+              ? 'bg-gray-800 text-gray-400'
+              : 'bg-gray-50 text-gray-700',
           };
           return (
             <span
@@ -161,14 +169,22 @@ export const EventsPage = () => {
           <div className="flex items-center justify-end gap-2">
             <button
               onClick={() => handleEditEvent(item)}
-              className="p-2 text-gray-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
+              className={`p-2 rounded-lg transition-colors ${
+                isDark
+                  ? 'text-gray-500 hover:text-primary hover:bg-primary/10'
+                  : 'text-gray-400 hover:text-primary hover:bg-primary/5'
+              }`}
               title="Edit event"
             >
               <FiEdit2 className="w-4 h-4" />
             </button>
             <button
               onClick={() => handleDeleteEvent(item)}
-              className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+              className={`p-2 rounded-lg transition-colors ${
+                isDark
+                  ? 'text-gray-500 hover:text-red-400 hover:bg-red-400/10'
+                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+              }`}
               title="Delete event"
             >
               <FiTrash2 className="w-4 h-4" />
@@ -177,7 +193,7 @@ export const EventsPage = () => {
         ),
       },
     ],
-    [handleEditEvent, handleDeleteEvent]
+    [handleEditEvent, handleDeleteEvent, isDark]
   );
 
   // Loading state
@@ -186,15 +202,27 @@ export const EventsPage = () => {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1
+              className={`text-2xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`}
+            >
               Event Management
             </h1>
-            <p className="text-gray-500">Create and manage upcoming events</p>
+            <p
+              className={`transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
+            >
+              Create and manage upcoming events
+            </p>
           </div>
         </div>
-        <div className="bg-white rounded-lg p-8 text-center">
+        <div
+          className={`rounded-lg p-8 text-center transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-white'}`}
+        >
           <div className="inline-block w-8 h-8 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
-          <p className="mt-4 text-gray-500">Loading events...</p>
+          <p
+            className={`mt-4 transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
+          >
+            Loading events...
+          </p>
         </div>
       </div>
     );
@@ -206,16 +234,22 @@ export const EventsPage = () => {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1
+              className={`text-2xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`}
+            >
               Event Management
             </h1>
-            <p className="text-gray-500">Create and manage upcoming events</p>
+            <p
+              className={`transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
+            >
+              Create and manage upcoming events
+            </p>
           </div>
         </div>
-        <div className="bg-red-50 rounded-lg p-8 text-center">
-          <p className="text-red-500">
-            Failed to load events. Please try again later.
-          </p>
+        <div
+          className={`rounded-lg p-8 text-center transition-colors duration-300 ${isDark ? 'bg-red-950/20 text-red-400' : 'bg-red-50 text-red-500'}`}
+        >
+          <p>Failed to load events. Please try again later.</p>
         </div>
       </div>
     );
@@ -225,10 +259,14 @@ export const EventsPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 sm:text-center">
+          <h1
+            className={`text-2xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'} sm:text-center`}
+          >
             Event Management
           </h1>
-          <p className="text-gray-500 sm:text-center">
+          <p
+            className={`transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-500'} sm:text-center`}
+          >
             Create and manage upcoming events
           </p>
         </div>
@@ -243,11 +281,18 @@ export const EventsPage = () => {
       </div>
 
       {events.length === 0 ? (
-        <div className="bg-white rounded-lg p-8 text-center text-gray-500">
+        <div
+          className={`rounded-lg p-8 text-center transition-colors duration-300 ${isDark ? 'bg-gray-900 text-gray-400' : 'bg-white text-gray-500'}`}
+        >
           <p>No events found. Create your first event to get started!</p>
         </div>
       ) : (
-        <Table data={events} columns={columns} emptyMessage="No events found" />
+        <Table
+          data={events}
+          columns={columns}
+          emptyMessage="No events found"
+          darkMode={isDark}
+        />
       )}
 
       {/* Pagination */}

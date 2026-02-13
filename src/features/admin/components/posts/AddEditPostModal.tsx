@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button, InputField, Modal, TextArea, ImageUpload } from '@ieee-ui/ui';
+import { useTheme } from '@/shared/hooks/useTheme';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -23,6 +24,7 @@ const AddEditPostModal: React.FC<AddEditPostModalProps> = ({
   onClose,
   post,
 }) => {
+  const { isDark } = useTheme();
   const {
     control,
     handleSubmit,
@@ -52,6 +54,7 @@ const AddEditPostModal: React.FC<AddEditPostModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       className="max-w-2xl"
+      darkMode={isDark}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div>
@@ -66,6 +69,7 @@ const AddEditPostModal: React.FC<AddEditPostModalProps> = ({
                 onChange={field.onChange}
                 placeholder="Enter post title"
                 error={errors.title?.message}
+                darkMode={isDark}
               />
             )}
           />
@@ -83,6 +87,7 @@ const AddEditPostModal: React.FC<AddEditPostModalProps> = ({
                 onChange={field.onChange}
                 placeholder="Write your post content..."
                 error={errors.content?.message}
+                darkMode={isDark}
               />
             )}
           />
@@ -95,20 +100,25 @@ const AddEditPostModal: React.FC<AddEditPostModalProps> = ({
             setValue('image', base64, { shouldValidate: true })
           }
           error={errors.image?.message as string}
+          darkMode={isDark}
         />
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+        <div
+          className={`flex justify-end gap-3 pt-4 border-t transition-colors duration-300 ${isDark ? 'border-gray-800' : 'border-gray-200'}`}
+        >
           <Button
             buttonText="Cancel"
             onClick={onClose}
             type="secondary"
             width="auto"
+            darkMode={isDark}
           />
           <Button
             buttonText={post ? 'Save Changes' : 'Create Post'}
             onClick={handleSubmit(onSubmit)}
             type="primary"
             width="auto"
+            darkMode={isDark}
           />
         </div>
       </form>
