@@ -68,7 +68,9 @@ export const TrophiesAwardsSection = ({
   darkMode,
 }: TrophiesAwardsSectionProps) => {
   return (
-    <section className={`py-24 px-6 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
+    <section
+      className={`py-12 md:py-24 px-6 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}
+    >
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <motion.div

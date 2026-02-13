@@ -9,7 +9,9 @@ export const VisionMissionSection = ({
   darkMode,
 }: VisionMissionSectionProps) => {
   return (
-    <section className={`py-20 px-6 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
+    <section
+      className={`py-12 md:py-20 px-6 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}
+    >
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12">
           {/* Our Vision */}

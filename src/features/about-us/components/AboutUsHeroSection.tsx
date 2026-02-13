@@ -14,7 +14,7 @@ export const AboutUsHeroSection = ({ darkMode }: AboutUsHeroSectionProps) => {
           : 'bg-gradient-to-b from-gray-50 to-white'
       }`}
     >
-      <div className="max-w-7xl mx-auto w-full">
+      <div className="max-w-7xl mx-auto w-full py-12 md:py-20">
         {/* Split Column Layout */}
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Column - Heading & Description */}

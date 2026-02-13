@@ -47,7 +47,7 @@ export const LegacyTimelineSection = ({
 }: LegacyTimelineSectionProps) => {
   return (
     <section
-      className={`py-24 px-6 ${
+      className={`py-12 md:py-24 px-6 ${
         darkMode
           ? 'bg-gradient-to-b from-gray-900 to-gray-800'
           : 'bg-gradient-to-b from-gray-50 to-white'

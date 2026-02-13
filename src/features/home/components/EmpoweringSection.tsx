@@ -100,7 +100,7 @@ export const EmpoweringSection = () => {
   ];
 
   return (
-    <section className="py-24 px-6 bg-background">
+    <section className="py-12 md:py-24 px-6 bg-background">
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Image */}

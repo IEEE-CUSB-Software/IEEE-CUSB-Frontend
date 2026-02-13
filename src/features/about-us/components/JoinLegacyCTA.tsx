@@ -8,7 +8,7 @@ interface JoinLegacyCTAProps {
 export const JoinLegacyCTA = ({ darkMode }: JoinLegacyCTAProps) => {
   return (
     <section
-      className={`relative overflow-hidden py-24 px-6 ${
+      className={`relative overflow-hidden py-12 md:py-24 px-6 ${
         darkMode
           ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900'
           : 'bg-gradient-to-br from-blue-600 to-blue-800'

@@ -6,6 +6,7 @@ import AddEditEventModal from '@/features/admin/components/eventAdminPanel/AddEd
 import { EventRegistrationsModal } from '@/features/admin/components/eventAdminPanel/EventRegistrationsModal';
 import { Table, type ColumnDef } from '@ieee-ui/ui';
 import { Pagination } from '@/shared/components/ui/Pagination';
+import { MobileEventCard } from '@/features/admin/components/eventAdminPanel/MobileEventCard';
 import {
   useEvents,
   useCreateEvent,
@@ -308,12 +309,32 @@ export const EventsPage = () => {
           <p>No events found. Create your first event to get started!</p>
         </div>
       ) : (
-        <Table
-          data={events}
-          columns={columns}
-          emptyMessage="No events found"
-          darkMode={isDark}
-        />
+        <>
+          {/* Mobile View - Cards */}
+          <div className="md:hidden space-y-4">
+            {events.map(event => (
+              <MobileEventCard
+                key={event.id}
+                event={event}
+                isDark={isDark}
+                onEdit={handleEditEvent}
+                onViewRegistrations={handleViewRegistrations}
+                onDelete={handleDeleteEvent}
+                getEventStatus={getEventStatus}
+              />
+            ))}
+          </div>
+
+          {/* Desktop View - Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <Table
+              data={events}
+              columns={columns}
+              emptyMessage="No events found"
+              darkMode={isDark}
+            />
+          </div>
+        </>
       )}
 
       {/* Pagination */}

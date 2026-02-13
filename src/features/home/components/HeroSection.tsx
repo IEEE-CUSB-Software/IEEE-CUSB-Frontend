@@ -13,8 +13,8 @@ export const HeroSection = ({
   onCardExpand,
 }: HeroSectionProps) => {
   return (
-    <section className="relative h-screen px-6 flex items-center bg-background">
-      <div className="max-w-7xl mx-auto w-full py-20">
+    <section className="relative min-h-screen px-6 flex items-center bg-background py-12 md:py-0">
+      <div className="max-w-7xl mx-auto w-full py-12 md:py-20">
         {/* Split Column Layout */}
         <div className="grid lg:grid-cols-2 gap-8 mb-8 mt-8">
           {/* Left Column - Heading */}
