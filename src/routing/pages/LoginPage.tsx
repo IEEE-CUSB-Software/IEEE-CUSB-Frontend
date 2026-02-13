@@ -5,11 +5,13 @@ import { loginSchema, type LoginFormData } from '@/features/auth/schemas';
 import { useLogin } from '@/shared/queries/auth';
 import { Button, InputField } from '@ieee-ui/ui';
 import logo from '@/assets/logo.png';
+import { useTheme } from '@/shared/hooks/useTheme';
 
 /**
  * Login Page Component
  */
 export const LoginPage = () => {
+  const { isDark } = useTheme();
   const { mutate: login, isPending } = useLogin();
 
   const {
@@ -27,25 +29,49 @@ export const LoginPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
       {/* Animated Gradient Background */}
-      <div className="absolute inset-0 bg-linear-to-br from-blue-50 via-purple-50 to-pink-50 animate-gradient-xy">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),rgba(255,255,255,0))]" />
+      <div
+        className={`absolute inset-0 bg-linear-to-br transition-colors duration-500 ${
+          isDark
+            ? 'from-gray-900 via-blue-900 to-gray-900'
+            : 'from-blue-50 via-purple-50 to-pink-50'
+        } animate-gradient-xy`}
+      >
+        <div
+          className={`absolute inset-0 ${
+            isDark
+              ? 'bg-[radial-gradient(circle_at_50%_50%,rgba(0,10,50,0.5),rgba(0,0,0,0))]'
+              : 'bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),rgba(255,255,255,0))]'
+          }`}
+        />
       </div>
 
       <div className="w-full max-w-md relative z-10">
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 p-8">
+        <div
+          className={`backdrop-blur-xl rounded-2xl shadow-2xl border transition-all duration-300 p-8 ${
+            isDark
+              ? 'bg-gray-800/80 border-gray-700/50 shadow-blue-900/20'
+              : 'bg-white/80 border-white/20 shadow-gray-200'
+          }`}
+        >
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
               <img
                 src={logo}
                 alt="IEEE CUSB Logo"
-                className="h-20 w-20 object-contain"
+                className={`h-20 w-20 object-contain transition-all duration-300 ${isDark ? 'drop-shadow-[0_0_10px_rgba(59,130,246,0.3)]' : ''}`}
               />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1
+              className={`text-3xl font-bold mb-2 transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`}
+            >
               Welcome Back
             </h1>
-            <p className="text-gray-600">Sign in to your IEEE CUSB account</p>
+            <p
+              className={`transition-colors duration-300 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}
+            >
+              Sign in to your IEEE CUSB account
+            </p>
           </div>
 
           {/* Login Form */}
@@ -54,7 +80,7 @@ export const LoginPage = () => {
             <div>
               <label
                 htmlFor="identifier"
-                className="block text-sm font-medium text-gray-800 mb-2"
+                className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}
               >
                 Email or Username
               </label>
@@ -65,6 +91,7 @@ export const LoginPage = () => {
                 {...register('identifier')}
                 error={errors.identifier?.message}
                 disabled={isPending}
+                darkMode={isDark}
               />
             </div>
 
@@ -72,7 +99,7 @@ export const LoginPage = () => {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-800 mb-2"
+                className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}
               >
                 Password
               </label>
@@ -83,6 +110,7 @@ export const LoginPage = () => {
                 {...register('password')}
                 error={errors.password?.message}
                 disabled={isPending}
+                darkMode={isDark}
               />
             </div>
 
@@ -90,7 +118,7 @@ export const LoginPage = () => {
             <div className="flex items-center justify-end">
               <Link
                 to="/forgot-password"
-                className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                className={`text-sm font-medium transition-colors duration-300 ${isDark ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'}`}
               >
                 Forgot password?
               </Link>
@@ -104,6 +132,7 @@ export const LoginPage = () => {
               className="w-full"
               disabled={isPending}
               loading={isPending}
+              darkMode={isDark}
             >
               {isPending ? 'Signing in...' : 'Sign In'}
             </Button>
@@ -113,10 +142,14 @@ export const LoginPage = () => {
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
+                <div
+                  className={`w-full border-t transition-colors duration-300 ${isDark ? 'border-gray-700' : 'border-gray-300'}`}
+                />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white/80 text-gray-500">
+                <span
+                  className={`px-2 transition-all duration-300 ${isDark ? 'bg-gray-800/80 text-gray-400' : 'bg-white/80 text-gray-500'}`}
+                >
                   Or continue with
                 </span>
               </div>
@@ -128,9 +161,10 @@ export const LoginPage = () => {
             <Button
               type="basic"
               onClick={() =>
-                (window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/google`) 
+                (window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/google`)
               }
               disabled={isPending}
+              darkMode={isDark}
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                 <path
@@ -158,6 +192,7 @@ export const LoginPage = () => {
                 (window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/github`)
               }
               disabled={isPending}
+              darkMode={isDark}
             >
               <svg
                 className="w-5 h-5 mr-2"
@@ -171,11 +206,13 @@ export const LoginPage = () => {
           </div>
 
           {/* Sign Up Link */}
-          <p className="mt-8 text-center text-sm text-gray-600">
+          <p
+            className={`mt-8 text-center text-sm transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}
+          >
             Don't have an account?{' '}
             <Link
               to="/register"
-              className="font-medium text-blue-600 hover:text-blue-700"
+              className={`font-medium transition-colors duration-300 ${isDark ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'}`}
             >
               Sign up
             </Link>

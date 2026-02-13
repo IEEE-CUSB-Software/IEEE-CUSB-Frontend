@@ -1,12 +1,6 @@
-import React, { useMemo } from 'react';
-import {
-  FiPlus,
-  FiMoreVertical,
-  FiClock,
-  FiUser,
-  FiEdit2,
-  FiTrash2,
-} from 'react-icons/fi';
+import { useMemo } from 'react';
+import { useTheme } from '@/shared/hooks/useTheme';
+import { FiPlus, FiClock, FiUser, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { Table, type ColumnDef } from '@ieee-ui/ui';
 
 // Mock Data
@@ -42,18 +36,21 @@ const workshops = [
 ];
 
 export const WorkshopsPage = () => {
+  const { isDark } = useTheme();
   const columns = useMemo<ColumnDef<(typeof workshops)[0]>[]>(
     () => [
       {
         header: 'Workshop Title',
         accessorKey: 'title',
-        className: 'font-medium text-gray-900',
+        className: `font-medium transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`,
       },
       {
         header: 'Instructor',
         accessorKey: 'instructor',
         cell: item => (
-          <div className="flex items-center gap-2 text-gray-600">
+          <div
+            className={`flex items-center gap-2 transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}
+          >
             <FiUser className="w-4 h-4" />
             <span>{item.instructor}</span>
           </div>
@@ -63,7 +60,9 @@ export const WorkshopsPage = () => {
         header: 'Time',
         accessorKey: 'time',
         cell: item => (
-          <div className="flex items-center gap-2 text-gray-600">
+          <div
+            className={`flex items-center gap-2 transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}
+          >
             <FiClock className="w-4 h-4" />
             <span>{item.time}</span>
           </div>
@@ -74,10 +73,14 @@ export const WorkshopsPage = () => {
         accessorKey: 'status',
         cell: item => (
           <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors duration-300 ${
               item.status === 'Upcoming'
-                ? 'bg-blue-50 text-blue-600'
-                : 'bg-green-50 text-green-600'
+                ? isDark
+                  ? 'bg-blue-900/30 text-blue-300'
+                  : 'bg-blue-50 text-blue-600'
+                : isDark
+                  ? 'bg-green-900/30 text-green-300'
+                  : 'bg-green-50 text-green-600'
             }`}
           >
             {item.status}
@@ -87,27 +90,45 @@ export const WorkshopsPage = () => {
       {
         header: 'Actions',
         className: 'text-right',
-        cell: item => (
+        cell: () => (
           <div className="flex items-center justify-end gap-2">
-            <button className="p-2 text-gray-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors">
+            <button
+              className={`p-2 rounded-lg transition-colors ${
+                isDark
+                  ? 'text-gray-500 hover:text-primary hover:bg-primary/10'
+                  : 'text-gray-400 hover:text-primary hover:bg-primary/5'
+              }`}
+            >
               <FiEdit2 className="w-4 h-4" />
             </button>
-            <button className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+            <button
+              className={`p-2 rounded-lg transition-colors ${
+                isDark
+                  ? 'text-gray-500 hover:text-red-400 hover:bg-red-400/10'
+                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+              }`}
+            >
               <FiTrash2 className="w-4 h-4" />
             </button>
           </div>
         ),
       },
     ],
-    []
+    [isDark]
   );
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 sm:text-center">Workshops</h1>
-          <p className="text-gray-500 sm:text-center">
+          <h1
+            className={`text-2xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'} sm:text-center`}
+          >
+            Workshops
+          </h1>
+          <p
+            className={`transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-500'} sm:text-center`}
+          >
             Manage technical workshops and sessions
           </p>
         </div>
@@ -121,6 +142,7 @@ export const WorkshopsPage = () => {
         data={workshops}
         columns={columns}
         emptyMessage="No workshops found"
+        darkMode={isDark}
       />
     </div>
   );

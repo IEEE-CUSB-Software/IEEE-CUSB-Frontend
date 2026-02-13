@@ -1,3 +1,4 @@
+import { User } from './auth.types';
 
 export interface Event {
   id: string;
@@ -11,6 +12,8 @@ export interface Event {
   created_by: string;
   created_at: string;
   updated_at: string;
+  is_registered?: boolean;
+  registration_id?: string;
 }
 
 /**
@@ -33,6 +36,7 @@ export interface EventRegistration {
   status: EventRegistrationStatus;
   created_at: string;
   updated_at: string;
+  user?: User;
 }
 
 /**
@@ -103,8 +107,10 @@ export interface PaginatedEventsResponse {
  */
 export interface PaginatedRegistrationsResponse {
   data: EventRegistration[];
-  count: number;
-  message: string;
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 // Default export for backward compatibility

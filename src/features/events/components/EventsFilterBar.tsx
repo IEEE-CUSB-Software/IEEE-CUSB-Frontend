@@ -5,18 +5,22 @@ type FilterType = 'All' | 'Technical' | 'Non-Technical' | 'Social';
 interface EventsFilterBarProps {
   activeFilter: FilterType;
   onFilterChange: (filter: FilterType) => void;
+  darkMode?: boolean;
 }
 
 export const EventsFilterBar = ({
   activeFilter,
   onFilterChange,
+  darkMode,
 }: EventsFilterBarProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className="flex items-center gap-2 mb-8 bg-white p-3 rounded-lg shadow-sm"
+      className={`flex items-center gap-2 mb-8 p-3 rounded-lg shadow-sm transition-all duration-300 ${
+        darkMode ? 'bg-gray-800 shadow-blue-900/5' : 'bg-white shadow-gray-100'
+      }`}
     >
       {/* Filter Buttons */}
       <motion.button
@@ -27,7 +31,9 @@ export const EventsFilterBar = ({
         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
           activeFilter === 'All'
             ? 'bg-primary text-white'
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            : darkMode
+              ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
         }`}
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -48,7 +54,9 @@ export const EventsFilterBar = ({
         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
           activeFilter === 'Technical'
             ? 'bg-primary text-white'
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            : darkMode
+              ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
         }`}
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -69,7 +77,9 @@ export const EventsFilterBar = ({
         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
           activeFilter === 'Non-Technical'
             ? 'bg-primary text-white'
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            : darkMode
+              ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
         }`}
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -86,7 +96,9 @@ export const EventsFilterBar = ({
         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
           activeFilter === 'Social'
             ? 'bg-primary text-white'
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            : darkMode
+              ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
         }`}
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -107,7 +119,11 @@ export const EventsFilterBar = ({
         <input
           type="text"
           placeholder="Search events..."
-          className="w-full px-4 py-2 pl-10 bg-gray-50 border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-300"
+          className={`w-full px-4 py-2 pl-10 border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-300 ${
+            darkMode
+              ? 'bg-gray-700/50 text-white placeholder-gray-500'
+              : 'bg-gray-50 text-gray-900 placeholder-gray-400'
+          }`}
         />
         <svg
           className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
@@ -128,10 +144,14 @@ export const EventsFilterBar = ({
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all duration-300 text-sm"
+        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 text-sm ${
+          darkMode
+            ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+        }`}
       >
         <svg
-          className="w-4 h-4 text-gray-600"
+          className={`w-4 h-4 transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -143,7 +163,11 @@ export const EventsFilterBar = ({
             d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"
           />
         </svg>
-        <span className="font-medium text-gray-700">Sort</span>
+        <span
+          className={`font-medium transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}
+        >
+          Sort
+        </span>
       </motion.button>
     </motion.div>
   );

@@ -8,8 +8,10 @@ import {
   FiLogOut,
   FiBookOpen,
 } from 'react-icons/fi';
-import logo from '@/assets/logo.png'; // Assuming this exists as seen in Navbar
+import logo from '@/assets/logo.png';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTheme } from '@/shared/hooks/useTheme';
+import { useLogout } from '@/shared/queries/auth';
 
 interface AdminSidebarProps {
   isOpen?: boolean;
@@ -29,6 +31,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isDark } = useTheme();
+  const { mutate: logout } = useLogout();
 
   const navItems: NavItem[] = [
     {
@@ -83,7 +87,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   };
 
   const handleLogout = () => {
-    // TODO: Implement actual logout logic
+    logout();
     navigate('/login');
   };
 
@@ -101,18 +105,26 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           transition-all duration-300 ease-in-out
           h-screen w-64
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          bg-white border-r border-gray-200
+          ${isDark ? 'bg-gray-900 border-gray-800 shadow-xl shadow-black/20' : 'bg-white border-r border-gray-200'}
         `}
       >
         <div className="h-full flex flex-col py-6">
           {/* Logo / Brand Area */}
           <div className="px-6 pb-8 flex items-center justify-center gap-3">
-            <img
-              src={logo}
-              alt="IEEE Logo"
-              className="h-10 w-10 object-contain"
-            />
-            <span className="font-bold text-lg text-primary">IEEE Admin</span>
+            <div
+              className={`p-1.5 rounded-lg transition-colors duration-300 ${isDark ? 'bg-white/10' : 'bg-primary/5'}`}
+            >
+              <img
+                src={logo}
+                alt="IEEE Logo"
+                className="h-10 w-10 object-contain"
+              />
+            </div>
+            <span
+              className={`font-bold text-lg transition-colors duration-300 ${isDark ? 'text-white' : 'text-primary'}`}
+            >
+              IEEE Admin
+            </span>
           </div>
 
           {/* Main Navigation */}
@@ -131,7 +143,9 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                     ${
                       isActive(item.path)
                         ? 'bg-primary/10 text-primary font-semibold'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium'
+                        : isDark
+                          ? 'text-gray-400 hover:bg-gray-800 hover:text-white font-medium'
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium'
                     }
                   `}
               >
@@ -142,7 +156,9 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           </nav>
 
           {/* Logout Button */}
-          <div className="px-3 mt-auto pt-6 border-t border-gray-100">
+          <div
+            className={`px-3 mt-auto pt-6 border-t transition-colors duration-300 ${isDark ? 'border-gray-800' : 'border-gray-100'}`}
+          >
             <button
               onClick={handleLogout}
               className="
@@ -152,7 +168,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 rounded-lg
                 cursor-pointer
                 transition-all duration-200
-                text-red-500 hover:bg-red-50 hover:text-red-600
+                ${isDark ? 'text-red-400 hover:bg-red-900/20 hover:text-red-300' : 'text-red-500 hover:bg-red-50 hover:text-red-600'}
               "
             >
               <span className="flex-shrink-0">

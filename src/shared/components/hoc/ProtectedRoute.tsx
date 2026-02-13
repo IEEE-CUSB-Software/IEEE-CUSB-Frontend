@@ -3,6 +3,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector } from '@/shared/store/hooks';
 import { RoleName } from '@/shared/types/auth.types';
 import { UnauthorizedPage } from '@ieee-ui/ui';
+import { useTheme } from '@/shared/hooks/useTheme';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -18,6 +19,7 @@ export const ProtectedRoute = ({
   requiredRoles,
 }: ProtectedRouteProps) => {
   const { isAuthenticated, user } = useAppSelector(state => state.auth);
+  const { isDark } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -32,7 +34,13 @@ export const ProtectedRoute = ({
 
     if (!hasRequiredRole) {
       // User doesn't have required role - show unauthorized page
-      return <UnauthorizedPage onLogin={() => navigate('/login')} />;
+      return (
+        <UnauthorizedPage
+          onLogin={() => navigate('/login')}
+          darkMode={isDark}
+          className="absolute inset-0 min-h-full"
+        />
+      );
     }
   }
 

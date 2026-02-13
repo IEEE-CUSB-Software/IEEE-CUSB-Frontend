@@ -40,3 +40,15 @@ export const capitalize = (str: string): string => {
 export const generateId = (): string => {
   return Math.random().toString(36).substring(2, 9);
 };
+/**
+ * Helper to decode JWT token
+ */
+export const parseJwt = (token: string) => {
+  try {
+    const base64Url = token.split('.')[1];
+    if (!base64Url) return null;
+    return JSON.parse(atob(base64Url));
+  } catch (e) {
+    return null;
+  }
+};

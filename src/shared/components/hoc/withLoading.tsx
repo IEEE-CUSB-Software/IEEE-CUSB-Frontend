@@ -14,7 +14,7 @@ export const withLoading = <P extends object>(
     if (isLoading) {
       return (
         <div className="flex items-center justify-center p-4">
-          <div className="text-gray-600">Loading...</div>
+          <div className="text-gray-600 dark:text-gray-400">Loading...</div>
         </div>
       );
     }
