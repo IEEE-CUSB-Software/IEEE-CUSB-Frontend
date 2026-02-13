@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import Avatar from "@/shared/components/Avatar";
-import { useThemeColors } from "@/shared/hooks/useThemeColors";
+import React, { useState, useEffect } from 'react';
+import Avatar from '@/shared/components/Avatar';
+import { useThemeColors } from '@/shared/hooks/useThemeColors';
 
 type Feedback = {
   id: string;
@@ -12,28 +12,28 @@ type Feedback = {
 
 const mockFeedback: Feedback[] = [
   {
-    id: "1",
-    studentName: "Sarah Ahmed",
-    university: "Cairo University",
-    college: "Engineering",
+    id: '1',
+    studentName: 'Sarah Ahmed',
+    university: 'Cairo University',
+    college: 'Engineering',
     comment:
       "The summit was incredibly inspiring! The workshops on AI were top-notch. Can't wait for next year.",
   },
   {
-    id: "2",
-    studentName: "Mohamed Ali",
-    university: "Ain Shams University",
-    college: "Computer Science",
+    id: '2',
+    studentName: 'Mohamed Ali',
+    university: 'Ain Shams University',
+    college: 'Computer Science',
     comment:
-      "Great organization. I learned a lot about the latest trends in cloud computing. Networking opportunities were excellent.",
+      'Great organization. I learned a lot about the latest trends in cloud computing. Networking opportunities were excellent.',
   },
   {
-    id: "3",
-    studentName: "Nour Hassan",
-    university: "AUC",
-    college: "Business",
+    id: '3',
+    studentName: 'Nour Hassan',
+    university: 'AUC',
+    college: 'Business',
     comment:
-      "Loved the diversity of speakers. The panel discussion on fintech was particularly enlightening.",
+      'Loved the diversity of speakers. The panel discussion on fintech was particularly enlightening.',
   },
 ];
 
@@ -43,12 +43,14 @@ const FeedbackCarousel: React.FC = () => {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % mockFeedback.length);
+      setCurrentIndex(prev => (prev + 1) % mockFeedback.length);
     }, 5000);
     return () => clearInterval(timer);
   }, []);
 
   const current = mockFeedback[currentIndex];
+
+  if (!current) return null;
 
   return (
     <div className="bg-gradient-to-br from-background-secondary/30 to-background/50 p-6 rounded-2xl border border-muted-primary/20 shadow-sm flex flex-col h-full relative overflow-hidden">
@@ -85,7 +87,7 @@ const FeedbackCarousel: React.FC = () => {
             key={idx}
             onClick={() => setCurrentIndex(idx)}
             className={`h-1.5 rounded-full transition-all duration-300 ${
-              idx === currentIndex ? "w-8" : "w-2"
+              idx === currentIndex ? 'w-8' : 'w-2'
             }`}
             style={{
               backgroundColor:

@@ -7,7 +7,7 @@ import {
   type CreateLocationFormData,
 } from '@/features/admin/schemas';
 import toast from 'react-hot-toast';
-import { getErrorMessage } from '@/shared/utils';
+import { getErrorMessage } from '@/shared/utils/helpers';
 
 interface AddLocationModalProps {
   isOpen: boolean;
@@ -127,7 +127,7 @@ const AddLocationModal: React.FC<AddLocationModalProps> = ({
           label="Location Image"
           value={imageValue}
           onChange={base64 =>
-            setValue('image', base64, { shouldValidate: true })
+            setValue('image', base64 as string, { shouldValidate: true })
           }
           error={errors.image?.message}
         />

@@ -1,6 +1,7 @@
 import React from 'react';
 import { FiPlus, FiX } from 'react-icons/fi';
-import { Button, FileUploadField } from '@ieee-ui/ui';
+import { Button } from '@ieee-ui/ui';
+import { FileUploadField } from '@/shared/components/FileUploadField';
 import type { MediaItem } from '../../types/eventModalTypes';
 
 interface MediaManagerProps {
