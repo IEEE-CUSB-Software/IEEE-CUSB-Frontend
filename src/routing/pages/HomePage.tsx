@@ -25,7 +25,7 @@ export const HomePage = () => {
   }, []);
 
   return (
-    <div className="bg-white">
+    <div className="bg-background">
       <HeroSection
         activeCardIndex={activeCardIndex}
         onCardExpand={setActiveCardIndex}

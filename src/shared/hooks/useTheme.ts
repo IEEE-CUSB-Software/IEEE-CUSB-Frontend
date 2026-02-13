@@ -32,10 +32,11 @@ export const useTheme = () => {
       dispatch(setTheme(stored));
     } else {
       // Check system preference
-      const prefersDark = window.matchMedia(
-        '(prefers-color-scheme: dark)'
-      ).matches;
-      dispatch(setTheme(prefersDark ? 'dark' : 'light'));
+      // const prefersDark = window.matchMedia(
+      //   '(prefers-color-scheme: dark)'
+      // ).matches;
+      // dispatch(setTheme(prefersDark ? 'dark' : 'light'));
+      dispatch(setTheme('light')); // Default to light if no preference
     }
   }, [dispatch]);
 

@@ -119,7 +119,7 @@ export const EventsListSection = () => {
   const filteredEvents = getFilteredEvents();
 
   return (
-    <section className="bg-gradient-to-br from-gray-50 to-cyan-50 py-16">
+    <section className="bg-background py-16">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header Section */}
         <div className="mb-8">

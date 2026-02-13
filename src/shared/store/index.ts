@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 // Import feature reducers
 // Import shared reducers
 import { uiReducer } from './slices/uiSlice';
+import authReducer from './slices/authSlice';
 
 /**
  * Shared Redux Store
@@ -18,6 +19,7 @@ export const store = configureStore({
   reducer: {
     // Shared/global stores (UI, auth, theme, etc.)
     ui: uiReducer,
+    auth: authReducer,
 
     // Feature stores
     // Add more feature reducers here as you create new features

@@ -2,6 +2,9 @@
 @import 'tailwindcss';
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
 
+/* Disable automatic dark mode based on system preference */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Light theme - IEEE Brand Colors */
 @theme {
   /* ... existing theme colors ... */
@@ -20,7 +23,7 @@
   --color-destructive: #bd0d2a;
   --color-destructive-foreground: #ffffff;
 
-  --color-background: #ffffff;
+  --color-background: #f5f7fa;
   --color-background-light: #eef6fc;
   --color-foreground: #1a1a1a;
   --color-surface: #f9fbfd;
@@ -96,7 +99,12 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    font-family:
+      'Inter',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Roboto,
       sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -174,4 +182,3 @@
     background: linear-gradient(135deg, #00427a 0%, #0075a1 100%);
   }
 }
-

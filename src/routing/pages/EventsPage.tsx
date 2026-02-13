@@ -10,7 +10,7 @@ export const EventsPage = () => {
   }, []);
 
   return (
-    <div className="bg-white">
+    <div className="bg-background">
       <EventsListSection />
     </div>
   );
