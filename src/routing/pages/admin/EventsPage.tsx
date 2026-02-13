@@ -1,40 +1,120 @@
-import { useState, useMemo } from 'react';
-// import { useSearchParams } from 'react-router-dom';
+import { useState, useMemo, useCallback } from 'react';
 import { MdAdd } from 'react-icons/md';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import AddEditEventModal from '@/features/admin/components/eventAdminPanel/AddEditEventModal';
-import type { EventFormData } from '@/features/admin/types/eventModalTypes';
 import { Table, type ColumnDef } from '@ieee-ui/ui';
+import { Pagination } from '@/shared/components/ui/Pagination';
+import {
+  useEvents,
+  useCreateEvent,
+  useUpdateEvent,
+  useDeleteEvent,
+} from '@/shared/queries/events';
+import type { Event } from '@/shared/types/events.types';
+import type { EventFormData } from '@/features/admin/types/eventFormTypes';
+import {
+  convertApiEventToAdminEvent,
+  convertFormDataToCreateRequest,
+  convertFormDataToUpdateRequest,
+  type AdminEvent,
+} from '@/features/admin/utils/eventConversion';
+import toast from 'react-hot-toast';
 
-// Mock Data
-const upcomingEvents = [
-  {
-    id: 1,
-    title: 'Intro to React & Modern UI',
-    date: 'Oct 15, 2025',
-    location: 'Hall 5, Engineering Bldg',
-    status: 'Upcoming',
-  },
-  {
-    id: 2,
-    title: 'Annual Welcome Party',
-    date: 'Oct 20, 2025',
-    location: 'Main Campus Garden',
-    status: 'Upcoming',
-  },
-];
+// Helper function to format date
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+};
+
+// Helper function to determine event status
+const getEventStatus = (event: Event): 'Upcoming' | 'Ongoing' | 'Completed' => {
+  const now = new Date();
+  const startTime = new Date(event.start_time);
+  const endTime = new Date(event.end_time);
+
+  if (now < startTime) return 'Upcoming';
+  if (now >= startTime && now <= endTime) return 'Ongoing';
+  return 'Completed';
+};
 
 export const EventsPage = () => {
-  // const [searchParams, setSearchParams] = useSearchParams();
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | undefined>(
+    undefined
+  );
+  const [selectedAdminEvent, setSelectedAdminEvent] = useState<
+    AdminEvent | undefined
+  >(undefined);
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
-  const handleSaveEvent = async (data: EventFormData) => {
-    console.log('Mock save event:', data);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsEventModalOpen(false);
+  // API queries
+  const { data, isLoading, isError } = useEvents({ page, limit });
+  const createEventMutation = useCreateEvent();
+  const updateEventMutation = useUpdateEvent();
+  const deleteEventMutation = useDeleteEvent();
+
+  const events = data?.data ?? [];
+  const totalPages = data?.totalPages ?? 1;
+
+  const handleAddEvent = useCallback(() => {
+    setSelectedEvent(undefined);
+    setSelectedAdminEvent(undefined);
+    setIsEventModalOpen(true);
+  }, []);
+
+  const handleEditEvent = useCallback((event: Event) => {
+    setSelectedEvent(event);
+    setSelectedAdminEvent(convertApiEventToAdminEvent(event));
+    setIsEventModalOpen(true);
+  }, []);
+
+  const handleDeleteEvent = useCallback(
+    async (event: Event) => {
+      if (window.confirm(`Are you sure you want to delete "${event.title}"?`)) {
+        try {
+          await deleteEventMutation.mutateAsync(event.id);
+        } catch (error) {
+          console.error('Delete error:', error);
+        }
+      }
+    },
+    [deleteEventMutation]
+  );
+
+  const handleSaveEvent = async (formData: EventFormData) => {
+    try {
+      if (selectedEvent) {
+        // Update existing event
+        const updateData = convertFormDataToUpdateRequest(formData);
+        await updateEventMutation.mutateAsync({
+          id: selectedEvent.id,
+          data: updateData,
+        });
+      } else {
+        // Create new event
+        const createData = convertFormDataToCreateRequest(formData);
+        await createEventMutation.mutateAsync(createData);
+      }
+
+      setIsEventModalOpen(false);
+      setSelectedEvent(undefined);
+    } catch (error: any) {
+      console.error('Save error:', error);
+      toast.error(error?.response?.data?.message || 'Failed to save event');
+    }
   };
 
-  const columns = useMemo<ColumnDef<(typeof upcomingEvents)[0]>[]>(
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const columns = useMemo<ColumnDef<Event>[]>(
     () => [
       {
         header: 'Event Name',
@@ -43,7 +123,7 @@ export const EventsPage = () => {
       },
       {
         header: 'Date',
-        accessorKey: 'date',
+        cell: item => formatDate(item.start_time),
         className: 'text-gray-600',
       },
       {
@@ -52,31 +132,94 @@ export const EventsPage = () => {
         className: 'text-gray-600',
       },
       {
+        header: 'Capacity',
+        accessorKey: 'capacity',
+        className: 'text-gray-600 text-center',
+      },
+      {
         header: 'Status',
-        accessorKey: 'status',
-        cell: item => (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
-            {item.status}
-          </span>
-        ),
+        cell: item => {
+          const status = getEventStatus(item);
+          const statusColors = {
+            Upcoming: 'bg-blue-50 text-blue-700',
+            Ongoing: 'bg-green-50 text-green-700',
+            Completed: 'bg-gray-50 text-gray-700',
+          };
+          return (
+            <span
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[status]}`}
+            >
+              {status}
+            </span>
+          );
+        },
       },
       {
         header: 'Actions',
         className: 'text-right',
         cell: item => (
           <div className="flex items-center justify-end gap-2">
-            <button className="p-2 text-gray-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors">
+            <button
+              onClick={() => handleEditEvent(item)}
+              className="p-2 text-gray-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
+              title="Edit event"
+            >
               <FiEdit2 className="w-4 h-4" />
             </button>
-            <button className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+            <button
+              onClick={() => handleDeleteEvent(item)}
+              className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+              title="Delete event"
+            >
               <FiTrash2 className="w-4 h-4" />
             </button>
           </div>
         ),
       },
     ],
-    []
+    [handleEditEvent, handleDeleteEvent]
   );
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Event Management
+            </h1>
+            <p className="text-gray-500">Create and manage upcoming events</p>
+          </div>
+        </div>
+        <div className="bg-white rounded-lg p-8 text-center">
+          <div className="inline-block w-8 h-8 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
+          <p className="mt-4 text-gray-500">Loading events...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (isError) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Event Management
+            </h1>
+            <p className="text-gray-500">Create and manage upcoming events</p>
+          </div>
+        </div>
+        <div className="bg-red-50 rounded-lg p-8 text-center">
+          <p className="text-red-500">
+            Failed to load events. Please try again later.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -91,7 +234,7 @@ export const EventsPage = () => {
         </div>
 
         <button
-          onClick={() => setIsEventModalOpen(true)}
+          onClick={handleAddEvent}
           className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
         >
           <MdAdd className="text-xl" />
@@ -99,17 +242,36 @@ export const EventsPage = () => {
         </button>
       </div>
 
-      <Table
-        data={upcomingEvents}
-        columns={columns}
-        emptyMessage="No events found"
-      />
+      {events.length === 0 ? (
+        <div className="bg-white rounded-lg p-8 text-center text-gray-500">
+          <p>No events found. Create your first event to get started!</p>
+        </div>
+      ) : (
+        <Table data={events} columns={columns} emptyMessage="No events found" />
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center">
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            isLoading={isLoading}
+          />
+        </div>
+      )}
 
       {isEventModalOpen && (
         <AddEditEventModal
           isOpen={isEventModalOpen}
-          onClose={() => setIsEventModalOpen(false)}
+          onClose={() => {
+            setIsEventModalOpen(false);
+            setSelectedEvent(undefined);
+            setSelectedAdminEvent(undefined);
+          }}
           onSave={handleSaveEvent}
+          event={selectedAdminEvent}
         />
       )}
     </div>

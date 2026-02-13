@@ -1,163 +1,79 @@
-import type Event from "@/shared/types/events";
+import type { AdminEvent } from '../utils/eventConversion';
 
 export interface EventFormData {
   id?: string;
   title: string;
   description: string;
-  eventPoster: File | string; // File for new upload, string for existing URL
-  eventType: string;
-  media?: (File | string)[]; // Array of Files for new uploads, strings for existing URLs
-  sponsors?: string[]; // Array of sponsor IDs
-  date: string;
   location: string;
-  category: string;
+  start_time: string;
+  end_time: string;
   capacity: number;
-  registeredCount: number;
-  attendeeCount: number;
+  registration_deadline: string;
 }
 
 export interface CreateEventPayload {
   title: string;
   description: string;
-  eventPoster: File;
-  eventType: string;
-  media?: File[];
-  sponsors?: string[]; // Array of sponsor IDs
-  date: string;
   location: string;
-  category: string;
+  start_time: string;
+  end_time: string;
   capacity: number;
-  registeredCount: number;
-  attendeeCount: number;
+  registration_deadline: string;
 }
 
 export interface UpdateEventPayload {
   id: string;
   title: string;
   description: string;
-  eventPoster: File | string;
-  eventType: string;
-  media?: (File | string)[];
-  sponsors?: string[]; // Array of sponsor IDs
-  date: string;
   location: string;
-  category: string;
+  start_time: string;
+  end_time: string;
   capacity: number;
-  registeredCount: number;
-  attendeeCount: number;
+  registration_deadline: string;
 }
 
-export const convertEventToFormData = (event: Event): EventFormData => {
+export const convertEventToFormData = (event: AdminEvent): EventFormData => {
   return {
     id: event.id,
     title: event.title,
     description: event.description,
-    eventPoster: event.eventPoster,
-    eventType: event.eventType,
-    media: event.media,
-    sponsors: event.sponsors, // Array of sponsor IDs
-    date: event.date,
     location: event.location,
-    category: event.category,
+    start_time: event.date, // AdminEvent uses 'date' but we map to 'start_time'
+    end_time: event.date, // Default same as start, will be updated
     capacity: event.capacity,
-    registeredCount: event.registeredCount,
-    attendeeCount: event.attendeeCount,
+    registration_deadline: event.date, // Default same as start, will be updated
   };
 };
 
 export const convertFormDataToCreatePayload = (
   formData: EventFormData
-): CreateEventPayload | null => {
-  // Validate eventPoster is a File
-  if (typeof formData.eventPoster === "string") {
-    console.error("Event poster must be a File for new events");
-    return null;
-  }
-
-  const mediaFiles =
-    formData.media?.filter((item): item is File => item instanceof File) || [];
-
+): CreateEventPayload => {
   return {
     title: formData.title,
     description: formData.description,
-    eventPoster: formData.eventPoster,
-    eventType: formData.eventType,
-    media: mediaFiles.length > 0 ? mediaFiles : undefined,
-    sponsors: formData.sponsors, // Array of sponsor IDs
-    date: formData.date,
     location: formData.location,
-    category: formData.category,
+    start_time: formData.start_time,
+    end_time: formData.end_time,
     capacity: formData.capacity,
-    registeredCount: formData.registeredCount,
-    attendeeCount: formData.attendeeCount,
+    registration_deadline: formData.registration_deadline,
   };
 };
 
 export const convertFormDataToUpdatePayload = (
   formData: EventFormData
-): UpdateEventPayload | null => {
+): UpdateEventPayload => {
   if (!formData.id) {
-    console.error("Event ID is required for updates");
-    return null;
+    throw new Error('Event ID is required for updates');
   }
 
   return {
     id: formData.id,
     title: formData.title,
     description: formData.description,
-    eventPoster: formData.eventPoster,
-    eventType: formData.eventType,
-    media: formData.media,
-    sponsors: formData.sponsors, // Array of sponsor IDs
-    date: formData.date,
     location: formData.location,
-    category: formData.category,
+    start_time: formData.start_time,
+    end_time: formData.end_time,
     capacity: formData.capacity,
-    registeredCount: formData.registeredCount,
-    attendeeCount: formData.attendeeCount,
+    registration_deadline: formData.registration_deadline,
   };
-};
-
-export const convertToMultipartFormData = (
-  payload: CreateEventPayload | UpdateEventPayload
-): FormData => {
-  const formData = new FormData();
-
-  formData.append("title", payload.title);
-  formData.append("description", payload.description);
-  formData.append("eventType", payload.eventType);
-  formData.append("date", payload.date);
-  formData.append("location", payload.location);
-  formData.append("category", payload.category);
-  formData.append("capacity", payload.capacity.toString());
-  formData.append("registeredCount", payload.registeredCount.toString());
-  formData.append("attendeeCount", payload.attendeeCount.toString());
-
-  if (payload.eventPoster instanceof File) {
-    formData.append("eventPoster", payload.eventPoster);
-  } else if (typeof payload.eventPoster === "string") {
-    formData.append("eventPosterUrl", payload.eventPoster);
-  }
-
-  if (payload.media) {
-    payload.media.forEach((item, index) => {
-      if (item instanceof File) {
-        formData.append(`media`, item);
-      } else if (typeof item === "string") {
-        formData.append(`mediaUrls[${index}]`, item);
-      }
-    });
-  }
-
-  if (payload.sponsors) {
-    payload.sponsors.forEach((sponsorId, index) => {
-      formData.append(`sponsors[${index}]`, sponsorId);
-    });
-  }
-
-  if ("id" in payload && payload.id) {
-    formData.append("id", payload.id);
-  }
-
-  return formData;
 };

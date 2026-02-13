@@ -1,0 +1,171 @@
+import { useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { HiArrowLeft } from 'react-icons/hi';
+import { EventDetailsHero } from './EventDetailsHero';
+import { EventDetailsSidebar } from './EventDetailsSidebar';
+import { EventDetailsContent } from './EventDetailsContent';
+import { useEvent } from '@/shared/queries/events';
+import type { Event } from '@/shared/types/events.types';
+
+// Helper function to format date
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+};
+
+// Helper function to format time
+const formatTime = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+};
+
+// Transform API event to display format
+const transformEvent = (event: Event) => {
+  return {
+    title: event.title,
+    description: event.description,
+    location: event.location,
+    date: formatDate(event.start_time),
+    time: formatTime(event.start_time),
+    endTime: formatTime(event.end_time),
+    registrationDeadline: event.registration_deadline,
+    // Default values for fields not yet in API
+    category: 'Workshop',
+    categoryBadge: 'WORKSHOP',
+    image:
+      'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200',
+    // Use description as about content
+    about: event.description,
+    learningPoints: [] as string[],
+    prerequisites: [] as string[],
+    instructor: undefined,
+  };
+};
+
+export const EventDetailsSection = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+
+  // Fetch event data from API
+  const { data: event, isLoading, isError } = useEvent(id || '');
+
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  // Loading skeleton
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background py-8 md:py-16">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          {/* Back button skeleton */}
+          <div className="h-10 w-32 bg-gray-200 rounded-lg mb-6 animate-pulse" />
+
+          {/* Main content skeleton */}
+          <div className="grid lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-8">
+              <div className="h-96 bg-gray-200 rounded-3xl animate-pulse" />
+              <div className="h-64 bg-gray-200 rounded-2xl animate-pulse" />
+            </div>
+            <div className="space-y-6">
+              <div className="h-80 bg-gray-200 rounded-2xl animate-pulse" />
+              <div className="h-96 bg-gray-200 rounded-2xl animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (isError || !event) {
+    return (
+      <div className="min-h-screen bg-background py-8 md:py-16">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <div className="text-center py-12">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              Event Not Found
+            </h1>
+            <p className="text-gray-600 mb-8">
+              The event you're looking for doesn't exist or has been removed.
+            </p>
+            <button
+              onClick={() => navigate('/events')}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              <HiArrowLeft className="w-5 h-5" />
+              Back to Events
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Transform event data for components
+  const eventData = transformEvent(event);
+
+  return (
+    <div className="min-h-screen bg-background py-8 md:py-16">
+      <div className="max-w-7xl mx-auto px-4 md:px-6">
+        {/* Back Button */}
+        <motion.button
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          onClick={() => navigate('/events')}
+          className="inline-flex items-center gap-2 px-4 py-2 mb-6 text-gray-600 hover:text-gray-900 transition-colors group"
+        >
+          <HiArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
+          <span className="font-medium">Back to Events</span>
+        </motion.button>
+
+        {/* Main Content Grid */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Left Column - Main Content */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Hero Section */}
+            <EventDetailsHero
+              title={eventData.title}
+              description={eventData.description}
+              image={eventData.image}
+              category={eventData.category}
+              categoryBadge={eventData.categoryBadge}
+            />
+
+            {/* Content Section */}
+            <EventDetailsContent
+              about={eventData.about}
+              learningPoints={eventData.learningPoints}
+              prerequisites={eventData.prerequisites}
+            />
+          </div>
+
+          {/* Right Column - Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="lg:sticky lg:top-24">
+              <EventDetailsSidebar
+                date={eventData.date}
+                time={eventData.time}
+                endTime={eventData.endTime}
+                location={eventData.location}
+                instructor={eventData.instructor}
+                registrationDeadline={eventData.registrationDeadline}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

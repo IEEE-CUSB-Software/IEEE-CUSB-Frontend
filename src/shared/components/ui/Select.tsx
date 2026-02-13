@@ -6,11 +6,15 @@ interface Option {
   label: string;
 }
 
-interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+interface SelectProps extends Omit<
+  React.SelectHTMLAttributes<HTMLSelectElement>,
+  'onChange'
+> {
   label?: string;
   options: Option[];
   error?: string;
   placeholder?: string;
+  onChange?: (value: string) => void;
 }
 
 export const Select: React.FC<SelectProps> = ({
@@ -18,6 +22,8 @@ export const Select: React.FC<SelectProps> = ({
   options,
   error,
   className = '',
+  onChange,
+  placeholder,
   ...props
 }) => {
   return (
@@ -37,8 +43,14 @@ export const Select: React.FC<SelectProps> = ({
               }
               ${className}
             `}
+          onChange={e => onChange?.(e.target.value)}
           {...props}
         >
+          {placeholder && (
+            <option value="" disabled>
+              {placeholder}
+            </option>
+          )}
           {options.map(option => (
             <option key={option.value} value={option.value}>
               {option.label}

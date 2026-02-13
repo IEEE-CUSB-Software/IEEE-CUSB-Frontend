@@ -37,6 +37,20 @@ export const API_ENDPOINTS = {
     UPDATE: (id: string) => `/roles/${id}`,
     DELETE: (id: string) => `/roles/${id}`,
   },
+
+  // Events endpoints
+  EVENTS: {
+    CREATE: '/events',
+    GET_ALL: '/events',
+    GET_ONE: (id: string) => `/events/${id}`,
+    UPDATE: (id: string) => `/events/${id}`,
+    DELETE: (id: string) => `/events/${id}`,
+    REGISTER: (id: string) => `/events/${id}/register`,
+    CANCEL_REGISTRATION: (id: string) => `/events/${id}/cancel`,
+    GET_REGISTRATIONS: (id: string) => `/events/${id}/registrations`,
+    UPDATE_REGISTRATION_STATUS: (eventId: string, registrationId: string) =>
+      `/events/${eventId}/registrations/${registrationId}/status`,
+  },
 } as const;
 
 /**
@@ -53,5 +67,11 @@ export const QUERY_KEYS = {
   ROLES: {
     ALL: ['roles'],
     ONE: (id: string) => ['roles', id],
+  },
+  EVENTS: {
+    ALL: ['events'],
+    INFINITE: ['events', 'infinite'],
+    ONE: (id: string) => ['events', id],
+    REGISTRATIONS: (eventId: string) => ['events', eventId, 'registrations'],
   },
 } as const;

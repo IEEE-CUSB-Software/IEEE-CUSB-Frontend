@@ -1,122 +1,173 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { EventsFilterBar } from './EventsFilterBar';
 import { EventCard } from './EventCard';
-
-export interface Event {
-  id: number;
-  title: string;
-  category: string;
-  categoryBadge: string;
-  status: string;
-  statusBadge: string;
-  date: string;
-  time: string;
-  location: string;
-  image: string;
-  description: string;
-}
-
-const mockEvents: Event[] = [
-  {
-    id: 1,
-    title: 'Intro to React & Modern UI',
-    category: 'Technical',
-    categoryBadge: 'TECHNICAL',
-    status: 'Upcoming',
-    statusBadge: 'Upcoming',
-    date: 'Oct 15, 2025',
-    time: '10:50 AM',
-    location: 'Hall 5, Engineering Bldg',
-    image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800',
-    description: 'Learn modern UI development with React',
-  },
-  {
-    id: 2,
-    title: 'Annual Welcome Party',
-    category: 'Social',
-    categoryBadge: 'SOCIAL',
-    status: 'Upcoming',
-    statusBadge: 'Upcoming',
-    date: 'Oct 20, 2025',
-    time: '5:00 PM',
-    location: 'Main Campus Garden',
-    image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=800',
-    description: 'Join us for our annual welcome celebration',
-  },
-  {
-    id: 3,
-    title: 'Project Management 101',
-    category: 'Soft Skills',
-    categoryBadge: 'SOFT SKILLS',
-    status: 'Upcoming',
-    statusBadge: 'Upcoming',
-    date: 'Nov 02, 2025',
-    time: '12:00 PM',
-    location: 'Room 204, Library',
-    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800',
-    description: 'Master project management fundamentals',
-  },
-  {
-    id: 4,
-    title: 'Embedded Systems Basics',
-    category: 'Technical',
-    categoryBadge: 'TECHNICAL',
-    status: 'Upcoming',
-    statusBadge: 'Upcoming',
-    date: 'Sep 28, 2025',
-    time: '9:00 AM',
-    location: 'Electronics Lab',
-    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800',
-    description: 'Explore embedded systems and hardware programming',
-  },
-  {
-    id: 5,
-    title: 'UI/UX Design Week',
-    category: 'Design',
-    categoryBadge: 'DESIGN',
-    status: 'Completed',
-    statusBadge: 'Completed',
-    date: 'Aug 03, 2025',
-    time: '11:00 AM',
-    location: 'Main Hall',
-    image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800',
-    description: 'Week-long design workshop and bootcamp',
-  },
-  {
-    id: 6,
-    title: 'Mid-Year Hiking Trip',
-    category: 'Social',
-    categoryBadge: 'SOCIAL',
-    status: 'Completed',
-    statusBadge: 'Completed',
-    date: 'Jul 20, 2025',
-    time: '7:00 AM',
-    location: 'Sinai, Egypt',
-    image: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=800',
-    description: 'Adventure trip to the mountains',
-  },
-];
+import { useEvents } from '@/shared/queries/events';
+import { Pagination } from '@/shared/components/ui/Pagination';
+import type { Event } from '@/shared/types/events.types';
 
 type FilterType = 'All' | 'Technical' | 'Non-Technical' | 'Social';
 
+// Helper function to determine event status based on dates
+const getEventStatus = (event: Event): 'Upcoming' | 'Ongoing' | 'Completed' => {
+  const now = new Date();
+  const startTime = new Date(event.start_time);
+  const endTime = new Date(event.end_time);
+
+  if (now < startTime) return 'Upcoming';
+  if (now >= startTime && now <= endTime) return 'Ongoing';
+  return 'Completed';
+};
+
+// Helper function to format date
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+};
+
+// Helper function to format time
+const formatTime = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+};
+
+// Transform API event to display format
+const transformEvent = (event: Event) => {
+  const status = getEventStatus(event);
+  return {
+    id: event.id,
+    title: event.title,
+    description: event.description,
+    location: event.location,
+    date: formatDate(event.start_time),
+    time: formatTime(event.start_time),
+    endTime: formatTime(event.end_time),
+    status,
+    statusBadge: status,
+    capacity: event.capacity,
+    registrationDeadline: event.registration_deadline,
+    // Default category since API doesn't have it - can be extended later
+    category: 'Technical',
+    categoryBadge: 'TECHNICAL',
+    // Placeholder image - can be extended when API supports images
+    image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800',
+  };
+};
+
 export const EventsListSection = () => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('All');
+  const [page, setPage] = useState(1);
+  const limit = 12;
 
+  const { data, isLoading, isError, error, isFetching } = useEvents({
+    page,
+    limit,
+  });
+
+  // Debug log to see the data structure
+  console.log('Events API Response:', data);
+
+  // Safely extract events array - handle different response structures
+  const events = Array.isArray(data?.data) ? data.data : [];
+  const totalPages = data?.totalPages ?? 1;
+
+  // Transform and filter events
   const getFilteredEvents = () => {
-    if (activeFilter === 'All') return mockEvents;
+    const transformedEvents = events.map(transformEvent);
+
+    if (activeFilter === 'All') return transformedEvents;
     if (activeFilter === 'Non-Technical') {
-      return mockEvents.filter(
+      return transformedEvents.filter(
         event =>
           event.category === 'Social' ||
           event.category === 'Design' ||
           event.category === 'Soft Skills'
       );
     }
-    return mockEvents.filter(event => event.category === activeFilter);
+    return transformedEvents.filter(event => event.category === activeFilter);
   };
 
   const filteredEvents = getFilteredEvents();
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    // Scroll to top of the events section
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Loading skeleton
+  if (isLoading) {
+    return (
+      <section className="bg-background py-16">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="mb-8">
+            <h1 className="text-5xl font-bold text-gray-900 mb-4">
+              Events & Workshops
+            </h1>
+            <p className="text-xl text-gray-600 max-w-2xl">
+              Discover our latest technical sessions, social gatherings, and
+              hands-on workshops designed to empower future engineers.
+            </p>
+          </div>
+
+          <EventsFilterBar
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
+          />
+
+          {/* Loading skeleton grid */}
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {[...Array(8)].map((_, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-2xl overflow-hidden shadow-lg animate-pulse"
+              >
+                <div className="h-40 bg-gray-200" />
+                <div className="p-4">
+                  <div className="h-6 bg-gray-200 rounded mb-2" />
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-4" />
+                  <div className="h-10 bg-gray-200 rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Error state
+  if (isError) {
+    return (
+      <section className="bg-background py-16">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="mb-8">
+            <h1 className="text-5xl font-bold text-gray-900 mb-4">
+              Events & Workshops
+            </h1>
+          </div>
+          <div className="text-center py-12">
+            <p className="text-red-500 text-lg mb-4">
+              Failed to load events. Please try again later.
+            </p>
+            <p className="text-gray-500">
+              {error instanceof Error
+                ? error.message
+                : 'Unknown error occurred'}
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="bg-background py-16">
@@ -138,41 +189,32 @@ export const EventsListSection = () => {
           onFilterChange={setActiveFilter}
         />
 
-        {/* Events Grid - 4 columns */}
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-          {filteredEvents.map((event, index) => (
-            <EventCard key={event.id} event={event} index={index} />
-          ))}
-        </div>
+        {/* Empty state */}
+        {filteredEvents.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">
+              No events found. Check back later for upcoming events!
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Events Grid - 4 columns */}
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {filteredEvents.map((event, index) => (
+                <EventCard key={event.id} event={event} index={index} />
+              ))}
+            </div>
 
-        {/* Load More Button */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
-          className="text-center mt-12"
-        >
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="inline-flex items-center gap-2 px-8 py-3 bg-white border-2 border-gray-900 text-gray-900 rounded-full font-semibold hover:bg-gray-900 hover:text-white transition-all duration-300 shadow-md hover:shadow-xl group"
-          >
-            Load More Events
-            <motion.svg
-              className="w-5 h-5 group-hover:translate-y-1 transition-transform duration-300"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </motion.svg>
-          </motion.button>
-        </motion.div>
+            {/* Pagination */}
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              isLoading={isFetching}
+              className="mt-12"
+            />
+          </>
+        )}
       </div>
     </section>
   );

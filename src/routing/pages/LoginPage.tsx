@@ -128,7 +128,7 @@ export const LoginPage = () => {
             <Button
               type="basic"
               onClick={() =>
-                (window.location.href = 'http://localhost:3000/auth/google')
+                (window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/google`) 
               }
               disabled={isPending}
             >
@@ -155,7 +155,7 @@ export const LoginPage = () => {
             <Button
               type="basic"
               onClick={() =>
-                (window.location.href = 'http://localhost:3000/auth/github')
+                (window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/github`)
               }
               disabled={isPending}
             >
