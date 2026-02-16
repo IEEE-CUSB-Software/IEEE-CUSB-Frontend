@@ -4,7 +4,7 @@ import { MdAdd } from 'react-icons/md';
 import { FiEdit2, FiTrash2, FiUsers } from 'react-icons/fi';
 import AddEditEventModal from '@/features/admin/components/eventAdminPanel/AddEditEventModal';
 import { EventRegistrationsModal } from '@/features/admin/components/eventAdminPanel/EventRegistrationsModal';
-import { Table, type ColumnDef } from '@ieee-ui/ui';
+import { Table, type ColumnDef, Loader, ErrorScreen } from '@ieee-ui/ui';
 import { Pagination } from '@/shared/components/ui/Pagination';
 import { MobileEventCard } from '@/features/admin/components/eventAdminPanel/MobileEventCard';
 import {
@@ -239,15 +239,8 @@ export const EventsPage = () => {
             </p>
           </div>
         </div>
-        <div
-          className={`rounded-lg p-8 text-center transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-white'}`}
-        >
-          <div className="inline-block w-8 h-8 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
-          <p
-            className={`mt-4 transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
-          >
-            Loading events...
-          </p>
+        <div className="flex h-64 items-center justify-center">
+          <Loader text="Loading events..." size="large" />
         </div>
       </div>
     );
@@ -271,11 +264,12 @@ export const EventsPage = () => {
             </p>
           </div>
         </div>
-        <div
-          className={`rounded-lg p-8 text-center transition-colors duration-300 ${isDark ? 'bg-red-950/20 text-red-400' : 'bg-red-50 text-red-500'}`}
-        >
-          <p>Failed to load events. Please try again later.</p>
-        </div>
+        <ErrorScreen
+          title="Failed to load events"
+          message="Please try again later."
+          className="h-64"
+          darkMode={isDark}
+        />
       </div>
     );
   }

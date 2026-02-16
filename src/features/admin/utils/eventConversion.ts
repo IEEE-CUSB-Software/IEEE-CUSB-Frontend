@@ -20,6 +20,7 @@ export type AdminEvent = {
   capacity: number;
   registeredCount: number;
   attendeeCount: number;
+  endTime: string;
 };
 
 /**
@@ -46,6 +47,7 @@ export const convertApiEventToAdminEvent = (event: ApiEvent): AdminEvent => {
     category: 'Technical', // Default value
     registeredCount: 0, // This would come from registrations count
     attendeeCount: 0, // This would come from attended registrations count
+    endTime: new Date(event.end_time).toISOString().slice(0, 16),
   };
 };
 

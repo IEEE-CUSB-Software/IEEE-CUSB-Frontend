@@ -15,6 +15,7 @@ export const Layout = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 400); // Slightly longer to show loader on navigation

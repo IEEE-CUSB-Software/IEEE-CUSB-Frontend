@@ -177,9 +177,12 @@ export const convertEventToFormValues = (
   const startDate = new Date(event.date);
   const formattedStartTime = startDate.toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
 
-  // Default end time 2 hours after start
-  const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
-  const formattedEndTime = endDate.toISOString().slice(0, 16);
+  // Use actual end time from event if available, otherwise default to 2 hours after start
+  const formattedEndTime =
+    event.endTime ||
+    new Date(startDate.getTime() + 2 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 16);
 
   // Default registration deadline 1 day before start
   const deadlineDate = new Date(startDate.getTime() - 24 * 60 * 60 * 1000);
