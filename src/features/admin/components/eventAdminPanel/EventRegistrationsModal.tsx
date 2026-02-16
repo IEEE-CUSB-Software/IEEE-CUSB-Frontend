@@ -1,5 +1,13 @@
 import { useState, useMemo } from 'react';
-import { Modal, Table, type ColumnDef, Button } from '@ieee-ui/ui';
+import {
+  Modal,
+  Table,
+  type ColumnDef,
+  Button,
+  Loader,
+  ErrorScreen,
+} from '@ieee-ui/ui';
+import { useIsMobile } from '@/shared/hooks/useIsMobile';
 import { Pagination } from '@/shared/components/ui/Pagination';
 import {
   useEventRegistrations,
@@ -28,8 +36,9 @@ export const EventRegistrationsModal = ({
   const { isDark } = useTheme();
   const [page, setPage] = useState(1);
   const limit = 10;
+  const isMobile = useIsMobile();
 
-  const { data, isLoading } = useEventRegistrations(
+  const { data, isLoading, isError } = useEventRegistrations(
     eventId,
     { page, limit },
     isOpen
@@ -170,38 +179,46 @@ export const EventRegistrationsModal = ({
     >
       <div className="space-y-4">
         {isLoading ? (
-          <div className="p-8 text-center">
-            <div className="inline-block w-8 h-8 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
-            <p className="mt-2 text-gray-500">Loading registrations...</p>
+          <div className="flex h-64 items-center justify-center">
+            <Loader text="Loading registrations..." />
           </div>
+        ) : isError ? (
+          <ErrorScreen
+            title="Failed to load registrations"
+            message="Please try again later."
+            className="h-64"
+            darkMode={isDark}
+          />
         ) : registrations.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
             No registrations found for this event.
           </div>
         ) : (
           <>
-            {/* Mobile View - Cards */}
-            <div className="md:hidden space-y-3">
-              {registrations.map(reg => (
-                <MobileRegistrationCard
-                  key={reg.id}
-                  registration={reg}
-                  isDark={isDark}
-                  isUpdating={isUpdating}
-                  onUpdateStatus={handleUpdateStatus}
+            {isMobile ? (
+              /* Mobile View - Cards */
+              <div className="space-y-3">
+                {registrations.map(reg => (
+                  <MobileRegistrationCard
+                    key={reg.id}
+                    registration={reg}
+                    isDark={isDark}
+                    isUpdating={isUpdating}
+                    onUpdateStatus={handleUpdateStatus}
+                  />
+                ))}
+              </div>
+            ) : (
+              /* Desktop View - Table */
+              <div className="w-full overflow-x-auto">
+                <Table
+                  data={registrations}
+                  columns={columns}
+                  darkMode={isDark}
+                  emptyMessage="No registrations found"
                 />
-              ))}
-            </div>
-
-            {/* Desktop View - Table */}
-            <div className="hidden md:block overflow-x-auto">
-              <Table
-                data={registrations}
-                columns={columns}
-                darkMode={isDark}
-                emptyMessage="No registrations found"
-              />
-            </div>
+              </div>
+            )}
             {totalPages > 1 && (
               <Pagination
                 currentPage={page}

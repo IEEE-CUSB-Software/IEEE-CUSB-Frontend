@@ -68,9 +68,6 @@ export const EventsPage = () => {
   const updateEventMutation = useUpdateEvent();
   const deleteEventMutation = useDeleteEvent();
 
-  // Debugging: Log the data to see what we are getting
-  console.log('Events Page Data:', data);
-
   // Safely extract events array - handle different response structures
   const events = Array.isArray(data?.data) ? data.data : [];
   const totalPages = data?.totalPages ?? 1;
