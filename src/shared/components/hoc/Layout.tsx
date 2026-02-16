@@ -36,7 +36,7 @@ export const Layout = () => {
       </div>
 
       {/* Main Content - Add padding for fixed navbar */}
-      <main className="flex-1 w-full pt-32 md:pt-32 px-4 md:px-8 pb-24 md:pb-0">
+      <main className="flex-1 w-full pt-0 md:pt-32 px-4 md:px-8 pb-24 md:pb-0">
         <Outlet />
       </main>
 

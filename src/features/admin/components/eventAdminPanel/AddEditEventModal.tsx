@@ -26,6 +26,7 @@ const AddEditEventModal: React.FC<AddEditEventModalProps> = ({
   isOpen,
   onClose,
   onSave,
+  isLoading,
 }) => {
   const { isDark } = useTheme();
   const isEditMode = !!event;
@@ -232,6 +233,7 @@ const AddEditEventModal: React.FC<AddEditEventModalProps> = ({
             type="basic"
             width="fit"
             darkMode={isDark}
+            disabled={isLoading}
           />
           <Button
             buttonText={isEditMode ? 'Save Changes' : 'Create Event'}
@@ -239,6 +241,7 @@ const AddEditEventModal: React.FC<AddEditEventModalProps> = ({
             type="primary"
             width="fit"
             darkMode={isDark}
+            loading={isLoading}
           />
         </div>
       </div>

@@ -364,6 +364,9 @@ export const EventsPage = () => {
           }}
           onSave={handleSaveEvent}
           event={selectedAdminEvent}
+          isLoading={
+            createEventMutation.isPending || updateEventMutation.isPending
+          }
         />
       )}
 

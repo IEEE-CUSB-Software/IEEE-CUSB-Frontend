@@ -7,6 +7,7 @@ export interface AddEditEventModalProps {
   event?: AdminEvent;
   onClose: () => void;
   onSave: (eventFormData: EventFormData) => void;
+  isLoading?: boolean;
 }
 
 export interface MediaItem {
@@ -23,7 +24,7 @@ export interface EventFormValues {
   registrationDeadline: string;
   location: string;
   capacity: string;
-  category: "Technical" | "Non-Technical" | "Social";
+  category: 'Technical' | 'Non-Technical' | 'Social';
 }
 
 export interface FormErrors {
