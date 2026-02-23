@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
-import { registerSchema, type RegisterFormData } from '@/features/auth/schemas';
+import { registerSchema } from '@/features/auth/schemas';
 import { useRegister } from '@/shared/queries/auth';
 import { Button, InputField, Select } from '@ieee-ui/ui';
 import UniversityList from '@/constants/universityList';
@@ -23,11 +23,20 @@ export const RegisterPage = () => {
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<RegisterFormData>({
+  } = useForm({
     resolver: zodResolver(registerSchema),
     mode: 'onChange', // Enable live validation
     defaultValues: {
+      email: '',
+      username: '',
+      name: '',
+      phone: '',
+      faculty: '',
+      university: '',
+      academic_year: '' as unknown as number,
       major: 'General',
+      password: '',
+      confirmPassword: '',
     },
   });
 
@@ -37,37 +46,40 @@ export const RegisterPage = () => {
   const passwordsMatch =
     password && confirmPassword && password === confirmPassword;
 
-  const onSubmit = (data: RegisterFormData) => {
-    // Send all data including confirmPassword for backend validation
-    register(data);
+  const onSubmit = (data: any) => {
+    // Send data to backend — Zod coerces academic_year to number
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { major, ...rest } = data;
+    register({
+      ...rest,
+      // Only include major if it's not the default
+      ...(major && major !== 'General' ? { major } : {}),
+    } as any);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden">
       {/* Animated Gradient Background */}
       <div
-        className={`absolute inset-0 bg-linear-to-br transition-colors duration-500 ${
-          isDark
-            ? 'from-gray-900 via-blue-900 to-gray-900'
-            : 'from-blue-50 via-purple-50 to-pink-50'
-        } animate-gradient-xy`}
+        className={`absolute inset-0 bg-linear-to-br transition-colors duration-500 ${isDark
+          ? 'from-gray-900 via-blue-900 to-gray-900'
+          : 'from-blue-50 via-purple-50 to-pink-50'
+          } animate-gradient-xy`}
       >
         <div
-          className={`absolute inset-0 ${
-            isDark
-              ? 'bg-[radial-gradient(circle_at_50%_50%,rgba(0,10,50,0.5),rgba(0,0,0,0))]'
-              : 'bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),rgba(255,255,255,0))]'
-          }`}
+          className={`absolute inset-0 ${isDark
+            ? 'bg-[radial-gradient(circle_at_50%_50%,rgba(0,10,50,0.5),rgba(0,0,0,0))]'
+            : 'bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),rgba(255,255,255,0))]'
+            }`}
         />
       </div>
 
       <div className="w-full max-w-2xl relative z-10">
         <div
-          className={`backdrop-blur-xl rounded-2xl shadow-2xl border transition-all duration-300 p-8 ${
-            isDark
-              ? 'bg-gray-800/80 border-gray-700/50 shadow-blue-900/20'
-              : 'bg-white/80 border-white/20 shadow-gray-200'
-          }`}
+          className={`backdrop-blur-xl rounded-2xl shadow-2xl border transition-all duration-300 p-8 ${isDark
+            ? 'bg-gray-800/80 border-gray-700/50 shadow-blue-900/20'
+            : 'bg-white/80 border-white/20 shadow-gray-200'
+            }`}
         >
           {/* Header */}
           <div className="text-center mb-8">
@@ -382,7 +394,7 @@ export const RegisterPage = () => {
             {/* Submit Button */}
             <Button
               htmlType="submit"
-              onClick={() => {}}
+              onClick={() => { }}
               type="primary"
               className="w-full"
               disabled={isPending}
