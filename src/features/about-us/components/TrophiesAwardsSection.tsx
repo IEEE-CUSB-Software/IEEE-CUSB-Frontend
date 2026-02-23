@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   HiGlobe,
@@ -8,6 +8,7 @@ import {
   HiCode,
 } from 'react-icons/hi';
 import { HiTrophy } from 'react-icons/hi2';
+import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 
 interface Award {
   icon: React.ElementType;
@@ -67,6 +68,31 @@ interface TrophiesAwardsSectionProps {
 export const TrophiesAwardsSection = ({
   darkMode,
 }: TrophiesAwardsSectionProps) => {
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [direction, setDirection] = useState<'left' | 'right'>('right');
+  const itemsPerView = 3;
+
+  const handlePrev = () => {
+    setDirection('right');
+    setCarouselIndex(prev =>
+      prev === 0 ? awards.length - itemsPerView : prev - 1
+    );
+  };
+
+  const handleNext = () => {
+    setDirection('left');
+    setCarouselIndex(prev =>
+      prev === awards.length - itemsPerView ? 0 : prev + 1
+    );
+  };
+
+  const getVisibleAwards = () => {
+    const visible = [];
+    for (let i = 0; i < itemsPerView; i++) {
+      visible.push(awards[(carouselIndex + i) % awards.length]);
+    }
+    return visible;
+  };
   return (
     <section
       className={`py-12 md:py-24 px-6 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}
@@ -102,6 +128,8 @@ export const TrophiesAwardsSection = ({
             </p>
           </div>
         </motion.div>
+
+        {/* New Awards grid */}
 
         {/* Awards Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -205,6 +233,179 @@ export const TrophiesAwardsSection = ({
               </div>
             </motion.div>
           </motion.div>
+        </div>
+
+        {/* Trophy Shelf Carousel */}
+        <div className="mt-20">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            transition={{ duration: 0.6 }}
+            className="mb-10"
+          >
+            <div className="text-xs font-bold tracking-widest text-info uppercase mb-3">
+              TROPHY SHOWCASE
+            </div>
+            <h3
+              className={`text-3xl md:text-4xl font-bold ${
+                darkMode ? 'text-white' : 'text-gray-900'
+              }`}
+            >
+              Our Prized Achievements
+            </h3>
+          </motion.div>
+
+          {/* Carousel Container */}
+          <div className="relative flex items-center justify-center gap-6">
+            {/* Left Arrow */}
+            <motion.button
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={handlePrev}
+              className={`flex-shrink-0 p-3 rounded-full transition-all ${
+                darkMode
+                  ? 'bg-info/20 hover:bg-info/30 text-info'
+                  : 'bg-info/15 hover:bg-info/25 text-info'
+              }`}
+              aria-label="Previous trophies"
+            >
+              <HiChevronLeft className="w-8 h-8" />
+            </motion.button>
+
+            {/* Trophy Shelf */}
+            <div
+              className={`relative flex-1 rounded-3xl p-8 overflow-visible ${
+                darkMode ? 'bg-gray-800/40' : 'bg-gray-50/50'
+              }`}
+            >
+              <div
+                className={`absolute bottom-1/3 left-0 right-0 h-6 rounded-full ${
+                  darkMode
+                    ? 'bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700'
+                    : 'bg-gradient-to-r from-[#4b2e1e] via-[#5a3824] to-[#4b2e1e]'
+                } 
+  shadow-[0_14px_18px_-8px_rgba(0,0,0,0.6)]
+  before:absolute before:inset-0 before:rounded-full
+  before:bg-gradient-to-b before:from-transparent before:to-black/30`}
+              ></div>
+
+              {/* Trophy Carousel Grid */}
+              <div className="grid grid-cols-3 gap-8 relative z-10">
+                {getVisibleAwards().map((award, index) => (
+                  <motion.div
+                    key={`${award.title}-${carouselIndex}-${index}`}
+                    initial={{
+                      opacity: 0,
+                      x: direction === 'left' ? -300 : 300,
+                    }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{
+                      opacity: 0,
+                      x: direction === 'left' ? 300 : -300,
+                    }}
+                    transition={{
+                      duration: 0.7,
+                      delay: index * 0.1,
+                      ease: 'easeInOut',
+                    }}
+                    className="flex flex-col items-center pt-8"
+                  >
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex flex-col items-center w-full"
+                    >
+                      {/* Trophy Image */}
+                      <motion.div
+                        className={`relative  rounded-lg overflow-hidden shadow-xl ${
+                          darkMode
+                            ? 'bg-gradient-to-br from-gray-700 to-gray-800'
+                            : 'bg-white'
+                        }`}
+                      >
+                        <img
+                          src="/src/assets/trophy.jpg"
+                          alt={award.title}
+                          className="w-40 h-48 object-cover"
+                        />
+                        <div
+                          className={`absolute inset-0 ${award.color} opacity-20`}
+                        />
+                      </motion.div>
+
+                      {/* Trophy Info - Below Shelf Line */}
+                      <div className="text-center w-full ">
+                        <motion.h4
+                          whileHover={{
+                            backgroundPosition: ['0% center', '100% center'],
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                          }}
+                          className={`text-lg font-bold mb-2 mt-8 bg-gradient-to-r from-info via-blue-400 to-info bg-clip-text text-transparent bg-size-200 ${
+                            darkMode ? '' : ''
+                          }`}
+                          style={{
+                            backgroundSize: '200% 200%',
+                          }}
+                        >
+                          {award.title}
+                        </motion.h4>
+                        <div className="text-sm font-semibold tracking-wide text-info uppercase mb-2 line-clamp-1">
+                          {award.year}
+                        </div>
+                        <p
+                          className={`text-xs leading-relaxed line-clamp-2 ${
+                            darkMode ? 'text-gray-300' : 'text-gray-600'
+                          }`}
+                        >
+                          {award.description}
+                        </p>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Arrow */}
+            <motion.button
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={handleNext}
+              className={`flex-shrink-0 p-3 rounded-full transition-all ${
+                darkMode
+                  ? 'bg-info/20 hover:bg-info/30 text-info'
+                  : 'bg-info/15 hover:bg-info/25 text-info'
+              }`}
+              aria-label="Next trophies"
+            >
+              <HiChevronRight className="w-8 h-8" />
+            </motion.button>
+
+            {/* Carousel Indicators - Below */}
+            <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 flex gap-2">
+              {Array.from({ length: awards.length - itemsPerView + 1 }).map(
+                (_, idx) => (
+                  <motion.button
+                    key={idx}
+                    onClick={() => setCarouselIndex(idx)}
+                    className={`h-2 rounded-full transition-all ${
+                      idx === carouselIndex
+                        ? 'bg-info w-8'
+                        : darkMode
+                          ? 'bg-gray-600 w-2'
+                          : 'bg-gray-300 w-2'
+                    }`}
+                    whileHover={{ scale: 1.2 }}
+                    aria-label={`Go to trophy set ${idx + 1}`}
+                  />
+                )
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </section>
