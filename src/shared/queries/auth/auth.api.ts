@@ -5,14 +5,13 @@ import type {
   LoginRequest,
   LoginResponse,
   RegisterRequest,
-  RegisterResponse,
-  RefreshTokenRequest,
   RefreshTokenResponse,
   SendOTPRequest,
   VerifyOTPRequest,
   ResetPasswordRequest,
   ChangePasswordRequest,
   CompleteOAuthProfileRequest,
+  User,
 } from '@/shared/types/auth.types';
 
 /**
@@ -21,6 +20,7 @@ import type {
 export const authApi = {
   /**
    * Login user with email/username and password
+   * Backend sets refresh_token as httpOnly cookie
    */
   login: async (data: LoginRequest): Promise<LoginResponse> => {
     const response = await apiClient.post<ApiResponse<LoginResponse>>(
@@ -32,17 +32,19 @@ export const authApi = {
 
   /**
    * Register new user (default role: Visitor)
+   * Note: Backend does NOT return tokens on registration
    */
-  register: async (data: RegisterRequest): Promise<RegisterResponse> => {
-    const response = await apiClient.post<ApiResponse<RegisterResponse>>(
+  register: async (data: RegisterRequest): Promise<User> => {
+    const response = await apiClient.post<ApiResponse<{ user: User }>>(
       API_ENDPOINTS.AUTH.REGISTER,
       data
     );
-    return response.data.data;
+    return response.data.data.user;
   },
 
   /**
    * Logout user
+   * Backend reads refresh_token from httpOnly cookie
    */
   logout: async (): Promise<void> => {
     await apiClient.post(API_ENDPOINTS.AUTH.LOGOUT);
@@ -50,19 +52,11 @@ export const authApi = {
 
   /**
    * Get current authenticated user
+   * Refreshes token via cookie, decodes JWT for user ID, then fetches user
    */
-  getMe: async (): Promise<{
-    user: import('@/shared/types/auth.types').User;
-  }> => {
-    // 1. Refresh the token
-    const storedRefreshToken = localStorage.getItem('refresh_token');
-    if (!storedRefreshToken) {
-      throw new Error('No refresh token found');
-    }
-
-    const refreshResponse = await authApi.refreshToken({
-      refresh_token: storedRefreshToken,
-    });
+  getMe: async (): Promise<{ user: User; access_token: string }> => {
+    // 1. Refresh the token (cookie-based)
+    const refreshResponse = await authApi.refreshToken();
     const accessToken = refreshResponse.access_token;
 
     // 2. Decode the token to get user ID
@@ -74,61 +68,51 @@ export const authApi = {
     }
 
     // 3. Fetch user details using the new token
-    // We need to manually set the Authorization header for this request
-    // because the interceptor might not have the new token yet
-    const userResponse = await apiClient.get<
-      ApiResponse<import('@/shared/types/auth.types').User>
-    >(API_ENDPOINTS.USERS.GET_USER(decoded.id), {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    const userResponse = await apiClient.get<ApiResponse<User>>(
+      API_ENDPOINTS.USERS.GET_USER(decoded.id),
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
 
-    // 4. Return user data
-    // The response is wrapped in ApiResponse, so user data is in userResponse.data.data
-    // Note: We also need to return the new access token so AuthProvider can update the store
-    // However, the current return type is just { user }.
-    // The AuthProvider will handle the token update if we ensure valid tokens are in place.
-    // Ideally, getMe should probably return the token too, but let's stick to the interface.
-    // The interceptor or AuthProvider should update the localStorage/store with the new token.
-
-    // Actually, since we are doing this manually, we should update localStorage here to be safe
-    // or rely on the caller to handle it.
-    // Let's update localStorage here for immediate consistency
+    // 4. Update localStorage with new access token
     localStorage.setItem('access_token', accessToken);
 
-    return { user: userResponse.data.data as any };
+    return { user: userResponse.data.data, access_token: accessToken };
   },
 
   /**
    * Refresh access token
+   * Refresh token is sent automatically via httpOnly cookie
    */
-  refreshToken: async (
-    data: RefreshTokenRequest
-  ): Promise<RefreshTokenResponse> => {
+  refreshToken: async (): Promise<RefreshTokenResponse> => {
     const response = await apiClient.post<ApiResponse<RefreshTokenResponse>>(
       API_ENDPOINTS.AUTH.REFRESH_TOKEN,
-      data
+      {} // No body — refresh token is in httpOnly cookie
     );
     return response.data.data;
   },
 
   /**
-   * Send OTP to email for verification
+   * Send OTP to authenticated user's email for verification
+   * Requires JWT auth — backend gets email from the authenticated user
    */
-  sendEmailOTP: async (data: SendOTPRequest): Promise<void> => {
-    await apiClient.post(API_ENDPOINTS.AUTH.SEND_EMAIL_OTP, data);
+  sendEmailOTP: async (): Promise<void> => {
+    await apiClient.post(API_ENDPOINTS.AUTH.SEND_EMAIL_OTP);
   },
 
   /**
    * Verify email with OTP
+   * Requires JWT auth — backend gets user from the authenticated user
    */
   verifyEmailOTP: async (data: VerifyOTPRequest): Promise<void> => {
     await apiClient.patch(API_ENDPOINTS.AUTH.VERIFY_EMAIL_OTP, data);
   },
 
   /**
-   * Send OTP to email for password reset
+   * Send OTP to email for password reset (public endpoint)
    */
   sendPasswordOTP: async (data: SendOTPRequest): Promise<void> => {
     await apiClient.post(API_ENDPOINTS.AUTH.SEND_PASSWORD_OTP, data);
