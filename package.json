@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
-    "@ieee-ui/ui": "^0.0.21",
+    "@ieee-ui/ui": "^0.0.23",
     "@reduxjs/toolkit": "^2.11.0",
     "@tanstack/react-query": "^5.90.11",
     "@tanstack/react-query-devtools": "^5.91.1",
