@@ -129,8 +129,6 @@ export const TrophiesAwardsSection = ({
           </div>
         </motion.div>
 
-        {/* New Awards grid */}
-
         {/* Awards Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {awards.map((award, index) => (
@@ -235,7 +233,7 @@ export const TrophiesAwardsSection = ({
           </motion.div>
         </div>
 
-        {/* Trophy Shelf Carousel */}
+        {/* Trophy Shelf */}
         <div className="mt-20">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -244,15 +242,15 @@ export const TrophiesAwardsSection = ({
             transition={{ duration: 0.6 }}
             className="mb-10"
           >
-            <div className="text-xs font-bold tracking-widest text-info uppercase mb-3">
+            <div className="text-sm font-bold tracking-widest text-info uppercase mb-3">
               TROPHY SHOWCASE
             </div>
             <h3
-              className={`text-3xl md:text-4xl font-bold ${
+              className={`text-3xl md:text-4xl font-bold mb-8 ${
                 darkMode ? 'text-white' : 'text-gray-900'
               }`}
             >
-              Our Prized Achievements
+              Trophies and Awards
             </h3>
           </motion.div>
 
@@ -263,12 +261,16 @@ export const TrophiesAwardsSection = ({
               whileHover={{ scale: 1.15 }}
               whileTap={{ scale: 0.9 }}
               onClick={handlePrev}
-              className={`flex-shrink-0 p-3 rounded-full transition-all ${
+              transition={{
+                type: 'spring',
+                stiffness: 350,
+                damping: 18,
+              }}
+              className={`flex-shrink-0 p-3 rounded-full  ${
                 darkMode
                   ? 'bg-info/20 hover:bg-info/30 text-info'
                   : 'bg-info/15 hover:bg-info/25 text-info'
               }`}
-              aria-label="Previous trophies"
             >
               <HiChevronLeft className="w-8 h-8" />
             </motion.button>
@@ -283,7 +285,7 @@ export const TrophiesAwardsSection = ({
                 className={`absolute bottom-1/3 left-0 right-0 h-6 rounded-full ${
                   darkMode
                     ? 'bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700'
-                    : 'bg-gradient-to-r from-[#4b2e1e] via-[#5a3824] to-[#4b2e1e]'
+                    : 'bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700'
                 } 
   shadow-[0_14px_18px_-8px_rgba(0,0,0,0.6)]
   before:absolute before:inset-0 before:rounded-full
@@ -318,19 +320,12 @@ export const TrophiesAwardsSection = ({
                     >
                       {/* Trophy Image */}
                       <motion.div
-                        className={`relative  rounded-lg overflow-hidden shadow-xl ${
-                          darkMode
-                            ? 'bg-gradient-to-br from-gray-700 to-gray-800'
-                            : 'bg-white'
-                        }`}
+                        className={`relative  rounded-lg overflow-hidden  `}
                       >
                         <img
-                          src="/src/assets/trophy.jpg"
+                          src="/src/assets/trophy.png"
                           alt={award.title}
                           className="w-40 h-48 object-cover"
-                        />
-                        <div
-                          className={`absolute inset-0 ${award.color} opacity-20`}
                         />
                       </motion.div>
 
@@ -375,12 +370,16 @@ export const TrophiesAwardsSection = ({
               whileHover={{ scale: 1.15 }}
               whileTap={{ scale: 0.9 }}
               onClick={handleNext}
-              className={`flex-shrink-0 p-3 rounded-full transition-all ${
+              transition={{
+                type: 'spring',
+                stiffness: 350,
+                damping: 18,
+              }}
+              className={`flex-shrink-0 p-3 rounded-full ${
                 darkMode
                   ? 'bg-info/20 hover:bg-info/30 text-info'
                   : 'bg-info/15 hover:bg-info/25 text-info'
               }`}
-              aria-label="Next trophies"
             >
               <HiChevronRight className="w-8 h-8" />
             </motion.button>
@@ -391,16 +390,21 @@ export const TrophiesAwardsSection = ({
                 (_, idx) => (
                   <motion.button
                     key={idx}
+                    layout
                     onClick={() => setCarouselIndex(idx)}
-                    className={`h-2 rounded-full transition-all ${
-                      idx === carouselIndex
-                        ? 'bg-info w-8'
-                        : darkMode
-                          ? 'bg-gray-600 w-2'
-                          : 'bg-gray-300 w-2'
-                    }`}
-                    whileHover={{ scale: 1.2 }}
-                    aria-label={`Go to trophy set ${idx + 1}`}
+                    className="h-2 rounded-full"
+                    animate={{
+                      width: idx === carouselIndex ? 32 : 8,
+                      backgroundColor:
+                        idx === carouselIndex
+                          ? 'var(--color-info)'
+                          : 'var(--color-border)',
+                    }}
+                    transition={{
+                      type: 'spring',
+                      stiffness: 400,
+                      damping: 30,
+                    }}
                   />
                 )
               )}
