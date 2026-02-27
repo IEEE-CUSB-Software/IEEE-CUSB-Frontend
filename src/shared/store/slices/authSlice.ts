@@ -3,11 +3,12 @@ import type { User } from '../../types/auth.types';
 
 /**
  * Auth State Interface
+ * Note: refresh_token is managed as httpOnly cookie by the backend,
+ * so it is NOT stored in Redux or localStorage.
  */
 interface AuthState {
   user: User | null;
   access_token: string | null;
-  refresh_token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
@@ -18,7 +19,6 @@ interface AuthState {
 const initialState: AuthState = {
   user: null,
   access_token: localStorage.getItem('access_token'),
-  refresh_token: localStorage.getItem('refresh_token'),
   isAuthenticated: !!localStorage.getItem('access_token'),
   isLoading: false,
 };
@@ -34,12 +34,8 @@ const authSlice = createSlice({
       state.user = action.payload;
       state.isAuthenticated = true;
     },
-    setTokens: (
-      state,
-      action: PayloadAction<{ access_token: string; refresh_token: string }>
-    ) => {
-      state.access_token = action.payload.access_token;
-      state.refresh_token = action.payload.refresh_token;
+    setAccessToken: (state, action: PayloadAction<string>) => {
+      state.access_token = action.payload;
       state.isAuthenticated = true;
     },
     updateUser: (state, action: PayloadAction<Partial<User>>) => {
@@ -50,7 +46,6 @@ const authSlice = createSlice({
     clearAuth: state => {
       state.user = null;
       state.access_token = null;
-      state.refresh_token = null;
       state.isAuthenticated = false;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
@@ -59,7 +54,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, setTokens, updateUser, clearAuth, setLoading } =
+export const { setUser, setAccessToken, updateUser, clearAuth, setLoading } =
   authSlice.actions;
 
 export default authSlice.reducer;

@@ -40,6 +40,7 @@ export interface User {
   is_active: boolean;
   github_id: string | null;
   google_id: string | null;
+  oauth_provider?: string | null;
 }
 
 /**
@@ -52,10 +53,10 @@ export interface LoginRequest {
 
 /**
  * Login Response
+ * Note: refresh_token is set as httpOnly cookie by the backend
  */
 export interface LoginResponse {
   access_token: string;
-  refresh_token: string;
   user: User;
 }
 
@@ -70,29 +71,21 @@ export interface RegisterRequest {
   faculty: string;
   university: string;
   academic_year: number;
-  major: string;
   password: string;
   confirmPassword: string;
 }
 
 /**
  * Register Response
+ * Note: Backend returns only the user object, no tokens
  */
 export interface RegisterResponse {
-  access_token: string;
-  refresh_token: string;
   user: User;
 }
 
 /**
- * Refresh Token Request
- */
-export interface RefreshTokenRequest {
-  refresh_token: string;
-}
-
-/**
  * Refresh Token Response
+ * Note: refresh_token is read from httpOnly cookie by the backend
  */
 export interface RefreshTokenResponse {
   access_token: string;
@@ -102,22 +95,22 @@ export interface RefreshTokenResponse {
  * Change Password Request
  */
 export interface ChangePasswordRequest {
-  old_password: string;
-  new_password: string;
+  currentPassword: string;
+  password: string;
+  confirmPassword: string;
 }
 
 /**
- * Send OTP Request
+ * Send OTP Request (for password reset)
  */
 export interface SendOTPRequest {
   email: string;
 }
 
 /**
- * Verify OTP Request
+ * Verify OTP Request (for email verification — user identified via JWT)
  */
 export interface VerifyOTPRequest {
-  email: string;
   otp: string;
 }
 
@@ -127,7 +120,8 @@ export interface VerifyOTPRequest {
 export interface ResetPasswordRequest {
   email: string;
   otp: string;
-  new_password: string;
+  password: string;
+  confirmPassword: string;
 }
 
 /**
@@ -138,16 +132,17 @@ export interface CompleteOAuthProfileRequest {
   university: string;
   phone: string;
   academic_year: number;
-  major: string;
+  major?: string;
+  username?: string;
 }
 
 /**
- * API Response wrapper
+ * API Response wrapper (matches backend ResponseInterceptor)
  */
 export interface ApiResponse<T> {
-  status: number;
-  message: string;
   data: T;
+  count: number;
+  message: string;
 }
 
 /**
