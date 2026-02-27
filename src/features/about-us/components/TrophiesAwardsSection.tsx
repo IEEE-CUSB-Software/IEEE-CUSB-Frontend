@@ -108,15 +108,15 @@ export const TrophiesAwardsSection = ({
     setDirection('left');
     setCarouselIndex(prev => (prev === maxIndex ? 0 : prev + 1));
   };
+  const getVisibleAwards = (): Award[] => {
+    const visible: Award[] = [];
 
-  const getVisibleAwards = () => {
-    const visible = [];
     for (let i = 0; i < itemsPerView; i++) {
-      visible.push(awards[(carouselIndex + i) % awards.length]);
+      visible.push(awards[(carouselIndex + i) % awards.length]!);
     }
+
     return visible;
   };
-
   const gridClass =
     itemsPerView === 1
       ? 'grid-cols-1'
