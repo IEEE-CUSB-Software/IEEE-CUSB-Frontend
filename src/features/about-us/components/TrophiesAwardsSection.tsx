@@ -1,12 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import {
-  HiGlobe,
-  HiUserGroup,
-  HiStar,
-  HiTrendingUp,
-  HiCode,
-} from 'react-icons/hi';
+import { HiGlobe, HiUserGroup, HiStar, HiCode } from 'react-icons/hi';
 import { HiTrophy } from 'react-icons/hi2';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 
@@ -16,6 +10,7 @@ interface Award {
   year: string;
   description: string;
   color: string;
+  won: string;
 }
 
 const awards: Award[] = [
@@ -26,6 +21,7 @@ const awards: Award[] = [
     description:
       'Ranked for exceptional performance in organizing technical events and member engagement across Egypt, Middle East, and Africa.',
     color: 'text-yellow-500',
+    won: 'twice',
   },
   {
     icon: HiGlobe,
@@ -34,6 +30,7 @@ const awards: Award[] = [
     description:
       'Recognized for outstanding website design, content accessibility, and user experience among all IEEE student branches worldwide.',
     color: 'text-blue-500',
+    won: '3 times',
   },
   {
     icon: HiUserGroup,
@@ -42,6 +39,7 @@ const awards: Award[] = [
     description:
       'Honoring the collective effort of our volunteers in community service and STEM outreach programs at local schools.',
     color: 'text-purple-500',
+    won: '',
   },
   {
     icon: HiStar,
@@ -50,6 +48,7 @@ const awards: Award[] = [
     description:
       'Achieved the highest percentage increase in student membership within the Egypt Section for the fiscal year.',
     color: 'text-orange-500',
+    won: 'Won once',
   },
   {
     icon: HiCode,
@@ -58,9 +57,28 @@ const awards: Award[] = [
     description:
       'Our coding teams ranked within the top 100 globally out of 4500+ teams in the 24-hour programming challenge.',
     color: 'text-green-500',
+    won: '',
   },
 ];
 
+function useItemsPerView() {
+  const getItems = () => {
+    if (typeof window === 'undefined') return 3;
+    if (window.innerWidth < 640) return 1;
+    if (window.innerWidth < 1024) return 2;
+    return 3;
+  };
+
+  const [itemsPerView, setItemsPerView] = useState(getItems);
+
+  useEffect(() => {
+    const handler = () => setItemsPerView(getItems());
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+
+  return itemsPerView;
+}
 interface TrophiesAwardsSectionProps {
   darkMode?: boolean;
 }
@@ -70,20 +88,25 @@ export const TrophiesAwardsSection = ({
 }: TrophiesAwardsSectionProps) => {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [direction, setDirection] = useState<'left' | 'right'>('right');
-  const itemsPerView = 3;
+  const itemsPerView = useItemsPerView();
+
+  useEffect(() => {
+    const maxIndex = awards.length - itemsPerView;
+    if (carouselIndex > maxIndex) {
+      setCarouselIndex(Math.max(0, maxIndex));
+    }
+  }, [itemsPerView, carouselIndex]);
+
+  const maxIndex = awards.length - itemsPerView;
 
   const handlePrev = () => {
     setDirection('right');
-    setCarouselIndex(prev =>
-      prev === 0 ? awards.length - itemsPerView : prev - 1
-    );
+    setCarouselIndex(prev => (prev === 0 ? maxIndex : prev - 1));
   };
 
   const handleNext = () => {
     setDirection('left');
-    setCarouselIndex(prev =>
-      prev === awards.length - itemsPerView ? 0 : prev + 1
-    );
+    setCarouselIndex(prev => (prev === maxIndex ? 0 : prev + 1));
   };
 
   const getVisibleAwards = () => {
@@ -93,146 +116,19 @@ export const TrophiesAwardsSection = ({
     }
     return visible;
   };
+
+  const gridClass =
+    itemsPerView === 1
+      ? 'grid-cols-1'
+      : itemsPerView === 2
+        ? 'grid-cols-2'
+        : 'grid-cols-3';
+
   return (
     <section
       className={`py-12 md:py-24 px-6 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}
     >
       <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.6 }}
-          className="mb-16"
-        >
-          <div className="text-xs font-bold tracking-widest text-info uppercase mb-3">
-            HALL OF FAME
-          </div>
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <h2
-              className={`text-4xl md:text-5xl font-bold ${
-                darkMode ? 'text-white' : 'text-gray-900'
-              }`}
-            >
-              Trophies & Awards
-            </h2>
-            <p
-              className={`max-w-xl ${
-                darkMode ? 'text-gray-300' : 'text-gray-600'
-              }`}
-            >
-              Recognition of our dedication to excellence in technical
-              education, volunteering, and website development on a global
-              scale.
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Awards Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {awards.map((award, index) => (
-            <motion.div
-              key={award.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
-              transition={{
-                duration: 0.5,
-                delay: index * 0.1,
-                ease: [0.4, 0.0, 0.2, 1],
-              }}
-            >
-              <motion.div
-                whileHover={{ y: -8, scale: 1.02 }}
-                transition={{ duration: 0.3 }}
-                className={`rounded-2xl p-6 h-full border transition-all group ${
-                  darkMode
-                    ? 'bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 hover:border-info/30 hover:shadow-xl'
-                    : 'bg-gradient-to-br from-gray-50 to-white border-gray-100 hover:border-info/30 hover:shadow-xl'
-                }`}
-              >
-                {/* Icon */}
-                <motion.div
-                  whileHover={{ rotate: [0, -10, 10, -10, 0] }}
-                  transition={{ duration: 0.5 }}
-                  className={`w-14 h-14 rounded-xl flex items-center justify-center mb-4 transition-all group-hover:from-info/10 group-hover:to-info/5 ${
-                    darkMode
-                      ? 'bg-gradient-to-br from-gray-700 to-gray-800'
-                      : 'bg-gradient-to-br from-gray-100 to-gray-50'
-                  }`}
-                >
-                  <award.icon className={`w-7 h-7 ${award.color}`} />
-                </motion.div>
-
-                {/* Content */}
-                <div className="space-y-3">
-                  <h3
-                    className={`text-xl font-bold ${
-                      darkMode ? 'text-white' : 'text-gray-900'
-                    }`}
-                  >
-                    {award.title}
-                  </h3>
-                  <div className="text-xs font-semibold tracking-wide text-info uppercase">
-                    {award.year}
-                  </div>
-                  <p
-                    className={`text-sm leading-relaxed ${
-                      darkMode ? 'text-gray-300' : 'text-gray-600'
-                    }`}
-                  >
-                    {award.description}
-                  </p>
-                </div>
-              </motion.div>
-            </motion.div>
-          ))}
-
-          {/* Additional Achievement Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{
-              duration: 0.5,
-              delay: awards.length * 0.1,
-              ease: [0.4, 0.0, 0.2, 1],
-            }}
-          >
-            <motion.div
-              whileHover={{ y: -8, scale: 1.02 }}
-              transition={{ duration: 0.3 }}
-              className="bg-gradient-to-br from-info to-info/90 rounded-2xl p-6 h-full text-white hover:shadow-xl transition-all group relative overflow-hidden"
-            >
-              {/* Background Pattern */}
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full translate-y-1/2 -translate-x-1/2" />
-              </div>
-
-              <div className="relative z-10">
-                {/* Icon */}
-                <div className="w-14 h-14 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4">
-                  <HiTrendingUp className="w-7 h-7 text-white" />
-                </div>
-
-                {/* Content */}
-                <div className="space-y-3">
-                  <h3 className="text-xl font-bold">More Achievements</h3>
-                  <div className="text-xs font-semibold tracking-wide uppercase opacity-90">
-                    2011 - 2024
-                  </div>
-                  <p className="text-white/90 text-sm leading-relaxed">
-                    Over 50+ technical events, 10+ international collaborations,
-                    and countless success stories from our amazing community.
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        </div>
-
         {/* Trophy Shelf */}
         <div className="mt-20">
           <motion.div
@@ -243,7 +139,7 @@ export const TrophiesAwardsSection = ({
             className="mb-10"
           >
             <div className="text-sm font-bold tracking-widest text-info uppercase mb-3">
-              TROPHY SHOWCASE
+              Achievements Hall
             </div>
             <h3
               className={`text-3xl md:text-4xl font-bold mb-8 ${
@@ -282,18 +178,18 @@ export const TrophiesAwardsSection = ({
               }`}
             >
               <div
-                className={`absolute bottom-1/3 left-0 right-0 h-6 rounded-full ${
+                className={`absolute top-[255px] left-0 right-0 h-9 rounded-xl ${
                   darkMode
                     ? 'bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700'
                     : 'bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700'
                 } 
-  shadow-[0_14px_18px_-8px_rgba(0,0,0,0.6)]
-  before:absolute before:inset-0 before:rounded-full
-  before:bg-gradient-to-b before:from-transparent before:to-black/30`}
+                    shadow-[0_14px_18px_-8px_rgba(0,0,0,0.6)]
+                    before:absolute before:inset-0 before:rounded-full
+                    before:bg-gradient-to-b before:from-transparent before:to-black/30`}
               ></div>
 
-              {/* Trophy Carousel Grid */}
-              <div className="grid grid-cols-3 gap-8 relative z-10">
+              {/* Trophy Carousel Grid — responsive column count */}
+              <div className={`grid ${gridClass} gap-8 relative z-10`}>
                 {getVisibleAwards().map((award, index) => (
                   <motion.div
                     key={`${award.title}-${carouselIndex}-${index}`}
@@ -329,27 +225,38 @@ export const TrophiesAwardsSection = ({
                         />
                       </motion.div>
 
-                      {/* Trophy Info - Below Shelf Line */}
+                      {/* Trophy Info*/}
                       <div className="text-center w-full ">
                         <motion.h4
+                          initial={{ backgroundPosition: '0% center' }}
                           whileHover={{
-                            backgroundPosition: ['0% center', '100% center'],
+                            backgroundPosition: '100% center',
                           }}
                           transition={{
-                            duration: 2,
-                            repeat: Infinity,
+                            duration: 2.5,
+                            ease: 'linear',
                           }}
-                          className={`text-lg font-bold mb-2 mt-8 bg-gradient-to-r from-info via-blue-400 to-info bg-clip-text text-transparent bg-size-200 ${
-                            darkMode ? '' : ''
-                          }`}
+                          className="text-lg font-bold mb-2 bg-clip-text text-transparent"
                           style={{
-                            backgroundSize: '200% 200%',
+                            backgroundImage: `linear-gradient(
+                            105deg,
+                            var(--color-primary)            0%,
+                            var(--color-info)               20%,
+                            var(--color-primary)            35%,
+                            var(--color-primary-foreground) 50%,
+                            var(--color-primary)            65%,
+                            var(--color-info)               80%,
+                            var(--color-primary)            100%
+                          )`,
+                            backgroundSize: '300% 100%',
                           }}
                         >
                           {award.title}
                         </motion.h4>
-                        <div className="text-sm font-semibold tracking-wide text-info uppercase mb-2 line-clamp-1">
-                          {award.year}
+                        <div className="text-sm font-semibold tracking-wide text-info uppercase mb-2 pt-2 line-clamp-1">
+                          {award.won
+                            ? `${award.year} • ${award.won}`
+                            : award.year}
                         </div>
                         <p
                           className={`text-xs leading-relaxed line-clamp-2 ${
