@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { TeamMember } from '../constants/team';
+import { TeamMember } from '../../../shared/types/team.types';
 import { SectionReveal } from './SectionReveal';
 import { IoLogoLinkedin } from 'react-icons/io5';
 import { FaGithub, FaTwitter } from 'react-icons/fa';
@@ -48,7 +48,7 @@ export const TeamMemberCard = ({
                           flex flex-col justify-end p-6 text-white"
             initial={{ opacity: 0 }}
             animate={{ opacity: hovered ? 1 : 0 }}
-            exit={{ opacity: 0 }}
+            transition={{ delay: 0.12, duration: hovered ? 0.55 : 0 }}
           >
             <h3 className="text-xl font-bold text-center">{member.name}</h3>
             <p className="text-sm text-center font-light mb-2">{member.role}</p>
@@ -77,7 +77,7 @@ export const TeamMemberCard = ({
           <motion.div
             className="mt-4"
             initial={{ opacity: 1, y: 0 }}
-            animate={{ opacity: hovered ? 0 : 1 }}
+            animate={{ opacity: hovered ? 0 : 1, y: hovered ? -90 : 0 }}
           >
             <p className="text-center text-xl font-semibold ">{member.name}</p>
             <p className="text-primary text-center text-sm">{member.role}</p>

@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { TeamMember } from '../constants/team';
+import { TeamMember } from '../../../shared/types/team.types';
 import { SectionReveal } from './SectionReveal';
 import { IoLogoLinkedin } from 'react-icons/io5';
 import { FaGithub, FaTwitter } from 'react-icons/fa';
@@ -35,7 +35,7 @@ export const TeamMemberCardBackup = ({
               width: isHovered ? 100 : 144,
               height: isHovered ? 100 : 144,
             }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            transition={{ type: 'spring', stiffness: 250, damping: 25 }}
             className={`overflow-hidden rounded-full border-[3px] transition-colors duration-300 ${
               isHovered ? 'border-primary/10' : 'border-background'
             }`}

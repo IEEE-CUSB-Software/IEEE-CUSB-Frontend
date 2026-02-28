@@ -1,10 +1,10 @@
 import { SectionReveal } from './SectionReveal';
-import { TEAM_MEMBERS } from '../constants/team';
 import { TeamMemberCard } from './TeamMemberCard';
 //import { TeamMemberCardBackup } from './TeamMemberCardBackup';
 import { Link } from 'react-router-dom';
 import { GoArrowUpRight } from 'react-icons/go';
 import { motion } from 'framer-motion';
+import { TEAM_MEMBERS } from './constants/team';
 
 export function TeamSection() {
   return (
