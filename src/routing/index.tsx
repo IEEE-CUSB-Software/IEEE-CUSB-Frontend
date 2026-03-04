@@ -10,6 +10,7 @@ import {
   EventDetailsPage,
   AboutUsPage,
   HomePage,
+  CommitteesPage,
 } from './pages';
 import EventsPage from './pages/EventsPage';
 import { AdminLayout } from '../features/admin/layouts/AdminLayout';
@@ -89,7 +90,7 @@ const routes: RouteObject[] = [
       },
       {
         path: 'committees',
-        element: <UnderConstructionPage />, // Committees - Under Construction
+        element: <CommitteesPage />,
       },
       {
         path: 'events',

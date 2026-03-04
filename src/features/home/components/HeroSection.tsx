@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { SwishUnderline } from './SwishUnderline';
 import { FeatureCard } from './FeatureCard';
 import { HiUsers, HiLightningBolt, HiGlobeAlt } from 'react-icons/hi';
+import { useTheme } from '@/shared/hooks/useTheme';
 
 interface HeroSectionProps {
   activeCardIndex: number;
@@ -12,11 +13,12 @@ export const HeroSection = ({
   activeCardIndex,
   onCardExpand,
 }: HeroSectionProps) => {
+  const { isDark } = useTheme();
   return (
-    <section className="relative min-h-screen px-6 flex items-center bg-background py-12 md:py-0">
-      <div className="max-w-7xl mx-auto w-full py-12 md:py-20">
+    <section className="relative h-screen px-6 flex items-center bg-background md:-mt-32">
+      <div className="max-w-7xl mx-auto w-full pt-28 md:pt-32 pb-6">
         {/* Split Column Layout */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-8 mt-8">
+        <div className="grid lg:grid-cols-2 gap-8 mb-8">
           {/* Left Column - Heading */}
           <div>
             <motion.div
@@ -42,7 +44,7 @@ export const HeroSection = ({
                 delay: 0.4,
                 ease: [0.4, 0.0, 0.2, 1],
               }}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-[1.1] mb-6"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] mb-6"
             >
               Discover the <SwishUnderline>power</SwishUnderline> of engineering
               on your terms
@@ -59,7 +61,7 @@ export const HeroSection = ({
                 delay: 0.6,
                 ease: [0.4, 0.0, 0.2, 1],
               }}
-              className="text-base md:text-lg text-gray-600 leading-relaxed mb-6"
+              className="text-base md:text-lg text-muted-foreground leading-relaxed mb-6"
             >
               Join IEEE Cairo University Student Branch and unlock opportunities
               for professional growth, technical excellence, and innovation.
@@ -79,12 +81,12 @@ export const HeroSection = ({
                 href="#join"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="inline-flex items-center gap-3 bg-gray-900 text-white px-6 py-3 rounded-full font-semibold hover:bg-gray-800 transition-all shadow-xl hover:shadow-2xl group"
+                className={`inline-flex items-center gap-3 px-6 py-3 rounded-full font-semibold shadow-xl hover:shadow-2xl group transition-all ${isDark ? 'bg-white text-gray-900 hover:bg-gray-100' : 'bg-gray-900 text-white hover:bg-gray-800'}`}
               >
                 <span>Join IEEE CUSB</span>
-                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center group-hover:rotate-45 transition-transform duration-300">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center group-hover:rotate-45 transition-transform duration-300 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
                   <svg
-                    className="w-4 h-4 text-gray-900"
+                    className={`w-4 h-4 ${isDark ? 'text-white' : 'text-gray-900'}`}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"

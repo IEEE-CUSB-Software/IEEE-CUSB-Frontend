@@ -8,13 +8,12 @@ interface AboutUsHeroSectionProps {
 export const AboutUsHeroSection = ({ darkMode }: AboutUsHeroSectionProps) => {
   return (
     <section
-      className={`relative min-h-screen px-6 flex items-center ${
-        darkMode
+      className={`relative h-screen px-6 flex items-center md:-mt-32 ${darkMode
           ? 'bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900'
           : 'bg-gradient-to-b from-gray-50 to-white'
-      }`}
+        }`}
     >
-      <div className="max-w-7xl mx-auto w-full py-12 md:py-20">
+      <div className="max-w-7xl mx-auto w-full pt-28 md:pt-32 pb-6">
         {/* Split Column Layout */}
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Column - Heading & Description */}
@@ -42,9 +41,8 @@ export const AboutUsHeroSection = ({ darkMode }: AboutUsHeroSectionProps) => {
                 delay: 0.4,
                 ease: [0.4, 0.0, 0.2, 1],
               }}
-              className={`text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] mb-6 ${
-                darkMode ? 'text-white' : 'text-gray-900'
-              }`}
+              className={`text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] mb-6 ${darkMode ? 'text-white' : 'text-gray-900'
+                }`}
             >
               Engineering the <span className="text-info">Future Together</span>
             </motion.h1>
@@ -57,9 +55,8 @@ export const AboutUsHeroSection = ({ darkMode }: AboutUsHeroSectionProps) => {
                 delay: 0.6,
                 ease: [0.4, 0.0, 0.2, 1],
               }}
-              className={`text-base md:text-lg leading-relaxed mb-8 ${
-                darkMode ? 'text-gray-300' : 'text-gray-600'
-              }`}
+              className={`text-base md:text-lg leading-relaxed mb-8 ${darkMode ? 'text-gray-300' : 'text-gray-600'
+                }`}
             >
               We are a community of passionate students at Cairo University,
               dedicated to advancing technology and fostering innovation through

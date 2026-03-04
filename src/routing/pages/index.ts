@@ -5,3 +5,4 @@ export { RegisterPage } from './RegisterPage';
 export { UnderConstructionPage } from './UnderConstructionPage';
 export { EventDetailsPage } from './EventDetailsPage';
 export { AboutUsPage } from './AboutUsPage';
+export { CommitteesPage } from './CommitteesPage';
