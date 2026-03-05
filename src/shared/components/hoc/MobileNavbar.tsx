@@ -17,7 +17,6 @@ import { useLogout } from '@/shared/queries/auth';
 import { RoleName } from '@/shared/types/auth.types';
 import logo from '@/assets/logo.png';
 
-import { useIsMobile } from '@/shared/hooks/useIsMobile';
 
 export const MobileNavbar = () => {
   const { isDark, toggleTheme } = useTheme();
@@ -25,9 +24,7 @@ export const MobileNavbar = () => {
   const { mutate: logout } = useLogout();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const isMobile = useIsMobile();
 
-  if (!isMobile) return null;
 
   const isAdmin =
     user?.role?.name === RoleName.ADMIN ||
@@ -50,7 +47,7 @@ export const MobileNavbar = () => {
     }`;
 
   return (
-    <>
+    <div className="block md:hidden">
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
         <div className="fixed inset-0 z-50 flex flex-col justify-end">
@@ -356,6 +353,6 @@ export const MobileNavbar = () => {
           </div>
         </button>
       </nav>
-    </>
+    </div>
   );
 };

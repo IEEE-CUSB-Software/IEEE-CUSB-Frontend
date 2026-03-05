@@ -53,16 +53,17 @@ export const registerSchema = z
       .min(2, 'University is required')
       .max(100, 'University must not exceed 100 characters')
       .trim(),
-    academic_year: z
+    academic_year: z.coerce
       .number()
       .int('Academic year must be a whole number')
       .min(1, 'Academic year must be at least 1')
       .max(6, 'Academic year must not exceed 6'),
     major: z
       .string()
-      .min(2, 'Major is required')
       .max(100, 'Major must not exceed 100 characters')
-      .trim(),
+      .trim()
+      .optional()
+      .default('General'),
     password: z
       .string()
       .min(8, 'Password must be at least 8 characters')

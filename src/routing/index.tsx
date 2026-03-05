@@ -9,6 +9,7 @@ import {
   UnderConstructionPage,
   EventDetailsPage,
   AboutUsPage,
+  HomePage,
 } from './pages';
 import EventsPage from './pages/EventsPage';
 import { AdminLayout } from '../features/admin/layouts/AdminLayout';
@@ -80,7 +81,7 @@ const routes: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <UnderConstructionPage />, // Home - Under Construction
+        element: <HomePage />, // Home - Under Construction
       },
       {
         path: 'about',

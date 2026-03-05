@@ -4,6 +4,7 @@ import { useAppSelector } from '@/shared/store/hooks';
 import { RoleName } from '@/shared/types/auth.types';
 import { UnauthorizedPage } from '@ieee-ui/ui';
 import { useTheme } from '@/shared/hooks/useTheme';
+import { useCurrentUser } from '@/shared/queries/auth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -12,7 +13,8 @@ interface ProtectedRouteProps {
 
 /**
  * ProtectedRoute Component
- * Protects routes that require authentication and specific roles
+ * Protects routes that require authentication and specific roles.
+ * Shows a loading state while user data is being fetched.
  */
 export const ProtectedRoute = ({
   children,
@@ -22,14 +24,24 @@ export const ProtectedRoute = ({
   const { isDark } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
+  const { isLoading } = useCurrentUser();
 
   // Not authenticated - redirect to login
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // Still loading user data — show loading indicator
+  if (isLoading || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      </div>
+    );
+  }
+
   // Authenticated but checking role requirements
-  if (requiredRoles && user) {
+  if (requiredRoles) {
     const hasRequiredRole = requiredRoles.includes(user.role.name);
 
     if (!hasRequiredRole) {

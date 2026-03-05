@@ -7,7 +7,6 @@ import {
   Loader,
   ErrorScreen,
 } from '@ieee-ui/ui';
-import { useIsMobile } from '@/shared/hooks/useIsMobile';
 import { Pagination } from '@/shared/components/ui/Pagination';
 import {
   useEventRegistrations,
@@ -36,7 +35,6 @@ export const EventRegistrationsModal = ({
   const { isDark } = useTheme();
   const [page, setPage] = useState(1);
   const limit = 10;
-  const isMobile = useIsMobile();
 
   const { data, isLoading, isError } = useEventRegistrations(
     eventId,
@@ -195,30 +193,27 @@ export const EventRegistrationsModal = ({
           </div>
         ) : (
           <>
-            {isMobile ? (
-              /* Mobile View - Cards */
-              <div className="space-y-3">
-                {registrations.map(reg => (
-                  <MobileRegistrationCard
-                    key={reg.id}
-                    registration={reg}
-                    isDark={isDark}
-                    isUpdating={isUpdating}
-                    onUpdateStatus={handleUpdateStatus}
-                  />
-                ))}
-              </div>
-            ) : (
-              /* Desktop View - Table */
-              <div className="w-full overflow-x-auto">
-                <Table
-                  data={registrations}
-                  columns={columns}
-                  darkMode={isDark}
-                  emptyMessage="No registrations found"
+            {/* Mobile View - Cards */}
+            <div className="block md:hidden space-y-3">
+              {registrations.map(reg => (
+                <MobileRegistrationCard
+                  key={reg.id}
+                  registration={reg}
+                  isDark={isDark}
+                  isUpdating={isUpdating}
+                  onUpdateStatus={handleUpdateStatus}
                 />
-              </div>
-            )}
+              ))}
+            </div>
+            {/* Desktop View - Table */}
+            <div className="hidden md:block w-full overflow-x-auto">
+              <Table
+                data={registrations}
+                columns={columns}
+                darkMode={isDark}
+                emptyMessage="No registrations found"
+              />
+            </div>
             {totalPages > 1 && (
               <Pagination
                 currentPage={page}

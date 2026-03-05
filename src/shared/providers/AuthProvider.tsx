@@ -19,7 +19,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     if (isError) {
       localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
       dispatch(clearAuth());
     }
   }, [isError, dispatch]);

@@ -4,6 +4,7 @@ import { HeroSection } from '@/features/home/components/HeroSection';
 import { StatsSection } from '@/features/home/components/StatsSection';
 import { LatestNewsSection } from '@/features/home/components/LatestNewsSection';
 import { EmpoweringSection } from '@/features/home/components/EmpoweringSection';
+import { TeamSection } from '@/features/home/components/TeamSection';
 
 export const HomePage = () => {
   // Initialize smooth scroll
@@ -33,6 +34,7 @@ export const HomePage = () => {
       <StatsSection />
       <LatestNewsSection />
       <EmpoweringSection />
+      <TeamSection/>
     </div>
   );
 };

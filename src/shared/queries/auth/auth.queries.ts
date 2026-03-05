@@ -4,7 +4,11 @@ import toast from 'react-hot-toast';
 import { authApi } from './auth.api';
 import { QUERY_KEYS } from '@/shared/constants/apiConstants';
 import { useAppDispatch, useAppSelector } from '@/shared/store/hooks';
-import { setUser, setTokens, clearAuth } from '@/shared/store/slices/authSlice';
+import {
+  setUser,
+  setAccessToken,
+  clearAuth,
+} from '@/shared/store/slices/authSlice';
 
 /**
  * Hook to get the current authenticated user
@@ -20,19 +24,12 @@ export const useCurrentUser = () => {
     queryFn: async () => {
       const data = await authApi.getMe();
       dispatch(setUser(data.user));
+      dispatch(setAccessToken(data.access_token));
       return data.user;
     },
     enabled: isAuthenticated && !!accessToken,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: false,
-    // If the request fails (e.g., token expired), clear auth
-    meta: {
-      onError: () => {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        dispatch(clearAuth());
-      },
-    },
   });
 };
 
@@ -47,18 +44,12 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: authApi.login,
     onSuccess: data => {
-      // Store tokens in localStorage
+      // Store access token in localStorage (refresh token is httpOnly cookie)
       localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('refresh_token', data.refresh_token);
 
       // Update Redux store
       dispatch(setUser(data.user));
-      dispatch(
-        setTokens({
-          access_token: data.access_token,
-          refresh_token: data.refresh_token,
-        })
-      );
+      dispatch(setAccessToken(data.access_token));
 
       // Invalidate queries
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.AUTH.CURRENT_USER });
@@ -76,34 +67,19 @@ export const useLogin = () => {
 
 /**
  * Hook for user registration
- * Default role is Visitor - cannot be changed by user
+ * Note: Backend does NOT return tokens on registration.
+ * After successful registration, user is redirected to login.
  */
 export const useRegister = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: authApi.register,
-    onSuccess: data => {
-      // Store tokens in localStorage
-      localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('refresh_token', data.refresh_token);
-
-      // Update Redux store
-      dispatch(setUser(data.user));
-      dispatch(
-        setTokens({
-          access_token: data.access_token,
-          refresh_token: data.refresh_token,
-        })
+    onSuccess: () => {
+      toast.success(
+        'Registration successful! Please log in to continue.'
       );
-
-      // Invalidate queries
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.AUTH.CURRENT_USER });
-
-      toast.success('Registration successful! Welcome to IEEE CUSB.');
-      navigate('/');
+      navigate('/login');
     },
     onError: (error: any) => {
       const message =
@@ -125,9 +101,8 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: authApi.logout,
     onSuccess: () => {
-      // Clear tokens from localStorage
+      // Clear access token from localStorage
       localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
 
       // Clear Redux store
       dispatch(clearAuth());
@@ -141,7 +116,6 @@ export const useLogout = () => {
     onError: () => {
       // Even if API call fails, clear local data
       localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
       dispatch(clearAuth());
       queryClient.clear();
       navigate('/login');
@@ -151,6 +125,7 @@ export const useLogout = () => {
 
 /**
  * Hook to send email OTP for verification
+ * Requires authentication — backend gets email from JWT
  */
 export const useSendEmailOTP = () => {
   return useMutation({

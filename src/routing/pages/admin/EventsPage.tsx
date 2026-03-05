@@ -22,7 +22,7 @@ import {
   type AdminEvent,
 } from '@/features/admin/utils/eventConversion';
 import toast from 'react-hot-toast';
-import { useIsMobile } from '@/shared/hooks/useIsMobile';
+
 
 // Helper function to format date
 const formatDate = (dateString: string): string => {
@@ -60,7 +60,7 @@ export const EventsPage = () => {
     useState<Event | undefined>(undefined);
   const [page, setPage] = useState(1);
   const limit = 10;
-  const isMobile = useIsMobile();
+
 
   // API queries
   const { data, isLoading, isError } = useEvents({ page, limit });
@@ -308,31 +308,28 @@ export const EventsPage = () => {
       ) : (
         <>
           {/* Mobile View - Cards */}
-          {isMobile ? (
-            <div className="space-y-4">
-              {events.map(event => (
-                <MobileEventCard
-                  key={event.id}
-                  event={event}
-                  isDark={isDark}
-                  onEdit={handleEditEvent}
-                  onViewRegistrations={handleViewRegistrations}
-                  onDelete={handleDeleteEvent}
-                  getEventStatus={getEventStatus}
-                />
-              ))}
-            </div>
-          ) : (
-            /* Desktop View - Table */
-            <div className="w-full overflow-x-auto">
-              <Table
-                data={events}
-                columns={columns}
-                emptyMessage="No events found"
-                darkMode={isDark}
+          <div className="block md:hidden space-y-4">
+            {events.map(event => (
+              <MobileEventCard
+                key={event.id}
+                event={event}
+                isDark={isDark}
+                onEdit={handleEditEvent}
+                onViewRegistrations={handleViewRegistrations}
+                onDelete={handleDeleteEvent}
+                getEventStatus={getEventStatus}
               />
-            </div>
-          )}
+            ))}
+          </div>
+          {/* Desktop View - Table */}
+          <div className="hidden md:block w-full overflow-x-auto">
+            <Table
+              data={events}
+              columns={columns}
+              emptyMessage="No events found"
+              darkMode={isDark}
+            />
+          </div>
         </>
       )}
 

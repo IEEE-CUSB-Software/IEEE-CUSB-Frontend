@@ -32,7 +32,7 @@ export const Layout = () => {
       )}
 
       {/* Desktop Navbar - Hidden on mobile */}
-      <div className="max-md:hidden">
+      <div className="hidden md:block">
         <Navbar />
       </div>
 
