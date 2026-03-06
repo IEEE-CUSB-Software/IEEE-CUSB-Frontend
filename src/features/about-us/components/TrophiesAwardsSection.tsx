@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { awards } from '../constants/Trophies';
+import { awards } from '../constants/trophies';
 import TrophyCard from './TrophyCard';
 import SlidingCarousel from '../../../shared/components/slidingCarousel';
 

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Award } from '../constants/Trophies';
+import { Award } from '../constants/trophies';
 import trophy from '../../../assets/IEEE_Trophy.png';
 
 function TrophyCard({ award, darkMode }: { award: Award; darkMode: boolean }) {
@@ -39,10 +39,10 @@ function TrophyCard({ award, darkMode }: { award: Award; darkMode: boolean }) {
             initial={{ backgroundPosition: '0% center' }}
             whileHover={{ backgroundPosition: '100% center' }}
             transition={{ duration: 2.5, ease: 'linear' }}
-            className={`text-lg font-bold mb-2 pt-0.5 pb-0.5 text-info rounded-xl ${
+            className={`text-lg font-bold mb-2 pt-0.5 pb-0.5  rounded-xl ${
               darkMode
                 ? 'bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700 text-white'
-                : 'bg-gradient-to-r from-gray-600 via-gray-550 to-gray-600'
+                : 'bg-gradient-to-r from-gray-600 via-gray-550 to-gray-600 text-white'
             } shadow-[0_14px_18px_-8px_rgba(0,0,0,0.6)]`}
           >
             {award.title}
