@@ -15,17 +15,14 @@ export default function SlidingCarousel<T>({
   darkMode,
 }: SlidingCarouselProps<T>) {
   const {
-    clonedItems,
     trackWidthPercent,
     cardWidthPercent,
     trackXPercent,
-    isInstant,
     pageIndex,
     dotCount,
     handleNext,
     handlePrev,
     goToIndex,
-    handleAnimationComplete,
   } = useSlidingCarousel(items);
 
   if (items.length === 0) return null;
@@ -47,7 +44,7 @@ export default function SlidingCarousel<T>({
         <HiChevronLeft className="w-8 h-8" />
       </motion.button>
 
-      {/* Container: background + padding + clips overflow */}
+      {/* Container */}
       <div
         className={`relative flex-1 rounded-3xl p-8 overflow-hidden ${
           darkMode ? 'bg-gray-800/40' : 'bg-gray-50/50'
@@ -59,14 +56,14 @@ export default function SlidingCarousel<T>({
             className="flex"
             style={{ width: `${trackWidthPercent}%` }}
             animate={{ x: `${trackXPercent}%` }}
-            transition={
-              isInstant
-                ? { duration: 0 }
-                : { type: 'spring', stiffness: 300, damping: 30, mass: 0.8 }
-            }
-            onAnimationComplete={handleAnimationComplete}
+            transition={{
+              type: 'spring',
+              stiffness: 300,
+              damping: 30,
+              mass: 0.8,
+            }}
           >
-            {clonedItems.map((item, i) => (
+            {items.map((item, i) => (
               <div
                 key={i}
                 style={{
@@ -76,7 +73,7 @@ export default function SlidingCarousel<T>({
                   boxSizing: 'border-box',
                 }}
               >
-                {renderItem(item, i % items.length)}
+                {renderItem(item, i)}
               </div>
             ))}
           </motion.div>
