@@ -3,16 +3,14 @@ import {
     HiOutlineLightningBolt,
     HiOutlineColorSwatch,
     HiOutlineDesktopComputer,
-    HiOutlineShieldCheck,
-    HiOutlineAcademicCap,
+    HiOutlineUserGroup,
 } from 'react-icons/hi';
 
 const SECTION_ICONS: Record<string, ReactNode> = {
     Technical: <HiOutlineLightningBolt className="w-full h-full" />,
     Branding: <HiOutlineColorSwatch className="w-full h-full" />,
     IT: <HiOutlineDesktopComputer className="w-full h-full" />,
-    'Quality Control': <HiOutlineShieldCheck className="w-full h-full" />,
-    'Board of Advisors': <HiOutlineAcademicCap className="w-full h-full" />,
+    'Non-Technical': <HiOutlineUserGroup className="w-full h-full" />,
 };
 
 interface SectionIconProps {

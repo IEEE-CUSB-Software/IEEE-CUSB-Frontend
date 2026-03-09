@@ -1,71 +1,59 @@
 import { motion } from 'framer-motion';
 import { Committee } from '../constants/committeeData';
-import { MemberCard } from './MemberCard';
-import { HiUserAdd } from 'react-icons/hi';
+import { getCommitteeIllustration } from '../constants/committeeIllustrations';
+import { HiOutlineArrowNarrowRight } from 'react-icons/hi';
 
 interface CommitteeCardProps {
     committee: Committee;
     delay?: number;
+    onViewDetails: (committee: Committee) => void;
 }
 
-export const CommitteeCard = ({ committee, delay = 0 }: CommitteeCardProps) => {
-    const hasMembers = committee.members.length > 0 || committee.head;
+export const CommitteeCard = ({ committee, delay = 0, onViewDetails }: CommitteeCardProps) => {
+    const illustration = getCommitteeIllustration(committee.slug);
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay, ease: [0.4, 0, 0.2, 1] }}
-            className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.5, delay, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] }}
+            className="group relative bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer"
+            onClick={() => onViewDetails(committee)}
         >
-            {/* Header */}
-            <div className="bg-primary/5 px-5 py-4 border-b border-border">
-                <h3 className="text-lg font-bold text-foreground">{committee.name}</h3>
-            </div>
-
-            {/* Body */}
-            <div className="p-4">
-                {/* Head */}
-                {committee.head && (
-                    <div className="mb-3">
-                        <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">
-                            Head
-                        </p>
-                        <MemberCard member={committee.head} />
-                    </div>
-                )}
-
-                {/* Members */}
-                {committee.members.length > 0 && (
+            <div className="flex items-start justify-between p-6 min-h-[210px]">
+                {/* Left Content */}
+                <div className="flex-1 pr-4 flex flex-col justify-between h-full min-h-[175px]">
                     <div>
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                            Members
+                        <span className="text-primary font-semibold text-sm tracking-wide">
+                            {committee.sectionName}
+                        </span>
+                        <h3 className="text-2xl font-extrabold text-foreground uppercase tracking-tight mt-1.5 leading-tight">
+                            {committee.name}
+                        </h3>
+                        <p className="text-muted-foreground text-sm mt-3 leading-relaxed line-clamp-2">
+                            {committee.description}
                         </p>
-                        <div className="space-y-1">
-                            {committee.members.map((m, i) => (
-                                <MemberCard key={i} member={m} compact />
-                            ))}
-                        </div>
                     </div>
-                )}
 
-                {/* Empty State */}
-                {!hasMembers && (
-                    <div className="flex flex-col items-center py-6">
-                        <p className="text-muted-foreground mb-3 text-sm">
-                            No members yet — be the first!
-                        </p>
-                        <motion.a
-                            href="/join"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full font-semibold text-sm hover:bg-primary/90 transition-colors shadow-md"
-                        >
-                            <HiUserAdd className="w-4 h-4" />
-                            Join Us!
-                        </motion.a>
-                    </div>
-                )}
+                    <motion.button
+                        whileHover={{ x: 4 }}
+                        className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full font-bold text-xs uppercase tracking-widest mt-5 w-fit shadow-md hover:shadow-lg hover:bg-primary/90 transition-all"
+                    >
+                        View Details
+                        <HiOutlineArrowNarrowRight className="w-4 h-4" />
+                    </motion.button>
+                </div>
+
+                {/* Right: Illustration from public/illustrations/ */}
+                <div className="flex-shrink-0 flex items-center justify-center w-36 h-36 self-center">
+                    <img
+                        src={illustration}
+                        alt={committee.name}
+                        className="w-full h-full object-contain opacity-70 group-hover:opacity-100 transition-opacity duration-300"
+                        loading="lazy"
+                    />
+                </div>
             </div>
         </motion.div>
     );

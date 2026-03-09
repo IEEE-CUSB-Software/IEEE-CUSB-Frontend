@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { EXECUTIVE_BOARD, SECTIONS } from '../constants/committeeData';
+import { EXECUTIVE_BOARD, SECTIONS, Committee } from '../constants/committeeData';
 import { CommitteeCard } from './CommitteeCard';
 import { SectionIcon } from './SectionIcon';
 
-export const TabbedView = () => {
+interface TabbedViewProps {
+    onViewDetails: (committee: Committee) => void;
+}
+
+export const TabbedView = ({ onViewDetails }: TabbedViewProps) => {
     const [activeTab, setActiveTab] = useState(0);
 
     return (
@@ -40,7 +44,7 @@ export const TabbedView = () => {
                 </div>
             </div>
 
-            {/* ─── Section Tabs ─── */}
+            {/* ─── Filter Tabs ─── */}
             <div className="mb-8">
                 <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
                     {SECTIONS.map((section, i) => (
@@ -48,8 +52,8 @@ export const TabbedView = () => {
                             key={section.name}
                             onClick={() => setActiveTab(i)}
                             className={`flex items-center gap-2.5 px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 border ${activeTab === i
-                                ? 'bg-primary border-primary text-white shadow-md'
-                                : 'bg-card border-border text-foreground hover:border-primary/40'
+                                    ? 'bg-primary border-primary text-white shadow-md'
+                                    : 'bg-card border-border text-foreground hover:border-primary/40'
                                 }`}
                         >
                             <SectionIcon sectionName={section.name} size="sm" active={activeTab === i} />
@@ -59,7 +63,7 @@ export const TabbedView = () => {
                 </div>
             </div>
 
-            {/* ─── Tab Content: Committees ─── */}
+            {/* ─── Tab Content: Committee Cards ─── */}
             <AnimatePresence mode="wait">
                 {(() => {
                     const currentSection = SECTIONS[activeTab];
@@ -74,14 +78,15 @@ export const TabbedView = () => {
                         >
                             <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-3">
                                 <SectionIcon sectionName={currentSection.name} size="lg" />
-                                {currentSection.name} Section
+                                {currentSection.name} Committees
                             </h3>
-                            <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-6">
                                 {currentSection.committees.map((committee, i) => (
                                     <CommitteeCard
-                                        key={committee.name}
+                                        key={committee.slug}
                                         committee={committee}
                                         delay={i * 0.08}
+                                        onViewDetails={onViewDetails}
                                     />
                                 ))}
                             </div>

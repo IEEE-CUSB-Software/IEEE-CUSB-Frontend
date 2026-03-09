@@ -4,20 +4,50 @@ import { CommitteeHeroSection } from '@/features/committees/components/Committee
 import { ViewToggle } from '@/features/committees/components/ViewToggle';
 import { OrgChartView } from '@/features/committees/components/OrgChartView';
 import { TabbedView } from '@/features/committees/components/TabbedView';
+import { CommitteeDetailModal } from '@/features/committees/components/CommitteeDetailModal';
+import { Committee } from '@/features/committees/constants/committeeData';
 
 export const CommitteesPage = () => {
-    const [activeView, setActiveView] = useState<'orgChart' | 'tabbed'>('tabbed');
+    const [activeView, setActiveView] = useState<'orgChart' | 'tabbed'>('orgChart');
+    const [selectedCommittee, setSelectedCommittee] = useState<Committee | null>(null);
 
     useEffect(() => {
         const cleanup = initSmoothScroll();
         return cleanup;
     }, []);
 
+    // Lock body scroll when modal is open
+    useEffect(() => {
+        if (selectedCommittee) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [selectedCommittee]);
+
+    const handleViewDetails = (committee: Committee) => {
+        setSelectedCommittee(committee);
+    };
+
+    const handleCloseModal = () => {
+        setSelectedCommittee(null);
+    };
+
     return (
         <div className="bg-background">
             <CommitteeHeroSection />
             <ViewToggle activeView={activeView} onViewChange={setActiveView} />
-            {activeView === 'orgChart' ? <OrgChartView /> : <TabbedView />}
+            {activeView === 'orgChart'
+                ? <OrgChartView onViewDetails={handleViewDetails} />
+                : <TabbedView onViewDetails={handleViewDetails} />
+            }
+            <CommitteeDetailModal
+                committee={selectedCommittee}
+                onClose={handleCloseModal}
+            />
         </div>
     );
 };

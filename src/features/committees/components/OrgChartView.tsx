@@ -1,28 +1,40 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { EXECUTIVE_BOARD, SECTIONS } from '../constants/committeeData';
+import { EXECUTIVE_BOARD, SECTIONS, Committee } from '../constants/committeeData';
 import { CommitteeCard } from './CommitteeCard';
 import { SectionIcon } from './SectionIcon';
 import { HiChevronDown } from 'react-icons/hi';
 
-// ─── Animation Variants ─────────────────────────────────────────────────────
+// ─── Animation helpers ───────────────────────────────────────────────────────
 
-const fadeUp = (delay: number) => ({
-    initial: { opacity: 0, y: 24 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.5, delay, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] } },
+const inView = (delay = 0) => ({
+    initial: { opacity: 0, y: 20 } as const,
+    whileInView: { opacity: 1, y: 0 } as const,
+    viewport: { once: true, margin: '-60px' } as const,
+    transition: { duration: 0.5, delay, ease: 'easeOut' as const },
 });
 
-const connectorGrow = (delay: number) => ({
-    initial: { scaleY: 0 },
-    animate: { scaleY: 1, transition: { duration: 0.35, delay, ease: 'easeOut' as const } },
+const vLine = (delay = 0) => ({
+    initial: { scaleY: 0 } as const,
+    whileInView: { scaleY: 1 } as const,
+    viewport: { once: true, margin: '-20px' } as const,
+    transition: { duration: 0.4, delay, ease: 'easeOut' as const },
 });
 
-const lineGrow = (delay: number) => ({
-    initial: { scaleX: 0 },
-    animate: { scaleX: 1, transition: { duration: 0.35, delay, ease: 'easeOut' as const } },
+const hLine = (delay = 0) => ({
+    initial: { scaleX: 0 } as const,
+    whileInView: { scaleX: 1 } as const,
+    viewport: { once: true, margin: '-20px' } as const,
+    transition: { duration: 0.4, delay, ease: 'easeOut' as const },
 });
 
-export const OrgChartView = () => {
+// ─── Main Component ───────────────────────────────────────────────────────────
+
+interface OrgChartViewProps {
+    onViewDetails: (committee: Committee) => void;
+}
+
+export const OrgChartView = ({ onViewDetails }: OrgChartViewProps) => {
     const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
     const toggleSection = (sectionName: string) => {
@@ -32,9 +44,9 @@ export const OrgChartView = () => {
     const activeSection = SECTIONS.find((s) => s.name === expandedSection);
 
     return (
-        <div className="max-w-7xl mx-auto px-6 py-16">
-            {/* ─── Level 1: Chair & Vice Chair ─── */}
-            <motion.div className="flex justify-center mb-2" {...fadeUp(0)}>
+        <div className="max-w-6xl mx-auto px-6 py-16">
+            {/* ═══════════════ Level 1: Chair & Vice Chair ═══════════════ */}
+            <motion.div className="flex justify-center" {...inView(0)}>
                 <OrgNode
                     label="Chair & Vice Chair"
                     subtitle={`${EXECUTIVE_BOARD[0]!.name} & ${EXECUTIVE_BOARD[1]!.name}`}
@@ -44,106 +56,67 @@ export const OrgChartView = () => {
                 />
             </motion.div>
 
-            {/* Connector */}
-            <div className="flex justify-center">
-                <motion.div className="w-0.5 h-10 bg-border origin-top" {...connectorGrow(0.3)} />
-            </div>
+            {/* ↓ connector */}
+            <Connector />
 
-            {/* ─── Level 2: Secretary & Treasurer ─── */}
-            <div className="flex justify-center gap-16 mb-2 relative">
-                {/* Horizontal connector */}
-                <motion.div
-                    className="absolute top-0 left-1/2 -translate-x-1/2 w-72 h-0.5 bg-border origin-center"
-                    {...lineGrow(0.5)}
-                />
-                <motion.div className="flex flex-col items-center" {...fadeUp(0.6)}>
-                    <div className="w-0.5 h-5 bg-border" />
-                    <OrgNode
-                        label="Secretary"
-                        subtitle={EXECUTIVE_BOARD[2]!.name}
-                        avatar={EXECUTIVE_BOARD[2]!.image}
+            {/* ═══════════════ Level 2: Secretary & Treasurer ═══════════════ */}
+            <TwoNodeRow
+                left={{ label: 'Secretary', subtitle: EXECUTIVE_BOARD[2]!.name, avatar: EXECUTIVE_BOARD[2]!.image }}
+                right={{ label: 'Treasurer', subtitle: EXECUTIVE_BOARD[3]!.name, avatar: EXECUTIVE_BOARD[3]!.image }}
+                delay={0.15}
+            />
+
+            {/* ↓ connector */}
+            <Connector />
+
+            {/* ═══════════════ Level 3: PR&FR and OC ═══════════════ */}
+            <TwoNodeRow
+                left={{ label: 'PR & FR', subtitle: EXECUTIVE_BOARD[4]!.name, avatar: EXECUTIVE_BOARD[4]!.image }}
+                right={{ label: 'OC', subtitle: EXECUTIVE_BOARD[5]!.name, avatar: EXECUTIVE_BOARD[5]!.image }}
+                delay={0.15}
+            />
+
+            {/* ↓ connector */}
+            <Connector height="h-12" />
+
+            {/* ═══════════════ Level 4: Section Buttons ═══════════════ */}
+            <div className="relative">
+                {/* Horizontal line spanning all sections */}
+                <div className="flex justify-center">
+                    <motion.div
+                        className="h-px bg-border origin-center"
+                        style={{ width: `${Math.min(SECTIONS.length * 200, 900)}px` }}
+                        {...hLine(0.1)}
                     />
-                </motion.div>
-                <motion.div className="flex flex-col items-center" {...fadeUp(0.7)}>
-                    <div className="w-0.5 h-5 bg-border" />
-                    <OrgNode
-                        label="Treasurer"
-                        subtitle={EXECUTIVE_BOARD[3]!.name}
-                        avatar={EXECUTIVE_BOARD[3]!.image}
-                    />
-                </motion.div>
-            </div>
+                </div>
 
-            {/* Connector */}
-            <div className="flex justify-center">
-                <motion.div className="w-0.5 h-10 bg-border origin-top" {...connectorGrow(0.8)} />
-            </div>
-
-            {/* ─── Level 3: PR&FR and OC ─── */}
-            <div className="flex justify-center gap-16 mb-2 relative">
-                <motion.div
-                    className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-0.5 bg-border origin-center"
-                    {...lineGrow(0.9)}
-                />
-                <motion.div className="flex flex-col items-center" {...fadeUp(1.0)}>
-                    <div className="w-0.5 h-5 bg-border" />
-                    <OrgNode
-                        label="PR & FR"
-                        subtitle={EXECUTIVE_BOARD[4]!.name}
-                        avatar={EXECUTIVE_BOARD[4]!.image}
-                    />
-                </motion.div>
-                <motion.div className="flex flex-col items-center" {...fadeUp(1.1)}>
-                    <div className="w-0.5 h-5 bg-border" />
-                    <OrgNode
-                        label="OC"
-                        subtitle={EXECUTIVE_BOARD[5]!.name}
-                        avatar={EXECUTIVE_BOARD[5]!.image}
-                    />
-                </motion.div>
-            </div>
-
-            {/* Connector */}
-            <div className="flex justify-center">
-                <motion.div className="w-0.5 h-12 bg-border origin-top" {...connectorGrow(1.2)} />
-            </div>
-
-            {/* ─── Level 4: Sections ─── */}
-            <div className="relative mb-6">
-                {/* Horizontal line across all sections */}
-                <motion.div
-                    className="absolute top-0 left-[5%] right-[5%] h-0.5 bg-border origin-center"
-                    {...lineGrow(1.3)}
-                />
-
-                <div className="flex flex-wrap justify-center gap-5 pt-6">
+                {/* Section buttons row */}
+                <div className="flex justify-center gap-4 sm:gap-6">
                     {SECTIONS.map((section, i) => (
                         <motion.div
                             key={section.name}
                             className="flex flex-col items-center"
-                            {...fadeUp(1.4 + i * 0.1)}
+                            {...inView(0.15 + i * 0.08)}
                         >
-                            <div className="w-0.5 h-6 bg-border -mt-6" />
-                            <button
-                                onClick={() => toggleSection(section.name)}
-                                className="group"
-                            >
+                            {/* Vertical stub from horizontal line */}
+                            <div className="w-px h-6 bg-border" />
+                            <button onClick={() => toggleSection(section.name)} className="group">
                                 <motion.div
-                                    className={`px-6 py-4 rounded-2xl border-2 transition-all duration-200 flex items-center gap-3 ${expandedSection === section.name
-                                        ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25'
-                                        : 'bg-card border-border text-foreground hover:border-primary/50 hover:shadow-lg'
+                                    className={`px-5 py-3.5 rounded-2xl border-2 transition-all duration-200 flex items-center gap-2.5 text-sm sm:text-base ${expandedSection === section.name
+                                            ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25'
+                                            : 'bg-card border-border text-foreground hover:border-primary/50 hover:shadow-lg'
                                         }`}
-                                    whileHover={{ y: -3, scale: 1.02 }}
+                                    whileHover={{ y: -2, scale: 1.02 }}
                                     whileTap={{ scale: 0.96 }}
                                 >
                                     <SectionIcon
                                         sectionName={section.name}
-                                        size="md"
+                                        size="sm"
                                         active={expandedSection === section.name}
                                     />
-                                    <span className="font-bold text-base">{section.name}</span>
+                                    <span className="font-bold whitespace-nowrap">{section.name}</span>
                                     <HiChevronDown
-                                        className={`w-5 h-5 transition-transform duration-300 ${expandedSection === section.name ? 'rotate-180' : ''
+                                        className={`w-4 h-4 transition-transform duration-300 ${expandedSection === section.name ? 'rotate-180' : ''
                                             }`}
                                     />
                                 </motion.div>
@@ -153,41 +126,82 @@ export const OrgChartView = () => {
                 </div>
             </div>
 
-            {/* ─── Expanded Section: Committee Cards Grid ─── */}
+            {/* ═══════════════ Level 5: Expanded Committee Cards (as tree branches) ═══════════════ */}
             <AnimatePresence mode="wait">
                 {activeSection && (
                     <motion.div
                         key={activeSection.name}
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.35, ease: 'easeOut' as const }}
+                        className="overflow-hidden"
                     >
-                        {/* Connector from section */}
-                        <div className="flex justify-center mb-8">
+                        {/* Central connector going down from section */}
+                        <div className="flex justify-center">
                             <motion.div
-                                className="w-0.5 h-10 bg-primary origin-top"
+                                className="w-px h-10 bg-primary origin-top"
                                 initial={{ scaleY: 0 }}
                                 animate={{ scaleY: 1 }}
-                                transition={{ duration: 0.3 }}
+                                transition={{ duration: 0.3, delay: 0.1 }}
                             />
                         </div>
 
-                        <div className="flex items-center gap-3 mb-8">
+                        {/* Section header */}
+                        <div className="flex items-center justify-center gap-3 mb-6">
                             <SectionIcon sectionName={activeSection.name} size="lg" />
                             <h3 className="text-2xl font-bold text-foreground">
-                                {activeSection.name} Section
+                                {activeSection.name} Committees
                             </h3>
                         </div>
 
-                        <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-8">
-                            {activeSection.committees.map((committee, i) => (
-                                <CommitteeCard
-                                    key={committee.name}
-                                    committee={committee}
-                                    delay={i * 0.1}
-                                />
-                            ))}
+                        {/* Committee cards with tree branches */}
+                        <div className="relative">
+                            {/* Central vertical line running through all cards */}
+                            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-primary/20 -translate-x-1/2" />
+
+                            <div className="space-y-6">
+                                {activeSection.committees.map((committee, i) => {
+                                    const isLeft = i % 2 === 0;
+                                    return (
+                                        <motion.div
+                                            key={committee.slug}
+                                            initial={{ opacity: 0, x: isLeft ? -30 : 30 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{
+                                                duration: 0.4,
+                                                delay: 0.2 + i * 0.1,
+                                                ease: 'easeOut' as const,
+                                            }}
+                                            className="relative"
+                                        >
+                                            {/* Horizontal branch from center line to card */}
+                                            <div
+                                                className={`absolute top-1/2 -translate-y-1/2 h-px bg-primary/30 ${isLeft
+                                                        ? 'right-1/2 left-[5%] sm:left-[10%]'
+                                                        : 'left-1/2 right-[5%] sm:right-[10%]'
+                                                    }`}
+                                            />
+                                            {/* Dot on the center line */}
+                                            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-primary border-2 border-background z-10" />
+
+                                            {/* Card container - alternating sides */}
+                                            <div
+                                                className={`flex ${isLeft ? 'justify-start pr-[55%]' : 'justify-end pl-[55%]'
+                                                    }`}
+                                            >
+                                                <div className="w-full">
+                                                    <CommitteeCard
+                                                        committee={committee}
+                                                        delay={0}
+                                                        onViewDetails={onViewDetails}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </motion.div>
                 )}
@@ -196,7 +210,43 @@ export const OrgChartView = () => {
     );
 };
 
-// ─── Org Chart Node component ────────────────────────────────────────────────
+// ─── Vertical Connector ──────────────────────────────────────────────────────
+
+const Connector = ({ height = 'h-8' }: { height?: string }) => (
+    <div className="flex justify-center">
+        <motion.div className={`w-px ${height} bg-border origin-top`} {...vLine(0.05)} />
+    </div>
+);
+
+// ─── Two-Node Row with proper horizontal connector ──────────────────────────
+
+interface TwoNodeRowProps {
+    left: { label: string; subtitle: string; avatar: string };
+    right: { label: string; subtitle: string; avatar: string };
+    delay?: number;
+}
+
+const TwoNodeRow = ({ left, right, delay = 0 }: TwoNodeRowProps) => (
+    <div className="relative">
+        {/* Horizontal line connecting the two nodes */}
+        <div className="flex justify-center">
+            <motion.div className="w-60 h-px bg-border origin-center" {...hLine(delay)} />
+        </div>
+        {/* Nodes */}
+        <div className="flex justify-center gap-16 sm:gap-20">
+            <motion.div className="flex flex-col items-center" {...inView(delay + 0.1)}>
+                <div className="w-px h-5 bg-border" />
+                <OrgNode label={left.label} subtitle={left.subtitle} avatar={left.avatar} />
+            </motion.div>
+            <motion.div className="flex flex-col items-center" {...inView(delay + 0.2)}>
+                <div className="w-px h-5 bg-border" />
+                <OrgNode label={right.label} subtitle={right.subtitle} avatar={right.avatar} />
+            </motion.div>
+        </div>
+    </div>
+);
+
+// ─── Org Chart Node ─────────────────────────────────────────────────────────
 
 interface OrgNodeProps {
     label: string;
@@ -208,7 +258,7 @@ interface OrgNodeProps {
 
 const OrgNode = ({ label, subtitle, avatar, highlighted, size = 'md' }: OrgNodeProps) => (
     <motion.div
-        className={`flex items-center rounded-2xl border-2 shadow-sm transition-shadow ${size === 'lg' ? 'gap-5 px-8 py-5' : 'gap-4 px-7 py-4'
+        className={`flex items-center rounded-2xl border-2 shadow-sm transition-shadow ${size === 'lg' ? 'gap-5 px-8 py-5' : 'gap-4 px-6 py-4'
             } ${highlighted
                 ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25'
                 : 'bg-card border-border text-foreground hover:shadow-md'
