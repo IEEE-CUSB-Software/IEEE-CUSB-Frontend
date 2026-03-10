@@ -1,5 +1,5 @@
 import { useTheme } from '@/shared/hooks/useTheme';
-import { Marquee } from '@/shared/components/ui/Marquee';
+import { Marquee } from '@/components/ui/marquee';
 import { motion } from 'framer-motion';
 import type { CSSProperties } from 'react';
 
@@ -58,31 +58,27 @@ export const SponsorsMarquee = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 1.2 }}
-      className="w-full mt-8"
+      className="relative flex w-full flex-col items-center justify-center overflow-hidden mt-8"
     >
       <p className="text-center text-xs font-semibold tracking-widest text-text-muted/60 uppercase mb-4">
         Trusted by leading organizations
       </p>
 
-      {/* Gradient fade masks on edges */}
-      <div className="relative">
-        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-linear-to-r from-background to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-linear-to-l from-background to-transparent" />
+      <Marquee pauseOnHover className="[--duration:35s] py-4">
+        {sponsors.map(sponsor => (
+          <img
+            key={sponsor.name}
+            src={sponsor.src}
+            alt={`${sponsor.name} logo`}
+            className="h-14 md:h-16 w-32 md:w-48 object-contain select-none pointer-events-none transition-[filter,opacity] duration-300"
+            style={getLogoStyle(sponsor.filter, isDark)}
+            draggable={false}
+            loading="lazy"
+          />
+        ))}
+      </Marquee>
 
-        <Marquee duration={35} gap={64} pauseOnHover className="py-4">
-          {sponsors.map(sponsor => (
-            <img
-              key={sponsor.name}
-              src={sponsor.src}
-              alt={`${sponsor.name} logo`}
-              className="h-14 md:h-16 w-auto object-contain select-none pointer-events-none transition-[filter,opacity] duration-300"
-              style={getLogoStyle(sponsor.filter, isDark)}
-              draggable={false}
-              loading="lazy"
-            />
-          ))}
-        </Marquee>
-      </div>
+      {/* MagicUI handles the gradient mask via tailwind mask-image natively rather than absolute divs */}
     </motion.div>
   );
 };

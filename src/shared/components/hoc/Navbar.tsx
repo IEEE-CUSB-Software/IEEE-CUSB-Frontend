@@ -61,7 +61,7 @@ export const Navbar = () => {
         }`}
     >
       {/* Centered Navigation Group */}
-      <div className="flex-1 flex justify-center items-center gap-3 lg:gap-6 xl:gap-10">
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex justify-center items-center gap-3 lg:gap-6 xl:gap-10 w-max">
         {/* Left Links */}
         <div className="flex items-center gap-3 lg:gap-5 xl:gap-8">
           <NavLink to="/" className={linkClass}>
@@ -111,7 +111,7 @@ export const Navbar = () => {
       </div>
 
       {/* Right Action (Avatar / Sign In) */}
-      <div className="shrink-0 flex items-center ml-2 lg:ml-4">
+      <div className="shrink-0 flex items-center ml-auto">
         <button
           onClick={toggleTheme}
           className={`mr-4 p-2 rounded-full transition-all duration-300 ${
