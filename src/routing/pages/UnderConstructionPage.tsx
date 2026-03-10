@@ -9,10 +9,12 @@ export const UnderConstructionPage = () => {
   const navigate = useNavigate();
 
   return (
-    <UnderConstructionScreen
-      title="Under Construction"
-      message="We're working hard to bring you this feature. Please check back soon!"
-      onGoBack={() => navigate(-1)}
-    />
+    <div className="md:pt-28 px-4 md:px-8">
+      <UnderConstructionScreen
+        title="Under Construction"
+        message="We're working hard to bring you this feature. Please check back soon!"
+        onGoBack={() => navigate(-1)}
+      />
+    </div>
   );
 };

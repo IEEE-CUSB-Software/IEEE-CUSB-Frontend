@@ -10,7 +10,7 @@ export const EventsPage = () => {
   }, []);
 
   return (
-    <div className="bg-background">
+    <div className="bg-background md:pt-28 px-4 md:px-8">
       <EventsListSection />
     </div>
   );
