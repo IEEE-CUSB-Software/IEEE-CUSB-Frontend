@@ -9,22 +9,19 @@ import { HiChevronDown } from 'react-icons/hi';
 
 const inView = (delay = 0) => ({
     initial: { opacity: 0, y: 20 } as const,
-    whileInView: { opacity: 1, y: 0 } as const,
-    viewport: { once: true, margin: '-60px' } as const,
+    animate: { opacity: 1, y: 0 } as const,
     transition: { duration: 0.5, delay, ease: 'easeOut' as const },
 });
 
 const vLine = (delay = 0) => ({
     initial: { scaleY: 0 } as const,
-    whileInView: { scaleY: 1 } as const,
-    viewport: { once: true, margin: '-20px' } as const,
+    animate: { scaleY: 1 } as const,
     transition: { duration: 0.4, delay, ease: 'easeOut' as const },
 });
 
 const hLine = (delay = 0) => ({
     initial: { scaleX: 0 } as const,
-    whileInView: { scaleX: 1 } as const,
-    viewport: { once: true, margin: '-20px' } as const,
+    animate: { scaleX: 1 } as const,
     transition: { duration: 0.4, delay, ease: 'easeOut' as const },
 });
 
@@ -103,8 +100,8 @@ export const OrgChartView = ({ onViewDetails }: OrgChartViewProps) => {
                             <button onClick={() => toggleSection(section.name)} className="group">
                                 <motion.div
                                     className={`px-5 py-3.5 rounded-2xl border-2 transition-all duration-200 flex items-center gap-2.5 text-sm sm:text-base ${expandedSection === section.name
-                                            ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25'
-                                            : 'bg-card border-border text-foreground hover:border-primary/50 hover:shadow-lg'
+                                        ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25'
+                                        : 'bg-card border-border text-foreground hover:border-primary/50 hover:shadow-lg'
                                         }`}
                                     whileHover={{ y: -2, scale: 1.02 }}
                                     whileTap={{ scale: 0.96 }}
@@ -178,8 +175,8 @@ export const OrgChartView = ({ onViewDetails }: OrgChartViewProps) => {
                                             {/* Horizontal branch from center line to card */}
                                             <div
                                                 className={`absolute top-1/2 -translate-y-1/2 h-px bg-primary/30 ${isLeft
-                                                        ? 'right-1/2 left-[5%] sm:left-[10%]'
-                                                        : 'left-1/2 right-[5%] sm:right-[10%]'
+                                                    ? 'right-1/2 left-[5%] sm:left-[10%]'
+                                                    : 'left-1/2 right-[5%] sm:right-[10%]'
                                                     }`}
                                             />
                                             {/* Dot on the center line */}

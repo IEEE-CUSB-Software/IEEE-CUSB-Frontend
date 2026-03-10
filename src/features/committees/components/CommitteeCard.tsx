@@ -15,8 +15,7 @@ export const CommitteeCard = ({ committee, delay = 0, onViewDetails }: Committee
     return (
         <motion.div
             initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-40px' }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] }}
             className="group relative bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer"
             onClick={() => onViewDetails(committee)}
