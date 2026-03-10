@@ -18,18 +18,13 @@ export const CommitteesPage = () => {
     return cleanup;
   }, []);
 
-  // Lock body scroll when modal is open
-  // Note: We do NOT stop Lenis here - instead we rely on data-lenis-prevent
-  // on the modal elements to let native scrolling work inside the modal
+  // Pause Lenis while modal is open so the modal content can scroll
   useEffect(() => {
     if (selectedCommittee) {
-      document.body.style.overflow = 'hidden';
+      lenisRef.current?.stop();
     } else {
-      document.body.style.overflow = '';
+      lenisRef.current?.start();
     }
-    return () => {
-      document.body.style.overflow = '';
-    };
   }, [selectedCommittee]);
 
   const handleViewDetails = (committee: Committee) => {

@@ -41,7 +41,7 @@ const SIZE: Record<
     expandedW: 160,
     expandedH: 210,
     expandedY: -20,
-    containerH: 240, // 210-20=190 card bottom + ~50 label
+    containerH: 200, // expanded bottom (190) + 10 buffer
     overlayPadding: 'p-4',
     nameCls: 'text-base font-semibold',
     roleCls: 'text-xs',
@@ -55,7 +55,7 @@ const SIZE: Record<
     expandedW: 210,
     expandedH: 270,
     expandedY: -30,
-    containerH: 300, // 270-30=240 card bottom + ~60 label
+    containerH: 250, // expanded bottom (240) + 10 buffer
     overlayPadding: 'p-5',
     nameCls: 'text-lg font-semibold',
     roleCls: 'text-xs',
@@ -69,7 +69,7 @@ const SIZE: Record<
     expandedW: 260,
     expandedH: 340,
     expandedY: -40,
-    containerH: 370, // 340-40=300 card bottom + ~70 label
+    containerH: 310, // expanded bottom (300) + 10 buffer
     overlayPadding: 'p-6',
     nameCls: 'text-xl font-semibold',
     roleCls: 'text-sm',
