@@ -8,53 +8,55 @@ import { Committee } from '@/features/committees/constants/committeeData';
 import Lenis from 'lenis';
 
 export const CommitteesPage = () => {
-    const [selectedCommittee, setSelectedCommittee] = useState<Committee | null>(null);
-    const lenisRef = useRef<Lenis | null>(null);
+  const [selectedCommittee, setSelectedCommittee] = useState<Committee | null>(
+    null
+  );
+  const lenisRef = useRef<Lenis | null>(null);
 
-    useEffect(() => {
-        const cleanup = initSmoothScroll(lenisRef);
-        return cleanup;
-    }, []);
+  useEffect(() => {
+    const cleanup = initSmoothScroll(lenisRef);
+    return cleanup;
+  }, []);
 
-    // Lock body scroll when modal is open
-    // Note: We do NOT stop Lenis here - instead we rely on data-lenis-prevent
-    // on the modal elements to let native scrolling work inside the modal
-    useEffect(() => {
-        if (selectedCommittee) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-        }
-        return () => {
-            document.body.style.overflow = '';
-        };
-    }, [selectedCommittee]);
-
-    const handleViewDetails = (committee: Committee) => {
-        setSelectedCommittee(committee);
+  // Lock body scroll when modal is open
+  // Note: We do NOT stop Lenis here - instead we rely on data-lenis-prevent
+  // on the modal elements to let native scrolling work inside the modal
+  useEffect(() => {
+    if (selectedCommittee) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
     };
+  }, [selectedCommittee]);
 
-    const handleCloseModal = () => {
-        setSelectedCommittee(null);
-    };
+  const handleViewDetails = (committee: Committee) => {
+    setSelectedCommittee(committee);
+  };
 
-    return (
-        <div className="bg-background">
-            <CommitteeHeroSection />
-            {/* Org chart — visible on md and above */}
-            <div className="hidden md:block">
-                <OrgChartView onViewDetails={handleViewDetails} />
-            </div>
-            {/* Browse by section — visible on mobile only */}
-            <div className="block md:hidden">
-                <TabbedView onViewDetails={handleViewDetails} />
-            </div>
-            <CommitteeDetailModal
-                committee={selectedCommittee}
-                onClose={handleCloseModal}
-            />
-        </div>
-    );
+  const handleCloseModal = () => {
+    setSelectedCommittee(null);
+  };
+
+  return (
+    <div className="bg-background">
+      <CommitteeHeroSection />
+      {/* Org chart — visible on md and above */}
+      <div className="hidden md:block">
+        <OrgChartView onViewDetails={handleViewDetails} />
+      </div>
+      {/* Browse by section — visible on mobile only */}
+      <div className="block md:hidden">
+        <TabbedView onViewDetails={handleViewDetails} />
+      </div>
+      <CommitteeDetailModal
+        committee={selectedCommittee}
+        onClose={handleCloseModal}
+      />
+    </div>
+  );
 };
 
 export default CommitteesPage;
