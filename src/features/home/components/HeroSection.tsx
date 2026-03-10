@@ -16,7 +16,7 @@ export const HeroSection = ({
   onCardExpand,
 }: HeroSectionProps) => {
   return (
-    <section className="relative min-h-screen flex flex-col items-center bg-background overflow-hidden md:-mt-32">
+    <section className="relative min-h-screen flex flex-col items-center bg-background overflow-hidden">
       {/* ── Light Rays Background ── */}
       <LightRays
         backgroundColor="var(--color-background)"
@@ -30,7 +30,7 @@ export const HeroSection = ({
       <FloatingParticles count={24} color="var(--color-info)" className="z-1" />
 
       {/* ── Hero Content ── */}
-      <div className="relative z-10 max-w-7xl mx-auto w-full px-6 pt-16 pb-8 md:pt-32 md:pb-16 flex-1 flex flex-col justify-center">
+      <div className="relative z-10 max-w-7xl mx-auto w-full px-6 pt-6 pb-12 md:pt-8 md:pb-16 flex-1 flex flex-col justify-center">
         {/* Split Column Layout */}
         <div className="grid lg:grid-cols-2 gap-8 mb-8">
           {/* Left Column - Heading */}
