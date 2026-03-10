@@ -20,7 +20,7 @@ export const TabbedView = ({ onViewDetails }: TabbedViewProps) => {
     <div className="max-w-7xl mx-auto px-6 py-12">
       {/* ─── Executive Board (Pinned) ─── */}
       <div className="mb-10">
-        <h2 className="text-2xl font-bold text-foreground mb-8 flex items-center gap-2">
+        <h2 className="text-2xl font-bold text-foreground mb-10 flex items-center gap-2">
           <span className="w-1.5 h-8 bg-primary rounded-full" />
           Executive Board
         </h2>

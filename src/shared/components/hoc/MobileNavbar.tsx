@@ -275,7 +275,7 @@ export const MobileNavbar = () => {
             to="/workshops"
           >
             <FaFlask size={20} />
-            <span className="text-[10px] font-medium">Wrkshp</span>
+            <span className="text-[10px] font-medium">Workshops</span>
           </NavLink>
         </div>
 
@@ -286,7 +286,7 @@ export const MobileNavbar = () => {
             to="/committees"
           >
             <FaUsers size={20} />
-            <span className="text-[10px] font-medium">Commts</span>
+            <span className="text-[10px] font-medium">Committees</span>
           </NavLink>
         </div>
 
