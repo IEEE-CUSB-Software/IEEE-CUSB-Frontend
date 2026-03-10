@@ -13,8 +13,8 @@ const FeatureItem = ({ icon, title, description }: FeatureItemProps) => (
       {icon}
     </div>
     <div>
-      <h4 className="font-bold text-gray-900 mb-1">{title}</h4>
-      <p className="text-sm text-gray-600">{description}</p>
+      <h4 className="font-bold text-foreground mb-1">{title}</h4>
+      <p className="text-sm text-muted-foreground">{description}</p>
     </div>
   </div>
 );
@@ -116,10 +116,10 @@ export const EmpoweringSection = () => {
 
           {/* Content */}
           <SectionReveal delay={0.2}>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
               Empowering the Next Generation of Engineers
             </h2>
-            <p className="text-lg text-gray-600 leading-relaxed mb-8">
+            <p className="text-lg text-muted-foreground leading-relaxed mb-8">
               IEEE Cairo University Student Branch is a non-profit organization
               dedicated to empowering future engineers through professional
               development, technical excellence, and innovative projects. We

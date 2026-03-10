@@ -8,13 +8,13 @@ interface AboutUsHeroSectionProps {
 export const AboutUsHeroSection = ({ darkMode }: AboutUsHeroSectionProps) => {
   return (
     <section
-      className={`relative min-h-screen px-6 flex items-center ${
+      className={`relative px-6 pt-16 pb-8 md:h-screen md:flex md:items-center md:-mt-32 ${
         darkMode
           ? 'bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900'
           : 'bg-gradient-to-b from-gray-50 to-white'
       }`}
     >
-      <div className="max-w-7xl mx-auto w-full py-12 md:py-20">
+      <div className="max-w-7xl mx-auto w-full md:pt-32 md:pb-6">
         {/* Split Column Layout */}
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Column - Heading & Description */}

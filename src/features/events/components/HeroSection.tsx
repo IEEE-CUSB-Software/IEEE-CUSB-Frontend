@@ -16,13 +16,12 @@ export const HeroSection = ({
   const { isDark } = useTheme();
   return (
     <section
-      className={`relative h-screen px-6 flex items-center transition-colors duration-500 ${
-        isDark ? 'bg-gray-900' : 'bg-gradient-to-b from-gray-50 to-white'
-      }`}
+      className={`relative h-screen px-6 flex items-center transition-colors duration-500 md:-mt-32 ${isDark ? 'bg-gray-900' : 'bg-gradient-to-b from-gray-50 to-white'
+        }`}
     >
-      <div className="max-w-7xl mx-auto w-full py-20">
+      <div className="max-w-7xl mx-auto w-full pt-28 md:pt-32 pb-6">
         {/* Split Column Layout */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-8 mt-8">
+        <div className="grid lg:grid-cols-2 gap-8 mb-8">
           {/* Left Column - Heading */}
           <div>
             <motion.div
@@ -48,9 +47,8 @@ export const HeroSection = ({
                 delay: 0.4,
                 ease: [0.4, 0.0, 0.2, 1],
               }}
-              className={`text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] mb-6 transition-colors duration-300 ${
-                isDark ? 'text-white' : 'text-gray-900'
-              }`}
+              className={`text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] mb-6 transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'
+                }`}
             >
               Where <SwishUnderline>learning</SwishUnderline> meets innovation
             </motion.h1>
@@ -66,9 +64,8 @@ export const HeroSection = ({
                 delay: 0.6,
                 ease: [0.4, 0.0, 0.2, 1],
               }}
-              className={`text-base md:text-lg leading-relaxed mb-6 transition-colors duration-300 ${
-                isDark ? 'text-gray-300' : 'text-gray-600'
-              }`}
+              className={`text-base md:text-lg leading-relaxed mb-6 transition-colors duration-300 ${isDark ? 'text-gray-300' : 'text-gray-600'
+                }`}
             >
               Discover our latest technical sessions, social gatherings, and
               hands-on workshops designed to empower future engineers. Join us
@@ -89,17 +86,15 @@ export const HeroSection = ({
                 href="#events"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`inline-flex items-center gap-3 px-6 py-3 rounded-full font-semibold shadow-xl hover:shadow-2xl group transition-all duration-300 ${
-                  isDark
+                className={`inline-flex items-center gap-3 px-6 py-3 rounded-full font-semibold shadow-xl hover:shadow-2xl group transition-all duration-300 ${isDark
                     ? 'bg-white text-gray-900 hover:bg-gray-100'
                     : 'bg-gray-900 text-white hover:bg-gray-800'
-                }`}
+                  }`}
               >
                 <span>Browse All Events</span>
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center group-hover:rotate-45 transition-transform duration-300 ${
-                    isDark ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'
-                  }`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center group-hover:rotate-45 transition-transform duration-300 ${isDark ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'
+                    }`}
                 >
                   <svg
                     className="w-4 h-4"

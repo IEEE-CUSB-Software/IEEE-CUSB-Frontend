@@ -113,20 +113,6 @@ export const EventsListSection = () => {
         className={`py-8 md:py-16 transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-background'}`}
       >
         <div className="max-w-7xl mx-auto px-6">
-          <div className="mb-8">
-            <h1
-              className={`text-5xl font-bold mb-4 transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`}
-            >
-              Events & Workshops
-            </h1>
-            <p
-              className={`text-xl max-w-2xl transition-colors duration-300 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}
-            >
-              Discover our latest technical sessions, social gatherings, and
-              hands-on workshops designed to empower future engineers.
-            </p>
-          </div>
-
           <EventsFilterBar
             activeFilter={activeFilter}
             onFilterChange={setActiveFilter}
@@ -176,13 +162,6 @@ export const EventsListSection = () => {
         className={`py-16 transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-background'}`}
       >
         <div className="max-w-7xl mx-auto px-6">
-          <div className="mb-8">
-            <h1
-              className={`text-5xl font-bold mb-4 transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`}
-            >
-              Events & Workshops
-            </h1>
-          </div>
           <div className="text-center py-12">
             <p className="text-red-500 text-lg mb-4 font-medium transition-colors duration-300">
               Failed to load events. Please try again later.
@@ -205,21 +184,6 @@ export const EventsListSection = () => {
       className={`py-8 md:py-16 transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-background'}`}
     >
       <div className="max-w-7xl mx-auto px-6">
-        {/* Header Section */}
-        <div className="mb-8">
-          <h1
-            className={`text-5xl font-bold mb-4 transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`}
-          >
-            Events & Workshops
-          </h1>
-          <p
-            className={`text-xl max-w-2xl transition-colors duration-300 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}
-          >
-            Discover our latest technical sessions, social gatherings, and
-            hands-on workshops designed to empower future engineers.
-          </p>
-        </div>
-
         {/* Filter, Search and Sort Bar */}
         <EventsFilterBar
           activeFilter={activeFilter}
