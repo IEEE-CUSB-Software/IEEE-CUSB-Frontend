@@ -9,7 +9,7 @@ export const NotFoundPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex items-center justify-center min-h-[60vh] p-4">
+    <div className="flex items-center justify-center min-h-[60vh] p-4 md:pt-28">
       <div className="w-full max-w-md">
         <ErrorScreen
           title="Page Not Found"

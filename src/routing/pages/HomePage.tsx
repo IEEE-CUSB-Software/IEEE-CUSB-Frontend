@@ -34,7 +34,7 @@ export const HomePage = () => {
       <StatsSection />
       <LatestNewsSection />
       <EmpoweringSection />
-      <TeamSection/>
+      <TeamSection />
     </div>
   );
 };

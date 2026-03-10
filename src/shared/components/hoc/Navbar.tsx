@@ -27,7 +27,7 @@ export const Navbar = () => {
   }, []);
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `text-lg font-medium transition-colors ${
+    `text-sm lg:text-base xl:text-lg font-medium transition-colors ${
       isActive
         ? scrolled
           ? isDark
@@ -49,7 +49,7 @@ export const Navbar = () => {
 
   return (
     <div
-      className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-[1237px] h-[74px] rounded-full flex items-center px-4 lg:px-8 transition-all duration-300
+      className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-[1237px] h-[74px] rounded-full flex items-center px-4 lg:px-8 transition-all duration-300 
         ${
           scrolled
             ? isDark
@@ -61,9 +61,9 @@ export const Navbar = () => {
         }`}
     >
       {/* Centered Navigation Group */}
-      <div className="flex-1 flex justify-center items-center gap-6 lg:gap-10">
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex justify-center items-center gap-3 lg:gap-6 xl:gap-10 w-max">
         {/* Left Links */}
-        <div className="flex items-center gap-6 lg:gap-8">
+        <div className="flex items-center gap-3 lg:gap-5 xl:gap-8">
           <NavLink to="/" className={linkClass}>
             Home
           </NavLink>
@@ -97,7 +97,7 @@ export const Navbar = () => {
         </Link>
 
         {/* Right Links */}
-        <div className="flex items-center gap-6 lg:gap-8">
+        <div className="flex items-center gap-3 lg:gap-5 xl:gap-8">
           <NavLink to="/events" className={linkClass}>
             Events
           </NavLink>
@@ -111,7 +111,7 @@ export const Navbar = () => {
       </div>
 
       {/* Right Action (Avatar / Sign In) */}
-      <div className="absolute right-6 lg:right-10 flex items-center">
+      <div className="shrink-0 flex items-center ml-auto">
         <button
           onClick={toggleTheme}
           className={`mr-4 p-2 rounded-full transition-all duration-300 ${
