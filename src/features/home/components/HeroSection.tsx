@@ -5,7 +5,6 @@ import { SponsorsMarquee } from './SponsorsMarquee';
 import { LightRays } from '@/shared/components/ui/LightRays';
 import { FloatingParticles } from '@/shared/components/ui/FloatingParticles';
 import { HiUsers, HiLightningBolt, HiGlobeAlt } from 'react-icons/hi';
-import { useTheme } from '@/shared/hooks/useTheme';
 
 interface HeroSectionProps {
   activeCardIndex: number;
@@ -16,7 +15,6 @@ export const HeroSection = ({
   activeCardIndex,
   onCardExpand,
 }: HeroSectionProps) => {
-  const { isDark } = useTheme();
   return (
     <section className="relative min-h-screen flex flex-col items-center bg-background overflow-hidden">
       {/* ── Light Rays Background ── */}

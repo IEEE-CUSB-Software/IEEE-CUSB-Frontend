@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { initSmoothScroll } from '@/shared/utils/smoothScroll';
 import { CommitteeHeroSection } from '@/features/committees/components/CommitteeHeroSection';
-import { ViewToggle } from '@/features/committees/components/ViewToggle';
 import { OrgChartView } from '@/features/committees/components/OrgChartView';
 import { TabbedView } from '@/features/committees/components/TabbedView';
 import { CommitteeDetailModal } from '@/features/committees/components/CommitteeDetailModal';
@@ -9,7 +8,6 @@ import { Committee } from '@/features/committees/constants/committeeData';
 import Lenis from 'lenis';
 
 export const CommitteesPage = () => {
-    const [activeView, setActiveView] = useState<'orgChart' | 'tabbed'>('orgChart');
     const [selectedCommittee, setSelectedCommittee] = useState<Committee | null>(null);
     const lenisRef = useRef<Lenis | null>(null);
 
@@ -43,11 +41,14 @@ export const CommitteesPage = () => {
     return (
         <div className="bg-background">
             <CommitteeHeroSection />
-            <ViewToggle activeView={activeView} onViewChange={setActiveView} />
-            {activeView === 'orgChart'
-                ? <OrgChartView onViewDetails={handleViewDetails} />
-                : <TabbedView onViewDetails={handleViewDetails} />
-            }
+            {/* Org chart — visible on md and above */}
+            <div className="hidden md:block">
+                <OrgChartView onViewDetails={handleViewDetails} />
+            </div>
+            {/* Browse by section — visible on mobile only */}
+            <div className="block md:hidden">
+                <TabbedView onViewDetails={handleViewDetails} />
+            </div>
             <CommitteeDetailModal
                 committee={selectedCommittee}
                 onClose={handleCloseModal}
