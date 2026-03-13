@@ -5,9 +5,11 @@ import { FiEdit2, FiTrash2, FiAward, FiSearch } from 'react-icons/fi';
 import { Table, type ColumnDef } from '@ieee-ui/ui';
 import { MobileAwardCard } from '@/features/admin/components/awardAdminPanel/MobileAwardCard';
 import AddEditAwardModal from '@/features/admin/components/awardAdminPanel/AddEditAwardModal';
+import AwardDetailModal from '@/features/admin/components/awardAdminPanel/AwardDetailModal';
 import { MOCK_AWARDS } from '@/features/admin/constants/awardsData';
 import type { Award, AwardCategory } from '@/features/admin/types/awardTypes';
 import toast from 'react-hot-toast';
+import IEEETrophy from '@/assets/IEEE_Trophy.png';
 
 /* ── Category colour mapping ─────────────────────────────────── */
 const CATEGORY_COLORS: Record<
@@ -143,6 +145,7 @@ export const AwardsPage = () => {
   const [selectedAward, setSelectedAward] = useState<Award | undefined>(
     undefined
   );
+  const [viewAward, setViewAward] = useState<Award | null>(null);
   const [search, setSearch] = useState('');
 
   /* filtered list */
@@ -211,25 +214,34 @@ export const AwardsPage = () => {
     setSelectedAward(undefined);
   }, []);
 
+  const handleView = useCallback((award: Award) => {
+    setViewAward(award);
+  }, []);
+
+  const handleCloseView = useCallback(() => {
+    setViewAward(null);
+  }, []);
+
   /* table columns */
   const columns = useMemo<ColumnDef<Award>[]>(
     () => [
       {
         header: 'Award',
         cell: (item: Award) => (
-          <div className="flex items-center gap-3 min-w-0">
+          <div
+            onClick={() => handleView(item)}
+            className="flex items-center gap-3 min-w-0 cursor-pointer"
+          >
             <div
-              className={`flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center ${
+              className={`flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center overflow-hidden ${
                 isDark ? 'bg-yellow-900/30' : 'bg-yellow-50'
               }`}
             >
-              <FiAward
-                className={`w-4 h-4 ${isDark ? 'text-yellow-400' : 'text-yellow-500'}`}
-              />
+              <img src={IEEETrophy} alt="trophy" className="w-6 h-6 object-contain" />
             </div>
             <div className="min-w-0">
               <p
-                className={`font-semibold text-sm truncate ${
+                className={`font-semibold text-sm truncate hover:underline ${
                   isDark ? 'text-white' : 'text-gray-900'
                 }`}
               >
@@ -251,43 +263,49 @@ export const AwardsPage = () => {
         cell: (item: Award) => {
           const style = getCategoryStyle(item.category, isDark);
           return (
-            <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${style.bg} ${style.text}`}
-            >
+            <div onClick={() => handleView(item)} className="cursor-pointer">
               <span
-                className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${style.dot}`}
-              />
-              {item.category}
-            </span>
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${style.bg} ${style.text}`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${style.dot}`}
+                />
+                {item.category}
+              </span>
+            </div>
           );
         },
       },
       {
         header: 'Year',
         cell: (item: Award) => (
-          <span
-            className={`inline-flex items-center px-3 py-1 rounded-lg text-sm font-bold border ${
-              isDark
-                ? 'bg-gray-800 border-gray-700 text-gray-300'
-                : 'bg-gray-50 border-gray-200 text-gray-700'
-            }`}
-          >
-            {item.year}
-          </span>
+          <div onClick={() => handleView(item)} className="cursor-pointer">
+            <span
+              className={`inline-flex items-center px-3 py-1 rounded-lg text-sm font-bold border ${
+                isDark
+                  ? 'bg-gray-800 border-gray-700 text-gray-300'
+                  : 'bg-gray-50 border-gray-200 text-gray-700'
+              }`}
+            >
+              {item.year}
+            </span>
+          </div>
         ),
         className: 'text-center',
       },
       {
         header: 'Description',
         cell: (item: Award) => (
-          <span
-            className={`line-clamp-2 text-sm ${
-              isDark ? 'text-gray-400' : 'text-gray-500'
-            }`}
-            title={item.description}
-          >
-            {item.description}
-          </span>
+          <div onClick={() => handleView(item)} className="cursor-pointer">
+            <span
+              className={`line-clamp-2 text-sm ${
+                isDark ? 'text-gray-400' : 'text-gray-500'
+              }`}
+              title={item.description}
+            >
+              {item.description}
+            </span>
+          </div>
         ),
       },
       {
@@ -321,7 +339,7 @@ export const AwardsPage = () => {
         ),
       },
     ],
-    [isDark, handleEdit, handleDelete]
+    [isDark, handleEdit, handleDelete, handleView]
   );
 
   return (
@@ -476,6 +494,7 @@ export const AwardsPage = () => {
                 isDark={isDark}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onView={handleView}
               />
             ))}
           </div>
@@ -505,7 +524,7 @@ export const AwardsPage = () => {
         </>
       )}
 
-      {/* Modal */}
+      {/* Edit / Add Modal */}
       {isModalOpen && (
         <AddEditAwardModal
           isOpen={isModalOpen}
@@ -514,6 +533,9 @@ export const AwardsPage = () => {
           award={selectedAward}
         />
       )}
+
+      {/* Detail Modal */}
+      <AwardDetailModal award={viewAward} onClose={handleCloseView} />
     </div>
   );
 };

@@ -25,6 +25,7 @@ interface MobileAwardCardProps {
   isDark: boolean;
   onEdit: (award: Award) => void;
   onDelete: (award: Award) => void;
+  onView: (award: Award) => void;
 }
 
 export const MobileAwardCard: React.FC<MobileAwardCardProps> = ({
@@ -32,6 +33,7 @@ export const MobileAwardCard: React.FC<MobileAwardCardProps> = ({
   isDark,
   onEdit,
   onDelete,
+  onView,
 }) => {
   const palette = isDark
     ? (CATEGORY_COLORS_DARK[award.category] ?? { bg: 'bg-gray-800', text: 'text-gray-400', dot: 'bg-gray-500' })
@@ -39,10 +41,11 @@ export const MobileAwardCard: React.FC<MobileAwardCardProps> = ({
 
   return (
     <div
-      className={`rounded-2xl border overflow-hidden transition-all duration-300 ${
+      onClick={() => onView(award)}
+      className={`rounded-2xl border overflow-hidden transition-all duration-300 ease-out cursor-pointer select-none hover:-translate-y-0.5 active:scale-[0.99] ${
         isDark
-          ? 'bg-gray-900 border-gray-800'
-          : 'bg-white border-gray-100 shadow-sm'
+          ? 'bg-gray-900 border-gray-800 hover:border-gray-600 hover:shadow-lg hover:shadow-black/30'
+          : 'bg-white border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200'
       }`}
     >
       {/* Card top accent strip */}
@@ -112,6 +115,7 @@ export const MobileAwardCard: React.FC<MobileAwardCardProps> = ({
           className={`flex items-center gap-2 pt-3 border-t ${
             isDark ? 'border-gray-800' : 'border-gray-100'
           }`}
+          onClick={e => e.stopPropagation()}
         >
           <button
             onClick={() => onEdit(award)}
