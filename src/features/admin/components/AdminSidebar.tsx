@@ -7,6 +7,7 @@ import {
   FiBarChart2,
   FiLogOut,
   FiBookOpen,
+  FiAward,
 } from 'react-icons/fi';
 import logo from '@/assets/logo.png';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -52,6 +53,12 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       label: 'Workshops',
       icon: <FiBookOpen className="w-5 h-5" />,
       path: '/admin/workshops',
+    },
+    {
+      id: 'awards',
+      label: 'Awards',
+      icon: <FiAward className="w-5 h-5" />,
+      path: '/admin/awards',
     },
     {
       id: 'posts',

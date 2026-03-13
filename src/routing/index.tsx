@@ -15,6 +15,7 @@ import {
 import EventsPage from './pages/EventsPage';
 import { AdminLayout } from '../features/admin/layouts/AdminLayout';
 import { EventsPage as AdminEventsPage } from './pages/admin/EventsPage';
+import { AwardsPage as AdminAwardsPage } from './pages/admin/AwardsPage';
 import { RoleName } from '@/shared/types/auth.types';
 
 /**
@@ -53,6 +54,10 @@ const routes: RouteObject[] = [
       {
         path: 'events',
         element: <AdminEventsPage />, // Events - Working
+      },
+      {
+        path: 'awards',
+        element: <AdminAwardsPage />, // Awards - Working
       },
       {
         path: 'workshops',
