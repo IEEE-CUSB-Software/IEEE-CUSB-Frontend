@@ -73,6 +73,9 @@ export const Navbar = () => {
           <NavLink to="/committees" className={linkClass}>
             Committees
           </NavLink>
+          <NavLink to="/awards" className={linkClass}>
+            Awards
+          </NavLink>
         </div>
 
         {/* Logo */}
