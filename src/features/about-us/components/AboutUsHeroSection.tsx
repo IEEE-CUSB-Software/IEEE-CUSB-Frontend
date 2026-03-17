@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { HiDownload } from 'react-icons/hi';
 import { PageHeroSection } from '@/shared/components/PageHeroSection';
 
 interface AboutUsHeroSectionProps {

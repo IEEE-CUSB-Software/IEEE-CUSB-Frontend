@@ -38,6 +38,15 @@ export const API_ENDPOINTS = {
     DELETE: (id: string) => `/roles/${id}`,
   },
 
+  // Awards endpoints
+  AWARDS: {
+    GET_ALL: '/awards',
+    GET_ONE: (id: string) => `/awards/${id}`,
+    CREATE: '/admin/awards',
+    UPDATE: (id: string) => `/admin/awards/${id}`,
+    DELETE: (id: string) => `/admin/awards/${id}`,
+  },
+
   // Events endpoints
   EVENTS: {
     CREATE: '/admin/events',
@@ -73,5 +82,9 @@ export const QUERY_KEYS = {
     INFINITE: ['events', 'infinite'],
     ONE: (id: string) => ['events', id],
     REGISTRATIONS: (eventId: string) => ['events', eventId, 'registrations'],
+  },
+  AWARDS: {
+    ALL: ['awards'],
+    ONE: (id: string) => ['awards', id],
   },
 } as const;
