@@ -1,10 +1,12 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { MdAdd } from 'react-icons/md';
-import { FiEdit2, FiTrash2, FiUsers } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiUsers, FiCalendar, FiSearch } from 'react-icons/fi';
 import AddEditEventModal from '@/features/admin/components/eventAdminPanel/AddEditEventModal';
+import EventDetailModal from '@/features/admin/components/eventAdminPanel/EventDetailModal';
 import { EventRegistrationsModal } from '@/features/admin/components/eventAdminPanel/EventRegistrationsModal';
-import { Table, type ColumnDef, Loader, ErrorScreen } from '@ieee-ui/ui';
+import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
+import { Table, type ColumnDef } from '@ieee-ui/ui';
 import { Pagination } from '@/shared/components/ui/Pagination';
 import { MobileEventCard } from '@/features/admin/components/eventAdminPanel/MobileEventCard';
 import {
@@ -22,7 +24,6 @@ import {
   type AdminEvent,
 } from '@/features/admin/utils/eventConversion';
 import toast from 'react-hot-toast';
-
 
 // Helper function to format date
 const formatDate = (dateString: string): string => {
@@ -47,72 +48,90 @@ const getEventStatus = (event: Event): 'Upcoming' | 'Ongoing' | 'Completed' => {
 
 export const EventsPage = () => {
   const { isDark } = useTheme();
-  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<Event | undefined>(
-    undefined
-  );
-  const [selectedAdminEvent, setSelectedAdminEvent] = useState<
-    AdminEvent | undefined
-  >(undefined);
-  const [isRegistrationsModalOpen, setIsRegistrationsModalOpen] =
-    useState(false);
-  const [selectedEventForRegistrations, setSelectedEventForRegistrations] =
-    useState<Event | undefined>(undefined);
+
+  /* API hooks */
   const [page, setPage] = useState(1);
   const limit = 10;
-
-
-  // API queries
-  const { data, isLoading, isError } = useEvents({ page, limit });
+  const { data, isLoading } = useEvents({ page, limit });
   const createEventMutation = useCreateEvent();
   const updateEventMutation = useUpdateEvent();
   const deleteEventMutation = useDeleteEvent();
 
-  // Safely extract events array - handle different response structures
-  const events = Array.isArray(data?.data) ? data.data : [];
+  const events = useMemo(
+    () => (Array.isArray(data?.data) ? data.data : []),
+    [data]
+  );
   const totalPages = data?.totalPages ?? 1;
 
-  const handleAddEvent = useCallback(() => {
+  /* Modal state */
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | undefined>(undefined);
+  const [selectedAdminEvent, setSelectedAdminEvent] = useState<AdminEvent | undefined>(undefined);
+  const [viewEvent, setViewEvent] = useState<Event | null>(null);
+  const [deleteEventTarget, setDeleteEventTarget] = useState<Event | null>(null);
+  const [isRegistrationsModalOpen, setIsRegistrationsModalOpen] = useState(false);
+  const [selectedEventForRegistrations, setSelectedEventForRegistrations] =
+    useState<Event | undefined>(undefined);
+  const [search, setSearch] = useState('');
+
+  /* Filtered list */
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return events;
+    return events.filter(
+      e =>
+        e.title.toLowerCase().includes(q) ||
+        e.description.toLowerCase().includes(q) ||
+        e.location.toLowerCase().includes(q)
+    );
+  }, [events, search]);
+
+  /* Handlers */
+  const handleAdd = useCallback(() => {
     setSelectedEvent(undefined);
     setSelectedAdminEvent(undefined);
     setIsEventModalOpen(true);
   }, []);
 
-  const handleEditEvent = useCallback((event: Event) => {
+  const handleEdit = useCallback((event: Event) => {
     setSelectedEvent(event);
     setSelectedAdminEvent(convertApiEventToAdminEvent(event));
     setIsEventModalOpen(true);
   }, []);
 
-  const handleDeleteEvent = useCallback(
-    async (event: Event) => {
-      if (window.confirm(`Are you sure you want to delete "${event.title}"?`)) {
-        try {
-          await deleteEventMutation.mutateAsync(event.id);
-        } catch (error) {
-          console.error('Delete error:', error);
-        }
-      }
-    },
-    [deleteEventMutation]
-  );
+  const handleDelete = useCallback((event: Event) => {
+    setDeleteEventTarget(event);
+  }, []);
+
+  const handleConfirmDelete = useCallback(() => {
+    if (!deleteEventTarget) return;
+    deleteEventMutation.mutate(deleteEventTarget.id, {
+      onSuccess: () => setDeleteEventTarget(null),
+    });
+  }, [deleteEventMutation, deleteEventTarget]);
 
   const handleViewRegistrations = useCallback((event: Event) => {
     setSelectedEventForRegistrations(event);
     setIsRegistrationsModalOpen(true);
   }, []);
 
+  const handleView = useCallback((event: Event) => {
+    setViewEvent(event);
+  }, []);
+
+  const handleCloseView = useCallback(() => {
+    setViewEvent(null);
+  }, []);
+
   const handleSaveEvent = async (formData: EventFormData) => {
     try {
       if (selectedEvent) {
-        // Update existing event
         const updateData = convertFormDataToUpdateRequest(formData);
         await updateEventMutation.mutateAsync({
           id: selectedEvent.id,
           data: updateData,
         });
       } else {
-        // Create new event
         const createData = convertFormDataToCreateRequest(formData);
         await createEventMutation.mutateAsync(createData);
       }
@@ -125,31 +144,58 @@ export const EventsPage = () => {
     }
   };
 
+  const handleClose = useCallback(() => {
+    setIsEventModalOpen(false);
+    setSelectedEvent(undefined);
+    setSelectedAdminEvent(undefined);
+  }, []);
+
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  /* Table columns */
   const columns = useMemo<ColumnDef<Event>[]>(
     () => [
       {
-        header: 'Event Name',
-        accessorKey: 'title',
-        className: `font-medium transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`,
-      },
-      {
-        header: 'Date',
-        cell: item => formatDate(item.start_time),
-        className: `transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'}`,
-      },
-      {
-        header: 'Location',
-        accessorKey: 'location',
-        className: `transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'}`,
+        header: 'Event',
+        cell: (item: Event) => (
+          <div
+            onClick={() => handleView(item)}
+            className="flex items-center gap-3 min-w-0 cursor-pointer"
+          >
+            <div
+              className={`flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center ${
+                isDark ? 'bg-primary/20' : 'bg-primary/10'
+              }`}
+            >
+              <FiCalendar
+                className={`w-4 h-4 ${isDark ? 'text-primary-light' : 'text-primary'}`}
+              />
+            </div>
+            <div className="min-w-0">
+              <p
+                className={`font-semibold text-sm truncate hover:underline ${
+                  isDark ? 'text-white' : 'text-gray-900'
+                }`}
+              >
+                {item.title}
+              </p>
+              <p
+                className={`text-xs truncate ${
+                  isDark ? 'text-gray-500' : 'text-gray-400'
+                }`}
+              >
+                {formatDate(item.start_time)} · {item.location}
+              </p>
+            </div>
+          </div>
+        ),
       },
       {
         header: 'Category',
-        cell: item => {
+        cell: (item: Event) => {
           const categoryColors: Record<string, string> = {
             Technical: isDark
               ? 'bg-blue-900/30 text-blue-300'
@@ -165,197 +211,281 @@ export const EventsPage = () => {
             categoryColors[item.category] ||
             (isDark ? 'bg-gray-800 text-gray-400' : 'bg-gray-50 text-gray-700');
           return (
-            <span
-              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${color}`}
-            >
-              {item.category}
-            </span>
+            <div onClick={() => handleView(item)} className="cursor-pointer">
+              <span
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${color}`}
+              >
+                {item.category}
+              </span>
+            </div>
           );
         },
       },
       {
         header: 'Capacity',
-        accessorKey: 'capacity',
-        className: `text-center transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'}`,
+        cell: (item: Event) => (
+          <div onClick={() => handleView(item)} className="cursor-pointer">
+            <span
+              className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}
+            >
+              {item.is_full ? (
+                <span className={isDark ? 'text-red-400' : 'text-red-500'}>
+                  Full ({item.capacity})
+                </span>
+              ) : (
+                `${item.remainingSpots}/${item.capacity}`
+              )}
+            </span>
+          </div>
+        ),
+        className: 'text-center',
       },
       {
         header: 'Status',
-        cell: item => {
+        cell: (item: Event) => {
           const status = getEventStatus(item);
           const statusColors = {
             Upcoming: isDark
-              ? 'bg-blue-900/30 text-blue-300'
-              : 'bg-blue-50 text-blue-700',
-            Ongoing: isDark
               ? 'bg-green-900/30 text-green-300'
               : 'bg-green-50 text-green-700',
+            Ongoing: isDark
+              ? 'bg-blue-900/30 text-blue-300'
+              : 'bg-blue-50 text-blue-700',
             Completed: isDark
               ? 'bg-gray-800 text-gray-400'
               : 'bg-gray-50 text-gray-700',
           };
           return (
-            <span
-              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[status]}`}
-            >
-              {status}
-            </span>
+            <div onClick={() => handleView(item)} className="cursor-pointer">
+              <span
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[status]}`}
+              >
+                {status}
+              </span>
+            </div>
           );
         },
       },
       {
         header: 'Actions',
         className: 'text-right',
-        cell: item => (
-          <div className="flex items-center justify-end gap-2">
+        cell: (item: Event) => (
+          <div className="flex items-center justify-end gap-1">
             <button
-              onClick={() => handleEditEvent(item)}
-              className={`p-2 rounded-lg transition-colors ${
+              onClick={() => handleEdit(item)}
+              className={`group p-2 rounded-lg transition-all duration-200 ${
                 isDark
                   ? 'text-gray-500 hover:text-primary hover:bg-primary/10'
                   : 'text-gray-400 hover:text-primary hover:bg-primary/5'
               }`}
               title="Edit event"
             >
-              <FiEdit2 className="w-4 h-4" />
+              <FiEdit2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
             </button>
             <button
               onClick={() => handleViewRegistrations(item)}
-              className={`p-2 rounded-lg transition-colors ${
+              className={`group p-2 rounded-lg transition-all duration-200 ${
                 isDark
                   ? 'text-gray-500 hover:text-blue-400 hover:bg-blue-400/10'
                   : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50'
               }`}
               title="View registrations"
             >
-              <FiUsers className="w-4 h-4" />
+              <FiUsers className="w-4 h-4 group-hover:scale-110 transition-transform" />
             </button>
             <button
-              onClick={() => handleDeleteEvent(item)}
-              className={`p-2 rounded-lg transition-colors ${
+              onClick={() => handleDelete(item)}
+              className={`group p-2 rounded-lg transition-all duration-200 ${
                 isDark
                   ? 'text-gray-500 hover:text-red-400 hover:bg-red-400/10'
                   : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
               }`}
               title="Delete event"
             >
-              <FiTrash2 className="w-4 h-4" />
+              <FiTrash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
             </button>
           </div>
         ),
       },
     ],
-    [handleEditEvent, handleDeleteEvent, handleViewRegistrations, isDark]
+    [isDark, handleEdit, handleDelete, handleViewRegistrations, handleView]
   );
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1
-              className={`text-2xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`}
-            >
-              Event Management
-            </h1>
-            <p
-              className={`transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
-            >
-              Create and manage upcoming events
-            </p>
-          </div>
-        </div>
-        <div className="flex h-64 items-center justify-center">
-          <Loader text="Loading events..." size="large" />
-        </div>
-      </div>
-    );
-  }
-
-  // Error state
-  if (isError) {
-    return (
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1
-              className={`text-2xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`}
-            >
-              Event Management
-            </h1>
-            <p
-              className={`transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
-            >
-              Create and manage upcoming events
-            </p>
-          </div>
-        </div>
-        <ErrorScreen
-          title="Failed to load events"
-          message="Please try again later."
-          className="h-64"
-          darkMode={isDark}
-        />
-      </div>
-    );
-  }
+  const isPending = createEventMutation.isPending || updateEventMutation.isPending;
 
   return (
     <div className="space-y-6">
+      {/* ── Page header ─────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1
-            className={`text-2xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'} sm:text-center`}
+        <div className="flex items-center gap-3">
+          <div
+            className={`p-2.5 rounded-xl ${
+              isDark ? 'bg-primary/20' : 'bg-primary/10'
+            }`}
           >
-            Event Management
-          </h1>
-          <p
-            className={`transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-500'} sm:text-center`}
-          >
-            Create and manage upcoming events
-          </p>
+            <FiCalendar
+              className={`w-6 h-6 ${isDark ? 'text-primary-light' : 'text-primary'}`}
+            />
+          </div>
+          <div>
+            <h1
+              className={`text-2xl font-bold leading-tight ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}
+            >
+              Event Management
+            </h1>
+            <p
+              className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
+            >
+              Create and manage upcoming events
+            </p>
+          </div>
         </div>
 
         <button
-          onClick={handleAddEvent}
-          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
+          onClick={handleAdd}
+          className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary/90 active:scale-95 transition-all duration-200 shadow-md shadow-primary/20"
         >
           <MdAdd className="text-xl" />
-          <span>Add Event</span>
+          Add Event
         </button>
       </div>
 
-      {events.length === 0 ? (
+      {/* ── Search bar ──────────────────────────────────────── */}
+      <div
+        className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-colors duration-300 ${
+          isDark
+            ? 'bg-gray-900 border-gray-800 focus-within:border-primary/50'
+            : 'bg-white border-gray-200 focus-within:border-primary/40 shadow-sm'
+        }`}
+      >
+        <FiSearch
+          className={`w-4 h-4 flex-shrink-0 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}
+        />
+        <input
+          type="text"
+          placeholder="Search by title, description, or location…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className={`flex-1 text-sm bg-transparent outline-none placeholder:transition-colors ${
+            isDark
+              ? 'text-white placeholder:text-gray-600'
+              : 'text-gray-900 placeholder:text-gray-400'
+          }`}
+        />
+        {search && (
+          <button
+            onClick={() => setSearch('')}
+            className={`text-xs px-2 py-0.5 rounded-md transition-colors ${
+              isDark
+                ? 'text-gray-500 hover:text-gray-300 hover:bg-gray-800'
+                : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            Clear
+          </button>
+        )}
+      </div>
+
+      {/* ── Content ─────────────────────────────────────────── */}
+      {isLoading ? (
         <div
-          className={`rounded-lg p-8 text-center transition-colors duration-300 ${isDark ? 'bg-gray-900 text-gray-400' : 'bg-white text-gray-500'}`}
+          className={`rounded-2xl p-12 flex items-center justify-center border ${
+            isDark
+              ? 'bg-gray-900 border-gray-800'
+              : 'bg-white border-gray-100 shadow-sm'
+          }`}
         >
-          <p>No events found. Create your first event to get started!</p>
+          <p
+            className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
+          >
+            Loading events…
+          </p>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div
+          className={`rounded-2xl p-12 flex flex-col items-center gap-4 border transition-colors duration-300 ${
+            isDark
+              ? 'bg-gray-900 border-gray-800'
+              : 'bg-white border-gray-100 shadow-sm'
+          }`}
+        >
+          <div
+            className={`w-16 h-16 rounded-2xl flex items-center justify-center ${
+              isDark ? 'bg-gray-800' : 'bg-gray-50'
+            }`}
+          >
+            <FiCalendar
+              className={`w-8 h-8 ${isDark ? 'text-gray-600' : 'text-gray-300'}`}
+            />
+          </div>
+          <div className="text-center">
+            <p
+              className={`font-semibold text-base ${
+                isDark ? 'text-gray-300' : 'text-gray-700'
+              }`}
+            >
+              {search ? 'No matching events' : 'No events yet'}
+            </p>
+            <p
+              className={`text-sm mt-1 ${isDark ? 'text-gray-600' : 'text-gray-400'}`}
+            >
+              {search
+                ? 'Try a different search term.'
+                : 'Click "Add Event" to create your first one.'}
+            </p>
+          </div>
+          {!search && (
+            <button
+              onClick={handleAdd}
+              className="mt-2 flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors"
+            >
+              <MdAdd className="text-base" />
+              Add Event
+            </button>
+          )}
         </div>
       ) : (
         <>
-          {/* Mobile View - Cards */}
-          <div className="block md:hidden space-y-4">
-            {events.map(event => (
+          {/* Mobile – Cards */}
+          <div className="block md:hidden space-y-3">
+            {filtered.map(event => (
               <MobileEventCard
                 key={event.id}
                 event={event}
                 isDark={isDark}
-                onEdit={handleEditEvent}
+                onEdit={handleEdit}
                 onViewRegistrations={handleViewRegistrations}
-                onDelete={handleDeleteEvent}
+                onDelete={handleDelete}
                 getEventStatus={getEventStatus}
+                onView={handleView}
               />
             ))}
           </div>
-          {/* Desktop View - Table */}
-          <div className="hidden md:block w-full overflow-x-auto">
+
+          {/* Desktop – Table */}
+          <div
+            className={`hidden md:block rounded-2xl overflow-hidden border transition-colors duration-300 ${
+              isDark ? 'border-gray-800' : 'border-gray-100 shadow-sm'
+            }`}
+          >
             <Table
-              data={events}
+              data={filtered}
               columns={columns}
               emptyMessage="No events found"
               darkMode={isDark}
             />
           </div>
+
+          {/* Result count */}
+          {search && (
+            <p
+              className={`text-xs text-center ${isDark ? 'text-gray-600' : 'text-gray-400'}`}
+            >
+              Showing {filtered.length} of {events.length} events
+            </p>
+          )}
         </>
       )}
 
@@ -371,22 +501,32 @@ export const EventsPage = () => {
         </div>
       )}
 
+      {/* Edit / Add Modal */}
       {isEventModalOpen && (
         <AddEditEventModal
           isOpen={isEventModalOpen}
-          onClose={() => {
-            setIsEventModalOpen(false);
-            setSelectedEvent(undefined);
-            setSelectedAdminEvent(undefined);
-          }}
+          onClose={handleClose}
           onSave={handleSaveEvent}
           event={selectedAdminEvent}
-          isLoading={
-            createEventMutation.isPending || updateEventMutation.isPending
-          }
+          isLoading={isPending}
         />
       )}
 
+      {/* Detail Modal */}
+      <EventDetailModal event={viewEvent} onClose={handleCloseView} />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={!!deleteEventTarget}
+        itemName={deleteEventTarget?.title ?? ''}
+        entityLabel="event"
+        isDark={isDark}
+        isPending={deleteEventMutation.isPending}
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeleteEventTarget(null)}
+      />
+
+      {/* Registrations Modal */}
       {isRegistrationsModalOpen && selectedEventForRegistrations && (
         <EventRegistrationsModal
           isOpen={isRegistrationsModalOpen}

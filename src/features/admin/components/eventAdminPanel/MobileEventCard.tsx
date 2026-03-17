@@ -16,6 +16,7 @@ interface MobileEventCardProps {
   onViewRegistrations: (event: Event) => void;
   onDelete: (event: Event) => void;
   getEventStatus: (event: Event) => 'Upcoming' | 'Ongoing' | 'Completed';
+  onView?: (event: Event) => void;
 }
 
 export const MobileEventCard: React.FC<MobileEventCardProps> = ({
@@ -25,6 +26,7 @@ export const MobileEventCard: React.FC<MobileEventCardProps> = ({
   onViewRegistrations,
   onDelete,
   getEventStatus,
+  onView,
 }) => {
   const status = getEventStatus(event);
   const statusColors = {
@@ -57,10 +59,11 @@ export const MobileEventCard: React.FC<MobileEventCardProps> = ({
 
   return (
     <div
-      className={`rounded-xl p-4 mb-4 border transition-all ${
+      onClick={() => onView?.(event)}
+      className={`rounded-xl p-4 mb-4 border transition-all cursor-pointer select-none hover:-translate-y-0.5 active:scale-[0.99] ${
         isDark
-          ? 'bg-gray-900/50 border-gray-800'
-          : 'bg-white border-gray-200 shadow-sm'
+          ? 'bg-gray-900/50 border-gray-800 hover:border-gray-600 hover:shadow-lg hover:shadow-black/30'
+          : 'bg-white border-gray-200 shadow-sm hover:shadow-md hover:border-gray-200'
       }`}
     >
       <div className="flex justify-between items-start mb-3">
@@ -127,6 +130,7 @@ export const MobileEventCard: React.FC<MobileEventCardProps> = ({
 
       <div
         className={`flex items-center justify-between pt-3 border-t ${isDark ? 'border-gray-800' : 'border-gray-100'}`}
+        onClick={e => e.stopPropagation()}
       >
         <button
           onClick={() => onEdit(event)}

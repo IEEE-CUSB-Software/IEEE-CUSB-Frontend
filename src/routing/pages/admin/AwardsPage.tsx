@@ -1,13 +1,13 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { MdAdd } from 'react-icons/md';
-import { FiEdit2, FiTrash2, FiAward, FiSearch } from 'react-icons/fi';
 import { HiTrophy } from 'react-icons/hi2';
-import { FaExclamationTriangle } from 'react-icons/fa';
-import { Table, type ColumnDef, Modal, Button } from '@ieee-ui/ui';
+import { FiEdit2, FiTrash2, FiAward, FiSearch } from 'react-icons/fi';
+import { Table, type ColumnDef } from '@ieee-ui/ui';
 import { MobileAwardCard } from '@/features/admin/components/awardAdminPanel/MobileAwardCard';
 import AddEditAwardModal from '@/features/admin/components/awardAdminPanel/AddEditAwardModal';
 import AwardDetailModal from '@/features/admin/components/awardAdminPanel/AwardDetailModal';
+import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
 import {
   useAwards,
   useCreateAward,
@@ -49,77 +49,6 @@ import IEEETrophy from '@/assets/IEEE_Trophy.png';
 //     </p>
 //   </div>
 // );
-
-/* ── Delete confirmation modal ───────────────────────────────── */
-const DeleteAwardModal = ({
-  award,
-  isDark,
-  isPending,
-  onConfirm,
-  onClose,
-}: {
-  award: Award | null;
-  isDark: boolean;
-  isPending: boolean;
-  onConfirm: () => void;
-  onClose: () => void;
-}) => (
-  <Modal
-    title="Delete Award"
-    isOpen={!!award}
-    onClose={onClose}
-    size="small"
-    darkMode={isDark}
-  >
-    {award && (
-      <div className="space-y-5">
-        <div className="flex justify-center">
-          <div
-            className={`w-14 h-14 rounded-full flex items-center justify-center ${
-              isDark ? 'bg-red-900/30' : 'bg-red-50'
-            }`}
-          >
-            <FaExclamationTriangle
-              className={`w-7 h-7 ${isDark ? 'text-red-400' : 'text-red-500'}`}
-            />
-          </div>
-        </div>
-
-        <div className="text-center space-y-2">
-          <p className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            Are you sure you want to delete this award?
-          </p>
-          <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-            You are about to delete{' '}
-            <span className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              "{award.title}"
-            </span>
-            . This action cannot be undone.
-          </p>
-        </div>
-
-        <div className="flex justify-end gap-3 pt-2">
-          <Button
-            buttonText="Cancel"
-            onClick={onClose}
-            type="basic"
-            width="fit"
-            darkMode={isDark}
-            disabled={isPending}
-          />
-          <Button
-            buttonText={isPending ? 'Deleting…' : 'Delete Award'}
-            onClick={onConfirm}
-            type="danger"
-            width="fit"
-            darkMode={isDark}
-            disabled={isPending}
-          />
-        </div>
-      </div>
-    )}
-  </Modal>
-);
 
 /* ── Main page ───────────────────────────────────────────────── */
 export const AwardsPage = () => {
@@ -536,8 +465,10 @@ export const AwardsPage = () => {
       <AwardDetailModal award={viewAward} onClose={handleCloseView} />
 
       {/* Delete Confirmation Modal */}
-      <DeleteAwardModal
-        award={deleteAwardTarget}
+      <ConfirmDeleteModal
+        isOpen={!!deleteAwardTarget}
+        itemName={deleteAwardTarget?.title ?? ''}
+        entityLabel="award"
         isDark={isDark}
         isPending={deleteAward.isPending}
         onConfirm={handleConfirmDelete}
