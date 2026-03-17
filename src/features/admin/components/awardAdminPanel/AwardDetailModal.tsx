@@ -19,12 +19,8 @@ const AwardDetailModal: React.FC<AwardDetailModalProps> = ({
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (award) {
-      const t = setTimeout(() => setVisible(true), 180);
-      return () => clearTimeout(t);
-    } else {
-      setVisible(false);
-    }
+    const t = setTimeout(() => setVisible(!!award), award ? 180 : 0);
+    return () => clearTimeout(t);
   }, [award]);
 
   return (

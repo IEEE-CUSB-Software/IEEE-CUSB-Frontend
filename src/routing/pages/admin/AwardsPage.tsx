@@ -131,7 +131,7 @@ export const AwardsPage = () => {
   const updateAward = useUpdateAward();
   const deleteAward = useDeleteAward();
 
-  const awards = awardsData ?? [];
+  const awards = useMemo(() => awardsData ?? [], [awardsData]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAward, setSelectedAward] = useState<Award | undefined>(
