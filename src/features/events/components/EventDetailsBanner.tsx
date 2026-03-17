@@ -24,18 +24,14 @@ export const EventDetailsBanner = ({
         return darkMode
           ? 'bg-blue-900/40 text-blue-300'
           : 'bg-blue-100 text-blue-700';
+      case 'non-technical':
+        return darkMode
+          ? 'bg-purple-900/40 text-purple-300'
+          : 'bg-purple-100 text-purple-700';
       case 'social':
         return darkMode
           ? 'bg-orange-900/40 text-orange-300'
           : 'bg-orange-100 text-orange-700';
-      case 'soft skills':
-        return darkMode
-          ? 'bg-purple-900/40 text-purple-300'
-          : 'bg-purple-100 text-purple-700';
-      case 'design':
-        return darkMode
-          ? 'bg-pink-900/40 text-pink-300'
-          : 'bg-pink-100 text-pink-700';
       default:
         return darkMode
           ? 'bg-gray-800 text-gray-300'

@@ -53,10 +53,12 @@ const transformEvent = (event: Event) => {
     status,
     statusBadge: status,
     capacity: event.capacity,
+    remainingSpots: event.remainingSpots ?? event.capacity,
+    is_full: event.is_full ?? false,
     registrationDeadline: event.registration_deadline,
-    // Default category since API doesn't have it - can be extended later
-    category: 'Technical',
-    categoryBadge: 'TECHNICAL',
+    // Use real category from API
+    category: event.category || 'Technical',
+    categoryBadge: (event.category || 'Technical').toUpperCase(),
     // Placeholder image - can be extended when API supports images
     image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800',
     is_registered: event.is_registered,
@@ -75,9 +77,6 @@ export const EventsListSection = () => {
     limit,
   });
 
-  // Debug log to see the data structure
-  console.log('Events API Response:', data);
-
   // Safely extract events array - handle different response structures
   const events = Array.isArray(data?.data) ? data.data : [];
   const totalPages = data?.totalPages ?? 1;
@@ -87,14 +86,6 @@ export const EventsListSection = () => {
     const transformedEvents = events.map(transformEvent);
 
     if (activeFilter === 'All') return transformedEvents;
-    if (activeFilter === 'Non-Technical') {
-      return transformedEvents.filter(
-        event =>
-          event.category === 'Social' ||
-          event.category === 'Design' ||
-          event.category === 'Soft Skills'
-      );
-    }
     return transformedEvents.filter(event => event.category === activeFilter);
   };
 

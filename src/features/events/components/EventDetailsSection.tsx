@@ -21,11 +21,15 @@ const transformEvent = (event: Event) => {
     id: event.id,
     is_registered: event.is_registered,
     registration_id: event.registration_id,
-    // Default values for fields not yet in API
-    category: 'Workshop',
-    categoryBadge: 'WORKSHOP',
+    // Use real category from API
+    category: event.category || 'Workshop',
+    categoryBadge: (event.category || 'Workshop').toUpperCase(),
     image:
       'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200',
+    // Capacity info from API
+    capacity: event.capacity,
+    remainingSpots: event.remainingSpots ?? event.capacity,
+    is_full: event.is_full ?? false,
     // Use description as about content
     about: event.description,
     learningPoints: [] as string[],
@@ -149,6 +153,9 @@ export const EventDetailsSection = () => {
                 eventId={eventData.id}
                 isRegistered={eventData.is_registered}
                 registrationId={eventData.registration_id}
+                capacity={eventData.capacity}
+                remainingSpots={eventData.remainingSpots}
+                isFull={eventData.is_full}
                 darkMode={isDark}
               />
             </div>

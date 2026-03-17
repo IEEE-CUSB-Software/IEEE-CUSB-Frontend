@@ -1,13 +1,18 @@
 import { User } from './auth.types';
 
+export type EventCategory = 'Technical' | 'Non-Technical' | 'Social';
+
 export interface Event {
   id: string;
   title: string;
   description: string;
+  category: EventCategory;
   location: string;
   start_time: string;
   end_time: string;
   capacity: number;
+  remainingSpots: number;
+  is_full: boolean;
   registration_deadline: string;
   created_by: string;
   created_at: string;
@@ -45,6 +50,7 @@ export interface EventRegistration {
 export interface CreateEventRequest {
   title: string;
   description: string;
+  category: EventCategory;
   location: string;
   start_time: string;
   end_time: string;
@@ -58,6 +64,7 @@ export interface CreateEventRequest {
 export interface UpdateEventRequest {
   title?: string;
   description?: string;
+  category?: EventCategory;
   location?: string;
   start_time?: string;
   end_time?: string;

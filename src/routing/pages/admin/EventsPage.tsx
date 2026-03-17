@@ -148,6 +148,32 @@ export const EventsPage = () => {
         className: `transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'}`,
       },
       {
+        header: 'Category',
+        cell: item => {
+          const categoryColors: Record<string, string> = {
+            Technical: isDark
+              ? 'bg-blue-900/30 text-blue-300'
+              : 'bg-blue-50 text-blue-700',
+            'Non-Technical': isDark
+              ? 'bg-purple-900/30 text-purple-300'
+              : 'bg-purple-50 text-purple-700',
+            Social: isDark
+              ? 'bg-orange-900/30 text-orange-300'
+              : 'bg-orange-50 text-orange-700',
+          };
+          const color =
+            categoryColors[item.category] ||
+            (isDark ? 'bg-gray-800 text-gray-400' : 'bg-gray-50 text-gray-700');
+          return (
+            <span
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${color}`}
+            >
+              {item.category}
+            </span>
+          );
+        },
+      },
+      {
         header: 'Capacity',
         accessorKey: 'capacity',
         className: `text-center transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'}`,
