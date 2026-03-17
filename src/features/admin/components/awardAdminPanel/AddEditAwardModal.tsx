@@ -60,7 +60,9 @@ const AddEditAwardModal: React.FC<AddEditAwardModalProps> = ({
   );
   const [errors, setErrors] = useState<AwardFormErrors>({});
 
+  // Reset form whenever the modal opens or the target award changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFormValues(awardToForm(award));
     setErrors({});
   }, [award, isOpen]);
