@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { HiArrowLeft } from 'react-icons/hi';
 import { useTheme } from '@/shared/hooks/useTheme';
-import { EventDetailsHero } from './EventDetailsHero';
+import { EventDetailsBanner } from './EventDetailsBanner';
 import { EventDetailsSidebar } from './EventDetailsSidebar';
 import { EventDetailsContent } from './EventDetailsContent';
 import { useEvent } from '@/shared/queries/events';
@@ -118,8 +118,8 @@ export const EventDetailsSection = () => {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Hero Section */}
-            <EventDetailsHero
+            {/* Event Banner */}
+            <EventDetailsBanner
               title={eventData.title}
               description={eventData.description}
               image={eventData.image}
