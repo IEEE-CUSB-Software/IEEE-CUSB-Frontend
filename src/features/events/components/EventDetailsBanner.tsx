@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { HiTag } from 'react-icons/hi';
 
-interface EventDetailsHeroProps {
+interface EventDetailsBannerProps {
   title: string;
   description: string;
   image: string;
@@ -10,14 +10,14 @@ interface EventDetailsHeroProps {
   darkMode?: boolean;
 }
 
-export const EventDetailsHero = ({
+export const EventDetailsBanner = ({
   title,
   description,
   image,
   category,
   categoryBadge,
   darkMode,
-}: EventDetailsHeroProps) => {
+}: EventDetailsBannerProps) => {
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
       case 'technical':
@@ -50,7 +50,7 @@ export const EventDetailsHero = ({
       transition={{ duration: 0.6, ease: 'easeOut' }}
       className="relative rounded-3xl overflow-hidden shadow-2xl mb-8 bg-gray-900"
     >
-      {/* Hero Image */}
+      {/* Banner Image */}
       <div className="relative h-[400px] overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
         <motion.img
           initial={{ scale: 1.1 }}
