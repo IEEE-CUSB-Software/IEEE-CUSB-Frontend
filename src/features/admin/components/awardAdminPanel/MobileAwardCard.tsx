@@ -1,24 +1,7 @@
 import React from 'react';
 import { FiEdit2, FiTrash2, FiAward } from 'react-icons/fi';
-import type { Award, AwardCategory } from '../../types/awardTypes';
-
-const CATEGORY_COLORS: Record<AwardCategory, { bg: string; text: string; dot: string }> = {
-  'Technical Excellence': { bg: 'bg-blue-100', text: 'text-blue-900', dot: 'bg-blue-600' },
-  Leadership: { bg: 'bg-purple-100', text: 'text-purple-900', dot: 'bg-purple-600' },
-  'Community Impact': { bg: 'bg-green-100', text: 'text-green-900', dot: 'bg-green-600' },
-  Innovation: { bg: 'bg-orange-100', text: 'text-orange-900', dot: 'bg-orange-600' },
-  'Academic Achievement': { bg: 'bg-yellow-100', text: 'text-yellow-900', dot: 'bg-yellow-600' },
-  'Volunteer of the Year': { bg: 'bg-rose-100', text: 'text-rose-900', dot: 'bg-rose-600' },
-};
-
-const CATEGORY_COLORS_DARK: Record<AwardCategory, { bg: string; text: string; dot: string }> = {
-  'Technical Excellence': { bg: 'bg-blue-900/30', text: 'text-blue-200', dot: 'bg-blue-400' },
-  Leadership: { bg: 'bg-purple-900/30', text: 'text-purple-200', dot: 'bg-purple-400' },
-  'Community Impact': { bg: 'bg-green-900/30', text: 'text-green-200', dot: 'bg-green-400' },
-  Innovation: { bg: 'bg-orange-900/30', text: 'text-orange-200', dot: 'bg-orange-400' },
-  'Academic Achievement': { bg: 'bg-yellow-900/30', text: 'text-yellow-200', dot: 'bg-yellow-400' },
-  'Volunteer of the Year': { bg: 'bg-rose-900/30', text: 'text-rose-200', dot: 'bg-rose-400' },
-};
+import { HiTrophy } from 'react-icons/hi2';
+import type { Award } from '@/shared/types/award.types';
 
 interface MobileAwardCardProps {
   award: Award;
@@ -35,10 +18,6 @@ export const MobileAwardCard: React.FC<MobileAwardCardProps> = ({
   onDelete,
   onView,
 }) => {
-  const palette = isDark
-    ? (CATEGORY_COLORS_DARK[award.category] ?? { bg: 'bg-gray-800', text: 'text-gray-400', dot: 'bg-gray-500' })
-    : (CATEGORY_COLORS[award.category] ?? { bg: 'bg-gray-100', text: 'text-gray-600', dot: 'bg-gray-400' });
-
   return (
     <div
       onClick={() => onView(award)}
@@ -49,7 +28,9 @@ export const MobileAwardCard: React.FC<MobileAwardCardProps> = ({
       }`}
     >
       {/* Card top accent strip */}
-      <div className={`h-1 w-full ${palette.dot}`} />
+      <div
+        className={`h-1 w-full ${isDark ? 'bg-yellow-400' : 'bg-yellow-500'}`}
+      />
 
       <div className="p-4">
         {/* Header row */}
@@ -71,13 +52,16 @@ export const MobileAwardCard: React.FC<MobileAwardCardProps> = ({
             >
               {award.title}
             </h3>
-            <p
-              className={`text-xs mt-0.5 truncate ${
-                isDark ? 'text-gray-400' : 'text-gray-500'
-              }`}
-            >
-              {award.recipient}
-            </p>
+            {award.won_count > 0 && (
+              <p
+                className={`text-xs mt-0.5 flex items-center gap-1 ${
+                  isDark ? 'text-yellow-400' : 'text-yellow-600'
+                }`}
+              >
+                <HiTrophy className="w-3 h-3" />
+                {award.won_count}× won
+              </p>
+            )}
           </div>
           {/* Year badge */}
           <span
@@ -87,17 +71,7 @@ export const MobileAwardCard: React.FC<MobileAwardCardProps> = ({
                 : 'bg-gray-50 border-gray-200 text-gray-600'
             }`}
           >
-            {award.year}
-          </span>
-        </div>
-
-        {/* Category badge */}
-        <div className="mb-3">
-          <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${palette.bg} ${palette.text}`}
-          >
-            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${palette.dot}`} />
-            {award.category}
+            {new Date(award.created_at).getFullYear()}
           </span>
         </div>
 

@@ -1,67 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import {
-  InputField,
-  Button,
-  TextArea,
-  Modal,
-  Select,
-} from '@ieee-ui/ui';
+import { InputField, Button, TextArea, Modal } from '@ieee-ui/ui';
 import { useTheme } from '@/shared/hooks/useTheme';
 import type {
   Award,
   AwardFormValues,
   AwardFormErrors,
-  AwardCategory,
-} from '../../types/awardTypes';
-
-const AWARD_CATEGORIES: AwardCategory[] = [
-  'Technical Excellence',
-  'Leadership',
-  'Community Impact',
-  'Innovation',
-  'Academic Achievement',
-  'Volunteer of the Year',
-];
-
-const CURRENT_YEAR = new Date().getFullYear();
+  CreateAwardRequest,
+  UpdateAwardRequest,
+} from '@/shared/types/award.types';
 
 interface AddEditAwardModalProps {
   award?: Award;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (award: Omit<Award, 'id'> & { id?: string }) => void;
+  onSave: (data: CreateAwardRequest | UpdateAwardRequest, id?: string) => void;
+  isPending?: boolean;
 }
 
 const emptyForm = (): AwardFormValues => ({
   title: '',
-  recipient: '',
-  category: '',
-  year: String(CURRENT_YEAR),
   description: '',
-  imageUrl: '',
+  image_url: '',
+  won_count: '0',
 });
 
 const awardToForm = (award?: Award): AwardFormValues => {
   if (!award) return emptyForm();
   return {
     title: award.title,
-    recipient: award.recipient,
-    category: award.category,
-    year: String(award.year),
     description: award.description,
-    imageUrl: award.imageUrl ?? '',
+    image_url: award.image_url ?? '',
+    won_count: String(award.won_count ?? 0),
   };
 };
 
 const validate = (values: AwardFormValues): AwardFormErrors => {
   const errors: AwardFormErrors = {};
   if (!values.title.trim()) errors.title = 'Title is required.';
-  if (!values.recipient.trim()) errors.recipient = 'Recipient is required.';
-  if (!values.category) errors.category = 'Category is required.';
-  const yr = Number(values.year);
-  if (!values.year || isNaN(yr) || yr < 1900 || yr > CURRENT_YEAR + 1)
-    errors.year = `Year must be between 1900 and ${CURRENT_YEAR + 1}.`;
-  if (!values.description.trim()) errors.description = 'Description is required.';
+  if (!values.description.trim())
+    errors.description = 'Description is required.';
+  const count = Number(values.won_count);
+  if (values.won_count !== '' && (isNaN(count) || count < 0))
+    errors.won_count = 'Won count must be a non-negative number.';
   return errors;
 };
 
@@ -70,6 +50,7 @@ const AddEditAwardModal: React.FC<AddEditAwardModalProps> = ({
   isOpen,
   onClose,
   onSave,
+  isPending = false,
 }) => {
   const { isDark } = useTheme();
   const isEditMode = !!award;
@@ -104,15 +85,15 @@ const AddEditAwardModal: React.FC<AddEditAwardModalProps> = ({
       setErrors(validationErrors);
       return;
     }
-    onSave({
-      id: award?.id,
+    const payload: CreateAwardRequest | UpdateAwardRequest = {
       title: formValues.title.trim(),
-      recipient: formValues.recipient.trim(),
-      category: formValues.category as AwardCategory,
-      year: Number(formValues.year),
       description: formValues.description.trim(),
-      imageUrl: formValues.imageUrl.trim() || undefined,
-    });
+      ...(formValues.image_url.trim() && {
+        image_url: formValues.image_url.trim(),
+      }),
+      won_count: formValues.won_count !== '' ? Number(formValues.won_count) : 0,
+    };
+    onSave(payload, award?.id);
   };
 
   return (
@@ -138,37 +119,15 @@ const AddEditAwardModal: React.FC<AddEditAwardModalProps> = ({
             />
           </div>
 
-          {/* Recipient */}
-          <InputField
-            label="Recipient"
-            value={formValues.recipient}
-            placeholder="Enter recipient name or team"
-            onChange={handleChange('recipient')}
-            id="award-recipient"
-            error={errors.recipient}
-            darkMode={isDark}
-          />
-
-          {/* Year */}
-          <InputField
-            label="Year"
-            value={formValues.year}
-            placeholder={String(CURRENT_YEAR)}
-            onChange={handleChange('year')}
-            id="award-year"
-            error={errors.year}
-            darkMode={isDark}
-          />
-
-          {/* Category */}
+          {/* Won Count */}
           <div className="md:col-span-2">
-            <Select
-              id="award-category"
-              label="Category"
-              value={formValues.category}
-              onChange={handleChange('category')}
-              options={AWARD_CATEGORIES.map(c => ({ value: c, label: c }))}
-              error={errors.category}
+            <InputField
+              label="Times Won"
+              value={formValues.won_count}
+              placeholder="0"
+              onChange={handleChange('won_count')}
+              id="award-won-count"
+              error={errors.won_count}
               darkMode={isDark}
             />
           </div>
@@ -191,10 +150,10 @@ const AddEditAwardModal: React.FC<AddEditAwardModalProps> = ({
           <div className="md:col-span-2">
             <InputField
               label="Image URL (optional)"
-              value={formValues.imageUrl}
+              value={formValues.image_url}
               placeholder="https://example.com/award-image.png"
-              onChange={handleChange('imageUrl')}
-              id="award-imageUrl"
+              onChange={handleChange('image_url')}
+              id="award-image-url"
               darkMode={isDark}
             />
           </div>
@@ -208,13 +167,21 @@ const AddEditAwardModal: React.FC<AddEditAwardModalProps> = ({
             type="basic"
             width="fit"
             darkMode={isDark}
+            disabled={isPending}
           />
           <Button
-            buttonText={isEditMode ? 'Save Changes' : 'Create Award'}
+            buttonText={
+              isPending
+                ? 'Saving…'
+                : isEditMode
+                  ? 'Save Changes'
+                  : 'Create Award'
+            }
             onClick={handleSave}
             type="primary"
             width="fit"
             darkMode={isDark}
+            disabled={isPending}
           />
         </div>
       </div>
