@@ -34,3 +34,6 @@ export const HTTP_STATUS = {
   NOT_FOUND: 404,
   SERVER_ERROR: 500,
 } as const;
+
+export { AWARD_CATEGORIES } from './awardTypes';
+export type { AwardCategory } from './awardTypes';

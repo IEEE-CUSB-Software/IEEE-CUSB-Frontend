@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { awards } from '../constants/trophies';
+import { useAwards } from '@/shared/queries/awards';
 import TrophyCard from './TrophyCard';
 import SlidingCarousel from '../../../shared/components/slidingCarousel';
 
@@ -10,6 +10,8 @@ interface TrophiesAwardsSectionProps {
 export const TrophiesAwardsSection = ({
   darkMode,
 }: TrophiesAwardsSectionProps) => {
+  const { data: awards = [], isLoading } = useAwards();
+
   return (
     <section
       className={`py-12 md:py-24 px-6 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}
@@ -40,13 +42,21 @@ export const TrophiesAwardsSection = ({
             viewport={{ once: true, margin: '-100px' }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
           >
-            <SlidingCarousel
-              items={awards}
-              darkMode={darkMode}
-              renderItem={award => (
-                <TrophyCard award={award} darkMode={darkMode || false} />
-              )}
-            />
+            {isLoading ? (
+              <div
+                className={`flex items-center justify-center py-16 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}
+              >
+                <p className="text-sm">Loading awards…</p>
+              </div>
+            ) : awards.length > 0 ? (
+              <SlidingCarousel
+                items={awards}
+                darkMode={darkMode}
+                renderItem={award => (
+                  <TrophyCard award={award} darkMode={darkMode || false} />
+                )}
+              />
+            ) : null}
           </motion.div>
         </div>
       </div>
