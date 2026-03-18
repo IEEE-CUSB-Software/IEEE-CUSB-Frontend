@@ -2,78 +2,68 @@ import { useTheme } from '@/shared/hooks/useTheme';
 import { Committee } from '@/shared/types/committees.types';
 import { Table, type ColumnDef, Loader, ErrorScreen } from '@ieee-ui/ui';
 import { useState, useMemo, useCallback } from 'react';
-import toast from 'react-hot-toast';
 import { MdAdd } from 'react-icons/md';
 import { FiEdit2, FiTrash2, FiUsers } from 'react-icons/fi';
+import {
+  useCommitteesOneCategory,
+  useCreateCommittee,
+  useDeleteCommittee,
+  useUpdateCommittee,
+} from '@/shared/queries/committees';
 
-// Helper function to format date
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-};
-
-export const CommitteesPage = () => {
+export const CommitteesPage = ({ categoryId }: { categoryId: string }) => {
   const { isDark } = useTheme();
-  const [page, setPage] = useState(1);
-  const limit = 10;
+  // const [page, setPage] = useState(1);
+  // const limit = 10;
 
   // API queries
-  const { data, isLoading, isError } = useEvents({ page, limit });
+  const { data, isLoading, isError } = useCommitteesOneCategory(categoryId);
+  const createCommitteeMutation = useCreateCommittee();
+  const updateCommitteeMutation = useUpdateCommittee();
+  const deleteCommitteeMutation = useDeleteCommittee();
+  const [selectedCommittee, setSelectedCommittee] = useState<
+    Committee | undefined
+  >(undefined);
+  const committees = Array.isArray(data) ? data : [];
+  // const handlePageChange = (newPage: number) => {
+  //   setPage(newPage);
+  //   window.scrollTo({ top: 0, behavior: 'smooth' });
+  // };
+  console.log('committees', committees);
+  const handleEditCommittee = useCallback((committee: Committee) => {
+    setSelectedCommittee(committee);
+  }, []);
 
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const handleDeleteCommittee = useCallback((committee: Committee) => {
+    deleteCommitteeMutation.mutate(committee.id);
+  }, []);
+
+  const handleViewCommitteeMembers = useCallback((committee: Committee) => {
+    setSelectedCommittee(committee);
+  }, []);
+
+  const handleAddCommittee = useCallback(() => {}, []);
 
   const columns = useMemo<ColumnDef<Committee>[]>(
     () => [
       {
-        header: 'Event Name',
-        accessorKey: 'title',
+        header: 'Committee Name',
+        accessorKey: 'name',
         className: `font-medium transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`,
       },
       {
-        header: 'Date',
-        cell: item => formatDate(item.start_time),
+        header: 'Category',
+        accessorKey: 'category',
         className: `transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'}`,
       },
       {
         header: 'Location',
-        accessorKey: 'location',
+        accessorKey: 'name',
         className: `transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'}`,
       },
       {
-        header: 'Capacity',
-        accessorKey: 'capacity',
+        header: 'members',
         className: `text-center transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'}`,
-      },
-      {
-        header: 'Status',
-        cell: item => {
-          const status = getEventStatus(item);
-          const statusColors = {
-            Upcoming: isDark
-              ? 'bg-blue-900/30 text-blue-300'
-              : 'bg-blue-50 text-blue-700',
-            Ongoing: isDark
-              ? 'bg-green-900/30 text-green-300'
-              : 'bg-green-50 text-green-700',
-            Completed: isDark
-              ? 'bg-gray-800 text-gray-400'
-              : 'bg-gray-50 text-gray-700',
-          };
-          return (
-            <span
-              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[status]}`}
-            >
-              {status}
-            </span>
-          );
-        },
       },
       {
         header: 'Actions',
@@ -81,35 +71,35 @@ export const CommitteesPage = () => {
         cell: item => (
           <div className="flex items-center justify-end gap-2">
             <button
-              onClick={() => handleEditEvent(item)}
+              onClick={() => handleEditCommittee(item)}
               className={`p-2 rounded-lg transition-colors ${
                 isDark
                   ? 'text-gray-500 hover:text-primary hover:bg-primary/10'
                   : 'text-gray-400 hover:text-primary hover:bg-primary/5'
               }`}
-              title="Edit event"
+              title="Edit committee"
             >
               <FiEdit2 className="w-4 h-4" />
             </button>
             <button
-              onClick={() => handleViewRegistrations(item)}
+              onClick={() => handleViewCommitteeMembers(item)}
               className={`p-2 rounded-lg transition-colors ${
                 isDark
                   ? 'text-gray-500 hover:text-blue-400 hover:bg-blue-400/10'
                   : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50'
               }`}
-              title="View registrations"
+              title="View committee members"
             >
               <FiUsers className="w-4 h-4" />
             </button>
             <button
-              onClick={() => handleDeleteEvent(item)}
+              onClick={() => handleDeleteCommittee(item)}
               className={`p-2 rounded-lg transition-colors ${
                 isDark
                   ? 'text-gray-500 hover:text-red-400 hover:bg-red-400/10'
                   : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
               }`}
-              title="Delete event"
+              title="Delete committee"
             >
               <FiTrash2 className="w-4 h-4" />
             </button>
@@ -117,7 +107,12 @@ export const CommitteesPage = () => {
         ),
       },
     ],
-    [handleEditEvent, handleDeleteEvent, handleViewRegistrations, isDark]
+    [
+      handleEditCommittee,
+      handleDeleteCommittee,
+      handleViewCommitteeMembers,
+      isDark,
+    ]
   );
 
   // Loading state
@@ -177,7 +172,7 @@ export const CommitteesPage = () => {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1
-            className={`text-2xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'} sm:text-center`}
+            className={`text-2xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'}`}
           >
             Committees Management
           </h1>
@@ -189,86 +184,47 @@ export const CommitteesPage = () => {
         </div>
 
         <button
-          onClick={handleAddEvent}
+          onClick={handleAddCommittee}
           className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
         >
           <MdAdd className="text-xl" />
-          <span>Add Event</span>
+          <span>Add Committee</span>
         </button>
       </div>
 
-      {events.length === 0 ? (
+      {committees.length === 0 ? (
         <div
           className={`rounded-lg p-8 text-center transition-colors duration-300 ${isDark ? 'bg-gray-900 text-gray-400' : 'bg-white text-gray-500'}`}
         >
-          <p>No events found. Create your first event to get started!</p>
+          <p>
+            No committees found. Create your first committee to get started!
+          </p>
         </div>
       ) : (
         <>
           {/* Mobile View - Cards */}
-          <div className="block md:hidden space-y-4">
-            {events.map(event => (
+          {/* <div className="block md:hidden space-y-4">
+            {committees.map(committee => (
               <MobileEventCard
-                key={event.id}
-                event={event}
+                key={committee.id}
+                committee={committee}
                 isDark={isDark}
-                onEdit={handleEditEvent}
-                onViewRegistrations={handleViewRegistrations}
-                onDelete={handleDeleteEvent}
-                getEventStatus={getEventStatus}
+                onEdit={handleEditCommittee}
+                onViewRegistrations={handleViewCommitteeMembers}
+                onDelete={handleDeleteCommittee}
               />
             ))}
-          </div>
+          </div> */}
           {/* Desktop View - Table */}
           <div className="hidden md:block w-full overflow-x-auto">
             <Table
-              data={events}
+              data={committees}
               columns={columns}
-              emptyMessage="No events found"
+              emptyMessage="No committees found"
               darkMode={isDark}
             />
           </div>
         </>
-      )}
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center">
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-            isLoading={isLoading}
-          />
-        </div>
-      )}
-
-      {isEventModalOpen && (
-        <AddEditEventModal
-          isOpen={isEventModalOpen}
-          onClose={() => {
-            setIsEventModalOpen(false);
-            setSelectedEvent(undefined);
-            setSelectedAdminEvent(undefined);
-          }}
-          onSave={handleSaveEvent}
-          event={selectedAdminEvent}
-          isLoading={
-            createEventMutation.isPending || updateEventMutation.isPending
-          }
-        />
-      )}
-
-      {isRegistrationsModalOpen && selectedEventForRegistrations && (
-        <EventRegistrationsModal
-          isOpen={isRegistrationsModalOpen}
-          onClose={() => {
-            setIsRegistrationsModalOpen(false);
-            setSelectedEventForRegistrations(undefined);
-          }}
-          eventId={selectedEventForRegistrations.id}
-          eventTitle={selectedEventForRegistrations.title}
-        />
       )}
     </div>
   );
