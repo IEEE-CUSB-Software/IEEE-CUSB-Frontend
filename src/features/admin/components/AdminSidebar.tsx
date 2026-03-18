@@ -8,6 +8,7 @@ import {
   FiLogOut,
   FiBookOpen,
 } from 'react-icons/fi';
+import { RiUserCommunityLine } from 'react-icons/ri';
 import logo from '@/assets/logo.png';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '@/shared/hooks/useTheme';
@@ -46,6 +47,12 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       label: 'Events',
       icon: <FiCalendar className="w-5 h-5" />,
       path: '/admin/events',
+    },
+    {
+      id: 'committees',
+      label: 'Committees',
+      icon: <RiUserCommunityLine className="w-6 h-6" />,
+      path: '/admin/committees',
     },
     {
       id: 'workshops',

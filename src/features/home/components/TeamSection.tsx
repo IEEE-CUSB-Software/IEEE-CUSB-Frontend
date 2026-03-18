@@ -17,7 +17,7 @@ export function TeamSection() {
             </h2>
             <motion.button className="self-center mb-2 cursor-pointer ">
               {/* NOTE: will be changed to the team page */}
-              <Link to="/about">
+              <Link to="/committees">
                 <GoArrowUpRight className="text-3xl  hover:text-primary transition-colors duration-200" />
               </Link>
             </motion.button>
