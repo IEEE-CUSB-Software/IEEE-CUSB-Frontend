@@ -75,27 +75,6 @@ export interface PaginationParams {
   limit: number;
 }
 
-/**
- * Paginated Committees Response
- */
-export interface PaginatedCommitteesResponse {
-  data: Committee[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-  count: number;
-  message: string;
-}
-
-export interface PaginatedCategoriesResponse {
-  data: CommitteeCategory[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
 export interface PaginatedCommitteeMembersResponse {
   data: CommitteeMember[];
   total: number;

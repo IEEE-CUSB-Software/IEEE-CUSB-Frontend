@@ -8,9 +8,7 @@ import {
   CommitteeMember,
   CreateCategory,
   CreateCommittee,
-  PaginatedCategoriesResponse,
   PaginatedCommitteeMembersResponse,
-  PaginatedCommitteesResponse,
   PaginationParams,
   UpdateCategory,
   UpdateCommittee,
@@ -28,18 +26,10 @@ export const committeeApi = {
     return response.data.data;
   },
 
-  getCategories: async (
-    params: PaginationParams
-  ): Promise<PaginatedCategoriesResponse> => {
-    const response = await apiClient.get<{ data: PaginatedCategoriesResponse }>(
-      API_ENDPOINTS.COMMITTEE_CATEGORIES.GET_ALL,
-      {
-        params: {
-          page: params.page.toString(),
-          limit: params.limit.toString(),
-        },
-      }
-    );
+  getCategories: async (): Promise<CommitteeCategory[]> => {
+    const response = await apiClient.get<
+      CommitteeApiResponse<CommitteeCategory[]>
+    >(API_ENDPOINTS.COMMITTEE_CATEGORIES.GET_ALL);
     return response.data.data;
   },
 
@@ -70,17 +60,23 @@ export const committeeApi = {
 
   /**
    * Get all committees with pagination
-   * Backend returns: { data: { data: Committee[], total, page, limit, totalPages }, count, message }
    */
-  getCommittees: async (
-    params: PaginationParams
-  ): Promise<PaginatedCommitteesResponse> => {
-    const response = await apiClient.get<{ data: PaginatedCommitteesResponse }>(
+  getCommittees: async (): Promise<Committee[]> => {
+    const response = await apiClient.get<CommitteeApiResponse<Committee[]>>(
+      API_ENDPOINTS.COMMITTEES.GET_ALL
+    );
+    // Unwrap the nested data structure
+    return response.data.data;
+  },
+
+  getCommitteesOfOneCategory: async (
+    categoryId: string
+  ): Promise<Committee[]> => {
+    const response = await apiClient.get<CommitteeApiResponse<Committee[]>>(
       API_ENDPOINTS.COMMITTEES.GET_ALL,
       {
         params: {
-          page: params.page.toString(),
-          limit: params.limit.toString(),
+          category_id: categoryId,
         },
       }
     );

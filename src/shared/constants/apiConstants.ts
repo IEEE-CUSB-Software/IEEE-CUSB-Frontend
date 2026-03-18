@@ -99,8 +99,15 @@ export const QUERY_KEYS = {
     INFINITE: ['committees', 'infinite'],
     ONE: (id: string) => ['committees', id],
     MEMBERS: (committeeId: string) => ['committees', committeeId, 'members'],
+    ONE_MEMBER: (committeeId: string, id: string) => [
+      'committees',
+      committeeId,
+      'members',
+      id,
+    ],
   },
   COMMITTEE_CATEGORIES: {
     ALL: ['categories'],
+    ONE: (id: string) => ['categories', id],
   },
 } as const;
