@@ -8,6 +8,7 @@ import type { Swiper as SwiperType } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
+import { NavLink } from 'react-router-dom';
 
 interface TrophiesAwardsSectionProps {
   darkMode?: boolean;
@@ -36,11 +37,19 @@ export const TrophiesAwardsSection = ({
             <div className="text-sm font-bold tracking-widest text-info uppercase mb-3">
               Achievements Hall
             </div>
-            <h3
-              className={`text-3xl md:text-4xl font-bold mb-8 ${darkMode ? 'text-white' : 'text-gray-900'}`}
-            >
-              Trophies and Awards
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3
+                className={`text-3xl md:text-4xl font-bold mb-8 ${darkMode ? 'text-white' : 'text-gray-900'}`}
+              >
+                Trophies and Awards
+              </h3>
+              <NavLink
+                to="/awards"
+                className="text-primary font-semibold hover:underline"
+              >
+                View All Trophies →
+              </NavLink>
+            </div>
           </motion.div>
 
           <motion.div

@@ -1,9 +1,10 @@
 import { useRef } from 'react';
 import gsap from 'gsap';
-import { motion } from 'framer-motion';
 import trophy from '../../../assets/IEEE_Trophy.png';
 import { useGSAP } from '@gsap/react';
 import { Award } from '../../../features/about-us/constants/trophies';
+import LaurelLeft from '../../../assets/LaurelLeftSide-removebg-preview.png';
+import LaurelRight from '../../../assets/LaurelRightSide-removebg-preview.png';
 
 export const TrophyRow = ({
   award,
@@ -18,26 +19,33 @@ export const TrophyRow = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    if (!cardRef.current || !imgRef.current || !contentRef.current) return;
+    if (
+      !cardRef.current ||
+      !imgRef.current ||
+      !contentRef.current ||
+      !titleRef.current
+    )
+      return;
     const xOffset = window.innerWidth < 768 ? 30 : 60;
 
+    const scrollConfig = {
+      trigger: cardRef.current,
+      start: 'top 82%',
+      toggleActions: 'play none none reset',
+    };
+
     gsap.fromTo(
-      imgRef.current,
-      { x: isEven ? -xOffset : xOffset, y: 60, opacity: 0, scale: 0.92 },
+      titleRef.current,
+      { x: isEven ? -xOffset : xOffset, opacity: 0 },
       {
         x: 0,
-        y: 0,
         opacity: 1,
-        scale: 1,
         duration: 1,
         ease: 'power3.out',
-        scrollTrigger: {
-          trigger: cardRef.current,
-          start: 'top 82%',
-          toggleActions: 'play none none reset',
-        },
+        scrollTrigger: scrollConfig,
       }
     );
 
@@ -49,15 +57,27 @@ export const TrophyRow = ({
         opacity: 1,
         duration: 1,
         ease: 'power3.out',
-        delay: 0.15,
-        scrollTrigger: {
-          trigger: cardRef.current,
-          start: 'top 82%',
-          toggleActions: 'play none none reset',
-        },
+        delay: 0.2,
+        scrollTrigger: scrollConfig,
+      }
+    );
+
+    gsap.fromTo(
+      imgRef.current,
+      { x: isEven ? -xOffset : xOffset, y: 60, opacity: 0, scale: 0.92 },
+      {
+        x: 0,
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 1,
+        ease: 'power3.out',
+        delay: 0.4,
+        scrollTrigger: scrollConfig,
       }
     );
   }, [isEven]);
+
   return (
     <div ref={cardRef}>
       <div
@@ -66,16 +86,15 @@ export const TrophyRow = ({
         }`}
       >
         {/* Trophy Image */}
-
         <div className="flex flex-col items-center w-full md:w-1/2">
           <div
-            className="relative flex justify-end items-end rounded-lg "
+            className="relative flex justify-end items-end rounded-lg"
             ref={imgRef}
           >
             <img
               src={trophy}
               alt={award.title}
-              className="w-24 h-32 sm:w-32 sm:h-40 md:w-36 md:h-44 lg:w-40 lg:h-48 object-contain "
+              className="w-24 h-32 sm:w-32 sm:h-40 md:w-36 md:h-44 lg:w-40 lg:h-48 object-contain"
             />
             {award.won && (
               <div
@@ -94,39 +113,44 @@ export const TrophyRow = ({
             )}
           </div>
 
-          {/* Title bar */}
-          <div className="text-center w-full ">
-            <motion.h4
-              initial={{ backgroundPosition: '0% center' }}
-              whileHover={{ backgroundPosition: '100% center' }}
-              transition={{ duration: 2.5, ease: 'linear' }}
-              className={`text-xs sm:text-sm md:text-base lg:text-lg font-bold  pt-0.5 pb-0.5 rounded-t-xl rounded-b-md ${
+          {/* Title bar — now has its own ref */}
+          <div className="text-center w-full" ref={titleRef}>
+            <h4
+              className={`flex items-center justify-center text-xs sm:text-sm md:text-base lg:text-lg font-bold rounded-t-xl rounded-b-md ${
                 darkMode
                   ? 'bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700 text-white'
-                  : 'bg-gradient-to-r from-gray-600 via-gray-550 to-gray-600 text-white'
+                  : 'bg-gradient-to-r from-gray-600 via-gray-500 to-gray-600 text-white'
               } shadow-[0_14px_18px_-8px_rgba(0,0,0,0.6)]`}
             >
-              <div>{award.title}</div>
-              <div className="text-[10px] sm:text-xs md:text-sm font-semibold tracking-wide text-info uppercase mb-1.5 sm:mb-2 line-clamp-1">
-                {award.year}
+              <img
+                src={LaurelLeft}
+                alt=""
+                className="w-8 md:w-10 lg:w-12 flex-shrink-0 opacity-90"
+              />
+              <div>
+                <div>{award.title}</div>
+                <div className="text-[10px] sm:text-xs md:text-sm font-semibold tracking-wide text-info uppercase mb-1.5 sm:mb-2 line-clamp-1">
+                  {award.year}
+                </div>
               </div>
-            </motion.h4>
+              <img
+                src={LaurelRight}
+                alt=""
+                className="w-8 md:w-10 lg:w-12 flex-shrink-0 opacity-90"
+              />
+            </h4>
           </div>
         </div>
 
         {/* Description */}
         <div
-          className={`relative w-full md:w-1/2 text-center ${
-            isEven ? 'md:text-left' : 'md:text-right'
-          }`}
+          className={`relative w-full md:w-1/2 text-center`}
           ref={contentRef}
         >
-          {/* Gold glow orb */}
           <div
             className="absolute top-1/2 left-1/2 pointer-events-none -z-10"
             style={{
-              width: '80vw',
-              maxWidth: '400px',
+              width: 'min(80vw, 400px)',
               height: '200px',
               transform: 'translate(-50%, -50%)',
               background:
@@ -135,7 +159,7 @@ export const TrophyRow = ({
             }}
           />
           <p
-            className={`text-md md:text-lg lg:text-xl text-center ${
+            className={`text-base md:text-lg lg:text-xl  ${
               darkMode ? 'text-white' : 'text-foreground'
             }`}
           >
