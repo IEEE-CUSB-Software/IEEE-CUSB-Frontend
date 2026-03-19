@@ -1,5 +1,4 @@
 import { awards } from '../../features/about-us/constants/trophies';
-import AwardsHeroSection from '@/features/awards/components/AwardsHeroSection';
 import TrophyRow from '@/features/awards/components/TrophyRow';
 import { PageHeroSection } from '@/shared/components/PageHeroSection';
 import { useTheme } from '@/shared/hooks/useTheme';
@@ -9,7 +8,6 @@ export const AwardsPage = () => {
   const { isDark } = useTheme();
   return (
     <>
-      {/* <AwardsHeroSection /> */}
       <PageHeroSection
         eyebrow="Awards & Recognition"
         title="A Legacy of Excellence"
