@@ -19,6 +19,7 @@ import type {
   CreateAwardRequest,
   UpdateAwardRequest,
 } from '@/shared/types/award.types';
+import { AWARD_SOURCE_LABELS } from '@/shared/types/award.types';
 import IEEETrophy from '@/assets/IEEE_Trophy.png';
 
 /* ── Stat card sub-component (used when stats row is enabled) ── */
@@ -197,7 +198,7 @@ export const AwardsPage = () => {
                   : 'bg-gray-50 border-gray-200 text-gray-700'
               }`}
             >
-              {new Date(item.created_at).getFullYear()}
+              {AWARD_SOURCE_LABELS[item.source]} • {item.year}
             </span>
           </div>
         ),

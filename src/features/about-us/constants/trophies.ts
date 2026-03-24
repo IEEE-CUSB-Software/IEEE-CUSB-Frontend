@@ -18,7 +18,8 @@ export const awards: Award[] = [
     year: 'EGYPT SECTION • 2019',
     brief:
       'Ranked for exceptional performance in organizing technical events and member engagement across Egypt, Middle East, and Africa.',
-    description: '',
+    description:
+      'Ranked for exceptional performance in organizing technical events and member engagement across Egypt, Middle East, and Africa.',
     color: 'text-yellow-500',
     won: 2,
   },
@@ -28,7 +29,8 @@ export const awards: Award[] = [
     year: 'GLOBAL • 2021',
     brief:
       'Recognized for outstanding website design, content accessibility, and user experience among all IEEE student branches worldwide.',
-    description: '',
+    description:
+      'Recognized for outstanding website design, content accessibility, and user experience among all IEEE student branches worldwide.',
     color: 'text-blue-500',
     won: 3,
   },
@@ -38,7 +40,8 @@ export const awards: Award[] = [
     year: 'REGION 8 • 2020',
     brief:
       'Honoring the collective effort of our volunteers in community service and STEM outreach programs at local schools.',
-    description: '',
+    description:
+      'Honoring the collective effort of our volunteers in community service and STEM outreach programs at local schools.',
     color: 'text-purple-500',
     won: null,
   },
@@ -48,7 +51,8 @@ export const awards: Award[] = [
     year: 'EGYPT AWARDS • 2018',
     brief:
       'Achieved the highest percentage increase in student membership within the Egypt Section for the fiscal year.',
-    description: '',
+    description:
+      'Achieved the highest percentage increase in student membership within the Egypt Section for the fiscal year.',
     color: 'text-orange-500',
     won: 1,
   },
@@ -58,7 +62,8 @@ export const awards: Award[] = [
     year: 'GLOBAL • 2021',
     brief:
       'Our coding teams ranked within the top 100 globally out of 4500+ teams in the 24-hour programming challenge.',
-    description: '',
+    description:
+      'Our coding teams ranked within the top 100 globally out of 4500+ teams in the 24-hour programming challenge.',
     color: 'text-green-500',
     won: null,
   },

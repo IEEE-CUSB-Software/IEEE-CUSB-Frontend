@@ -71,7 +71,7 @@ export const MobileAwardCard: React.FC<MobileAwardCardProps> = ({
                 : 'bg-gray-50 border-gray-200 text-gray-600'
             }`}
           >
-            {new Date(award.created_at).getFullYear()}
+            {award.year}
           </span>
         </div>
 

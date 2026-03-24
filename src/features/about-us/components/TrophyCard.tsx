@@ -14,12 +14,11 @@ function TrophyCard({ award, darkMode }: { award: Award; darkMode: boolean }) {
         {/* Trophy Image */}
         <div className={`relative flex justify-end items-end rounded-lg`}>
           <img
-            src={award.image_url || trophy}
+            // TODO: uncomment when backend serves proper image URLs
+            // src={award.image_url || trophy}
+            src={trophy}
             alt={award.title}
             className="w-24 h-32 sm:w-32 sm:h-40 md:w-36 md:h-44 lg:w-40 lg:h-48 object-contain"
-            onError={e => {
-              (e.currentTarget as HTMLImageElement).src = trophy;
-            }}
           />
 
           {award.won_count > 0 && (

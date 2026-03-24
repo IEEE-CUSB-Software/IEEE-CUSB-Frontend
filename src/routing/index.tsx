@@ -11,6 +11,7 @@ import {
   AboutUsPage,
   HomePage,
   CommitteesPage,
+  AwardsPage,
 } from './pages';
 import EventsPage from './pages/EventsPage';
 import { AdminLayout } from '../features/admin/layouts/AdminLayout';
@@ -124,6 +125,10 @@ const routes: RouteObject[] = [
       {
         path: '*',
         element: <NotFoundPage />,
+      },
+      {
+        path: 'awards',
+        element: <AwardsPage />, // Awards
       },
     ],
   },

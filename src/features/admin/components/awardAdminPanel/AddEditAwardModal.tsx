@@ -8,6 +8,7 @@ import type {
   CreateAwardRequest,
   UpdateAwardRequest,
 } from '@/shared/types/award.types';
+import { AwardSource, AWARD_SOURCE_LABELS } from '@/shared/types/award.types';
 
 interface AddEditAwardModalProps {
   award?: Award;
@@ -22,6 +23,8 @@ const emptyForm = (): AwardFormValues => ({
   description: '',
   image_url: '',
   won_count: '0',
+  year: String(new Date().getFullYear()),
+  source: AwardSource.EGYPT_SECTION,
 });
 
 const awardToForm = (award?: Award): AwardFormValues => {
@@ -31,6 +34,8 @@ const awardToForm = (award?: Award): AwardFormValues => {
     description: award.description,
     image_url: award.image_url ?? '',
     won_count: String(award.won_count ?? 0),
+    year: String(award.year ?? new Date().getFullYear()),
+    source: award.source ?? AwardSource.EGYPT_SECTION,
   };
 };
 
@@ -42,6 +47,13 @@ const validate = (values: AwardFormValues): AwardFormErrors => {
   const count = Number(values.won_count);
   if (values.won_count !== '' && (isNaN(count) || count < 0))
     errors.won_count = 'Won count must be a non-negative number.';
+  if (!values.year.trim()) {
+    errors.year = 'Year is required.';
+  } else {
+    const y = Number(values.year);
+    if (isNaN(y) || y < 1900 || y > 2100)
+      errors.year = 'Enter a valid year (1900–2100).';
+  }
   return errors;
 };
 
@@ -94,6 +106,8 @@ const AddEditAwardModal: React.FC<AddEditAwardModalProps> = ({
         image_url: formValues.image_url.trim(),
       }),
       won_count: formValues.won_count !== '' ? Number(formValues.won_count) : 0,
+      year: Number(formValues.year),
+      source: formValues.source,
     };
     onSave(payload, award?.id);
   };
@@ -119,6 +133,45 @@ const AddEditAwardModal: React.FC<AddEditAwardModalProps> = ({
               error={errors.title}
               darkMode={isDark}
             />
+          </div>
+
+          {/* Year & Source */}
+          <div>
+            <InputField
+              label="Year"
+              value={formValues.year}
+              placeholder="2024"
+              onChange={handleChange('year')}
+              id="award-year"
+              error={errors.year}
+              darkMode={isDark}
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="award-source"
+              className={`block text-sm font-medium mb-1.5 ${
+                isDark ? 'text-gray-300' : 'text-gray-700'
+              }`}
+            >
+              Source
+            </label>
+            <select
+              id="award-source"
+              value={formValues.source}
+              onChange={handleChange('source') as any}
+              className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition-colors ${
+                isDark
+                  ? 'bg-gray-800 border-gray-700 text-white focus:border-primary'
+                  : 'bg-white border-gray-300 text-gray-900 focus:border-primary'
+              }`}
+            >
+              {Object.values(AwardSource).map(s => (
+                <option key={s} value={s}>
+                  {AWARD_SOURCE_LABELS[s]}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Won Count */}
