@@ -2,7 +2,8 @@ import { useRef } from 'react';
 import gsap from 'gsap';
 import trophy from '../../../assets/IEEE_Trophy.png';
 import { useGSAP } from '@gsap/react';
-import { Award } from '../../../features/about-us/constants/trophies';
+import type { Award } from '@/shared/types/award.types';
+import { AWARD_SOURCE_LABELS } from '@/shared/types/award.types';
 import LaurelLeft from '../../../assets/LaurelLeftSide-removebg-preview.png';
 import LaurelRight from '../../../assets/LaurelRightSide-removebg-preview.png';
 
@@ -92,18 +93,20 @@ export const TrophyRow = ({
             ref={imgRef}
           >
             <img
+              // TODO: uncomment when backend serves proper image URLs
+              // src={award.image_url || trophy}
               src={trophy}
               alt={award.title}
               className="w-24 h-32 sm:w-32 sm:h-40 md:w-36 md:h-44 lg:w-40 lg:h-48 object-contain"
             />
-            {award.won && (
+            {award.won_count > 0 && (
               <div
                 className={`flex -ml-3 sm:-ml-5 md:-ml-6 items-end gap-1 sm:gap-1.5 md:gap-2 ${
                   darkMode ? 'text-white' : 'text-primary'
                 }`}
               >
                 <span className="text-lg sm:text-2xl md:text-2xl lg:text-3xl font-bold leading-none pb-1">
-                  {award.won}
+                  {award.won_count}
                 </span>
                 <div className="text-[5px] sm:text-[6px] md:text-[7px] lg:text-[8px] uppercase font-bold pb-0.5 opacity-90">
                   <p>Times</p>
@@ -130,7 +133,7 @@ export const TrophyRow = ({
               <div>
                 <div>{award.title}</div>
                 <div className="text-[10px] sm:text-xs md:text-sm font-semibold tracking-wide text-info uppercase mb-1.5 sm:mb-2 line-clamp-1">
-                  {award.year}
+                  {AWARD_SOURCE_LABELS[award.source]} • {award.year}
                 </div>
               </div>
               <img
