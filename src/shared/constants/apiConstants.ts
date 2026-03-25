@@ -58,7 +58,35 @@ export const API_ENDPOINTS = {
     CANCEL_REGISTRATION: (id: string) => `/events/${id}/cancel`,
     GET_REGISTRATIONS: (id: string) => `/admin/events/${id}/registrations`,
     UPDATE_REGISTRATION_STATUS: (eventId: string, registrationId: string) =>
-      `admin/events/${eventId}/registrations/${registrationId}/status`,
+      `/admin/events/${eventId}/registrations/${registrationId}/status`,
+  },
+
+  // Committees endpoints
+  COMMITTEES: {
+    CREATE: '/admin/committees',
+    GET_ALL: '/committees',
+    GET_ONE: (id: string) => `/committees/${id}`,
+    UPDATE: (id: string) => `/admin/committees/${id}`,
+    DELETE: (id: string) => `/admin/committees/${id}`,
+    GET_MEMBERS: (committeeId: string) => `/committees/${committeeId}/members`,
+    CREATE_COMMITTEE_MEMBER: `/admin/committees/members`,
+    UPDATE_COMMITTEE_MEMBER: (id: string) => `/admin/committees/members/${id}`,
+    DELETE_COMMITTEE_MEMBER: (id: string) => `/admin/committees/members/${id}`,
+  },
+
+  COMMITTEE_CATEGORIES: {
+    CREATE: '/admin/categories',
+    GET_ALL: '/categories',
+    UPDATE: (id: string) => `/admin/categories/${id}`,
+    DELETE: (id: string) => `/admin/categories/${id}`,
+  },
+
+  // Board endpoints
+  BOARD: {
+    GET_ALL: '/board',
+    CREATE: '/admin/board',
+    UPDATE: (id: string) => `/admin/board/${id}`,
+    DELETE: (id: string) => `/admin/board/${id}`,
   },
 } as const;
 
@@ -83,8 +111,27 @@ export const QUERY_KEYS = {
     ONE: (id: string) => ['events', id],
     REGISTRATIONS: (eventId: string) => ['events', eventId, 'registrations'],
   },
+  COMMITTEES: {
+    ALL: ['committees'],
+    INFINITE: ['committees', 'infinite'],
+    ONE: (id: string) => ['committees', id],
+    MEMBERS: (committeeId: string) => ['committees', committeeId, 'members'],
+    ONE_MEMBER: (committeeId: string, id: string) => [
+      'committees',
+      committeeId,
+      'members',
+      id,
+    ],
+  },
+  COMMITTEE_CATEGORIES: {
+    ALL: ['categories'],
+    ONE: (id: string) => ['categories', id],
+  },
   AWARDS: {
     ALL: ['awards'],
     ONE: (id: string) => ['awards', id],
+  },
+  BOARD: {
+    ALL: ['board'],
   },
 } as const;

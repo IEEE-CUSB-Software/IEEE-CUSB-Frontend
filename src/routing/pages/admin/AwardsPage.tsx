@@ -1,10 +1,17 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useTheme } from '@/shared/hooks/useTheme';
-import { MdAdd } from 'react-icons/md';
 import { HiTrophy } from 'react-icons/hi2';
-import { FiEdit2, FiTrash2, FiAward, FiSearch } from 'react-icons/fi';
-import { Table, type ColumnDef } from '@ieee-ui/ui';
-import { MobileAwardCard } from '@/features/admin/components/awardAdminPanel/MobileAwardCard';
+import { FiEdit2, FiTrash2, FiAward } from 'react-icons/fi';
+import { type ColumnDef } from '@ieee-ui/ui';
+import { AdminMobileCard } from '@/shared/components/AdminMobileCard';
+import {
+  SectionHeader,
+  AddButton,
+  ResponsiveDataList,
+  SearchBar,
+  LoadingBlock,
+  EmptyBlock,
+} from '@/features/admin/components/shared/AdminPageComponents';
 import AddEditAwardModal from '@/features/admin/components/awardAdminPanel/AddEditAwardModal';
 import AwardDetailModal from '@/features/admin/components/awardAdminPanel/AwardDetailModal';
 import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
@@ -258,193 +265,59 @@ export const AwardsPage = () => {
   return (
     <div className="space-y-6">
       {/* ── Page header ─────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div
-            className={`p-2.5 rounded-xl ${
-              isDark ? 'bg-yellow-900/30' : 'bg-yellow-50'
-            }`}
-          >
-            <FiAward
-              className={`w-6 h-6 ${isDark ? 'text-yellow-400' : 'text-yellow-500'}`}
-            />
-          </div>
-          <div>
-            <h1
-              className={`text-2xl font-bold leading-tight ${
-                isDark ? 'text-white' : 'text-gray-900'
-              }`}
-            >
-              Awards Management
-            </h1>
-            <p
-              className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
-            >
-              Manage IEEE awards and recognitions
-            </p>
-          </div>
-        </div>
-
-        <button
-          onClick={handleAdd}
-          className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary/90 active:scale-95 transition-all duration-200 shadow-md shadow-primary/20"
-        >
-          <MdAdd className="text-xl" />
-          Add Award
-        </button>
-      </div>
-
-      {/* ── Stats row ─────────────────────────────────────────
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <StatCard
-          label="Total Awards"
-          value={isLoading ? '…' : awards.length}
-          isDark={isDark}
-          accent="bg-yellow-400"
-        />
-        <StatCard
-          label="Total Wins"
-          value={isLoading ? '…' : totalWins}
-          isDark={isDark}
-          accent="bg-purple-400"
-        />
-        <StatCard
-          label="Latest Year"
-          value={isLoading ? '…' : latestYear}
-          isDark={isDark}
-          accent="bg-blue-400"
-        />
-      </div> */}
+      <SectionHeader
+        icon={<FiAward className="w-5 h-5 text-primary" />}
+        title="Awards Management"
+        subtitle="Manage IEEE awards and recognitions"
+        isDark={isDark}
+        action={<AddButton label="Add Award" onClick={handleAdd} />}
+      />
 
       {/* ── Search bar ──────────────────────────────────────── */}
-      <div
-        className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-colors duration-300 ${
-          isDark
-            ? 'bg-gray-900 border-gray-800 focus-within:border-primary/50'
-            : 'bg-white border-gray-200 focus-within:border-primary/40 shadow-sm'
-        }`}
-      >
-        <FiSearch
-          className={`w-4 h-4 flex-shrink-0 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}
-        />
-        <input
-          type="text"
-          placeholder="Search by title or description…"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className={`flex-1 text-sm bg-transparent outline-none placeholder:transition-colors ${
-            isDark
-              ? 'text-white placeholder:text-gray-600'
-              : 'text-gray-900 placeholder:text-gray-400'
-          }`}
-        />
-        {search && (
-          <button
-            onClick={() => setSearch('')}
-            className={`text-xs px-2 py-0.5 rounded-md transition-colors ${
-              isDark
-                ? 'text-gray-500 hover:text-gray-300 hover:bg-gray-800'
-                : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            Clear
-          </button>
-        )}
-      </div>
+      <SearchBar
+        value={search}
+        onChange={setSearch}
+        placeholder="Search by title or description…"
+        isDark={isDark}
+      />
 
       {/* ── Content ─────────────────────────────────────────── */}
       {isLoading ? (
-        <div
-          className={`rounded-2xl p-12 flex items-center justify-center border ${
-            isDark
-              ? 'bg-gray-900 border-gray-800'
-              : 'bg-white border-gray-100 shadow-sm'
-          }`}
-        >
-          <p
-            className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
-          >
-            Loading awards…
-          </p>
-        </div>
+        <LoadingBlock isDark={isDark} text="Loading awards…" />
       ) : filtered.length === 0 ? (
-        <div
-          className={`rounded-2xl p-12 flex flex-col items-center gap-4 border transition-colors duration-300 ${
-            isDark
-              ? 'bg-gray-900 border-gray-800'
-              : 'bg-white border-gray-100 shadow-sm'
-          }`}
-        >
-          <div
-            className={`w-16 h-16 rounded-2xl flex items-center justify-center ${
-              isDark ? 'bg-gray-800' : 'bg-gray-50'
-            }`}
-          >
-            <FiAward
-              className={`w-8 h-8 ${isDark ? 'text-gray-600' : 'text-gray-300'}`}
-            />
-          </div>
-          <div className="text-center">
-            <p
-              className={`font-semibold text-base ${
-                isDark ? 'text-gray-300' : 'text-gray-700'
-              }`}
-            >
-              {search ? 'No matching awards' : 'No awards yet'}
-            </p>
-            <p
-              className={`text-sm mt-1 ${isDark ? 'text-gray-600' : 'text-gray-400'}`}
-            >
-              {search
-                ? 'Try a different search term.'
-                : 'Click "Add Award" to create your first one.'}
-            </p>
-          </div>
-          {!search && (
-            <button
-              onClick={handleAdd}
-              className="mt-2 flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors"
-            >
-              <MdAdd className="text-base" />
-              Add Award
-            </button>
-          )}
-        </div>
+        <EmptyBlock
+          isDark={isDark}
+          message={search ? 'No matching awards' : 'No awards yet'}
+          onAdd={!search ? handleAdd : undefined}
+          addLabel="Add Award"
+        />
       ) : (
         <>
-          {/* Mobile – Cards */}
-          <div className="block md:hidden space-y-3">
-            {filtered.map(award => (
-              <MobileAwardCard
-                key={award.id}
-                award={award}
+          <ResponsiveDataList
+            data={filtered}
+            columns={columns}
+            isDark={isDark}
+            renderMobileCard={(award) => (
+              <AdminMobileCard
                 isDark={isDark}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onView={handleView}
+                title={award.title}
+                subtitle={award.description}
+                badge={`${AWARD_SOURCE_LABELS[award.source]} • ${award.year}`}
+                avatar={
+                  <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden ${isDark ? 'bg-yellow-900/30' : 'bg-yellow-50'}`}>
+                    <img src={award.image_url || IEEETrophy} alt="trophy" className="w-6 h-6 object-contain" onError={e => { (e.currentTarget as HTMLImageElement).src = IEEETrophy; }} />
+                  </div>
+                }
+                onEdit={() => handleEdit(award)}
+                onDelete={() => handleDelete(award)}
+                onView={() => handleView(award)}
               />
-            ))}
-          </div>
-
-          {/* Desktop – Table */}
-          <div
-            className={`hidden md:block rounded-2xl overflow-hidden border transition-colors duration-300 ${
-              isDark ? 'border-gray-800' : 'border-gray-100 shadow-sm'
-            }`}
-          >
-            <Table
-              data={filtered}
-              columns={columns}
-              emptyMessage="No awards found"
-              darkMode={isDark}
-            />
-          </div>
+            )}
+          />
 
           {/* Result count */}
           {search && (
-            <p
-              className={`text-xs text-center ${isDark ? 'text-gray-600' : 'text-gray-400'}`}
-            >
+            <p className={`text-xs text-center ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
               Showing {filtered.length} of {awards.length} awards
             </p>
           )}
