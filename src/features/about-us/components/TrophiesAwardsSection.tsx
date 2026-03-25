@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { awards } from '../constants/trophies';
+import { useAwards } from '@/shared/queries/awards/awards.queries';
 import TrophyCard from './TrophyCard';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
@@ -7,6 +7,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
+import { NavLink } from 'react-router-dom';
 interface TrophiesAwardsSectionProps {
   darkMode?: boolean;
 }
@@ -14,6 +15,8 @@ interface TrophiesAwardsSectionProps {
 export const TrophiesAwardsSection = ({
   darkMode,
 }: TrophiesAwardsSectionProps) => {
+  const { data: awards, isLoading, isError } = useAwards();
+
   return (
     <section
       className={`py-12 md:py-24 px-6 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}
@@ -26,16 +29,24 @@ export const TrophiesAwardsSection = ({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
             transition={{ duration: 0.6 }}
-            className="mb-10"
+            className="mb-10 flex justify-between items-center gap-10"
           >
-            <div className="text-sm font-bold tracking-widest text-info uppercase mb-3">
-              Achievements Hall
+            <div>
+              <div className="text-sm font-bold tracking-widest text-info uppercase mb-3">
+                Achievements Hall
+              </div>
+              <h3
+                className={`text-3xl md:text-4xl font-bold mb-8 ${darkMode ? 'text-white' : 'text-gray-900'}`}
+              >
+                Trophies and Awards
+              </h3>
             </div>
-            <h3
-              className={`text-3xl md:text-4xl font-bold mb-8 ${darkMode ? 'text-white' : 'text-gray-900'}`}
+            <NavLink
+              to="/awards"
+              className="text-primary font-semibold hover:underline"
             >
-              Trophies and Awards
-            </h3>
+              View All Trophies →
+            </NavLink>
           </motion.div>
 
           <motion.div
@@ -46,6 +57,24 @@ export const TrophiesAwardsSection = ({
           >
           
             <div className=" relative w-full p-10 min-h-[400px]">
+            {isLoading ? (
+              <div className="flex items-center justify-center min-h-[300px]">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-info" />
+              </div>
+            ) : isError ? (
+              <div className="flex items-center justify-center min-h-[300px]">
+                <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Failed to load awards. Please try again later.
+                </p>
+              </div>
+            ) : !awards || awards.length === 0 ? (
+              <div className="flex items-center justify-center min-h-[300px]">
+                <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  No awards to display yet.
+                </p>
+              </div>
+            ) : (
+              <>
             <button
               className={`prev-btn absolute left-2  top-1/2 -translate-y-1/2 z-10 flex-shrink-0 p-2 sm:p-2.5 md:p-3 rounded-full  cursor-pointer
   transition-colors duration-200 ${
@@ -90,12 +119,14 @@ export const TrophiesAwardsSection = ({
               }}
               className="!py-8 !px-2 sm:!py-10 sm:!px-5 md:!py-11 md:!px-8 lg:!py-14 lg:!px-10"
             >
-              {awards.map((item, i) => (
-                <SwiperSlide key={i} style={{ overflow: 'visible' }}>
+              {awards.map((item) => (
+                <SwiperSlide key={item.id} style={{ overflow: 'visible' }}>
                   <TrophyCard award={item} darkMode={darkMode ?? false} />
                 </SwiperSlide>
               ))}
             </Swiper>
+              </>
+            )}
           </div>
           </motion.div>
         </div>

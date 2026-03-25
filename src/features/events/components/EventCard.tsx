@@ -23,6 +23,8 @@ interface EventCardProps {
     description: string;
     is_registered?: boolean;
     registration_id?: string;
+    remainingSpots?: number;
+    is_full?: boolean;
   };
   index: number;
   darkMode?: boolean;
@@ -64,18 +66,14 @@ export const EventCard = ({ event, index, darkMode }: EventCardProps) => {
         return darkMode
           ? 'bg-blue-900/40 text-blue-300'
           : 'bg-blue-100 text-blue-700';
+      case 'non-technical':
+        return darkMode
+          ? 'bg-purple-900/40 text-purple-300'
+          : 'bg-purple-100 text-purple-700';
       case 'social':
         return darkMode
           ? 'bg-orange-900/40 text-orange-300'
           : 'bg-orange-100 text-orange-700';
-      case 'soft skills':
-        return darkMode
-          ? 'bg-purple-900/40 text-purple-300'
-          : 'bg-purple-100 text-purple-700';
-      case 'design':
-        return darkMode
-          ? 'bg-pink-900/40 text-pink-300'
-          : 'bg-pink-100 text-pink-700';
       default:
         return darkMode
           ? 'bg-gray-800 text-gray-300'
@@ -192,26 +190,53 @@ export const EventCard = ({ event, index, darkMode }: EventCardProps) => {
 
           {/* Registration Button - Only for non-completed events AND non-admin users */}
           {event.status !== 'Completed' && !isAdmin && (
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ duration: 0.15 }}
-              onClick={
-                event.is_registered ? handleCancelRegistration : handleRegister
-              }
-              disabled={isPending}
-              className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 hover:shadow-lg mt-2 ${
-                event.is_registered
-                  ? 'bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30'
-                  : 'bg-primary text-white hover:bg-primary/90 shadow-primary/25'
-              } ${isPending ? 'opacity-70 cursor-not-allowed' : ''}`}
-            >
-              {isPending
-                ? 'Processing...'
-                : event.is_registered
-                  ? 'Cancel Registration'
-                  : 'Register Now'}
-            </motion.button>
+            <>
+              {/* Spots remaining indicator */}
+              {event.remainingSpots !== undefined && (
+                <p
+                  className={`text-xs text-center mt-2 font-medium ${
+                    event.is_full
+                      ? darkMode
+                        ? 'text-red-400'
+                        : 'text-red-500'
+                      : darkMode
+                        ? 'text-gray-400'
+                        : 'text-gray-500'
+                  }`}
+                >
+                  {event.is_full
+                    ? 'Event is full'
+                    : `${event.remainingSpots} spot${event.remainingSpots !== 1 ? 's' : ''} remaining`}
+                </p>
+              )}
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.15 }}
+                onClick={
+                  event.is_registered ? handleCancelRegistration : handleRegister
+                }
+                disabled={isPending || (!event.is_registered && event.is_full)}
+                className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 hover:shadow-lg mt-2 ${
+                  event.is_registered
+                    ? 'bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30'
+                    : event.is_full
+                      ? darkMode
+                        ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-primary text-white hover:bg-primary/90 shadow-primary/25'
+                } ${isPending ? 'opacity-70 cursor-not-allowed' : ''}`}
+              >
+                {isPending
+                  ? 'Processing...'
+                  : event.is_registered
+                    ? 'Cancel Registration'
+                    : event.is_full
+                      ? 'Event Full'
+                      : 'Register Now'}
+              </motion.button>
+            </>
           )}
         </div>
       </div>

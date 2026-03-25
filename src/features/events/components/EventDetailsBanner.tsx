@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { HiTag } from 'react-icons/hi';
 
-interface EventDetailsHeroProps {
+interface EventDetailsBannerProps {
   title: string;
   description: string;
   image: string;
@@ -10,32 +10,28 @@ interface EventDetailsHeroProps {
   darkMode?: boolean;
 }
 
-export const EventDetailsHero = ({
+export const EventDetailsBanner = ({
   title,
   description,
   image,
   category,
   categoryBadge,
   darkMode,
-}: EventDetailsHeroProps) => {
+}: EventDetailsBannerProps) => {
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
       case 'technical':
         return darkMode
           ? 'bg-blue-900/40 text-blue-300'
           : 'bg-blue-100 text-blue-700';
+      case 'non-technical':
+        return darkMode
+          ? 'bg-purple-900/40 text-purple-300'
+          : 'bg-purple-100 text-purple-700';
       case 'social':
         return darkMode
           ? 'bg-orange-900/40 text-orange-300'
           : 'bg-orange-100 text-orange-700';
-      case 'soft skills':
-        return darkMode
-          ? 'bg-purple-900/40 text-purple-300'
-          : 'bg-purple-100 text-purple-700';
-      case 'design':
-        return darkMode
-          ? 'bg-pink-900/40 text-pink-300'
-          : 'bg-pink-100 text-pink-700';
       default:
         return darkMode
           ? 'bg-gray-800 text-gray-300'
@@ -50,7 +46,7 @@ export const EventDetailsHero = ({
       transition={{ duration: 0.6, ease: 'easeOut' }}
       className="relative rounded-3xl overflow-hidden shadow-2xl mb-8 bg-gray-900"
     >
-      {/* Hero Image */}
+      {/* Banner Image */}
       <div className="relative h-[400px] overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
         <motion.img
           initial={{ scale: 1.1 }}

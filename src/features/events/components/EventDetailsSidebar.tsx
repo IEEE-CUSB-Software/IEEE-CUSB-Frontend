@@ -28,6 +28,9 @@ interface EventDetailsSidebarProps {
   eventId: string | number;
   isRegistered?: boolean;
   registrationId?: string;
+  capacity?: number;
+  remainingSpots?: number;
+  isFull?: boolean;
   darkMode?: boolean;
 }
 
@@ -39,6 +42,9 @@ export const EventDetailsSidebar = ({
   registrationDeadline,
   eventId,
   isRegistered,
+  capacity,
+  remainingSpots,
+  isFull,
   darkMode,
 }: EventDetailsSidebarProps) => {
   const navigate = useNavigate();
@@ -337,6 +343,62 @@ export const EventDetailsSidebar = ({
           </div>
         </div>
 
+        {/* Availability Section */}
+        {capacity !== undefined && remainingSpots !== undefined && (
+          <div
+            className={`mt-6 pt-6 border-t ${
+              darkMode ? 'border-gray-700' : 'border-gray-200'
+            }`}
+          >
+            <h3
+              className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                darkMode ? 'text-gray-400' : 'text-gray-500'
+              }`}
+            >
+              Availability
+            </h3>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span
+                  className={`text-sm font-medium ${
+                    darkMode ? 'text-gray-300' : 'text-gray-700'
+                  }`}
+                >
+                  {isFull
+                    ? 'Event is full'
+                    : `${remainingSpots} spot${remainingSpots !== 1 ? 's' : ''} remaining`}
+                </span>
+                <span
+                  className={`text-xs font-medium ${
+                    darkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}
+                >
+                  {capacity - remainingSpots}/{capacity}
+                </span>
+              </div>
+              {/* Progress bar */}
+              <div
+                className={`w-full h-2 rounded-full overflow-hidden ${
+                  darkMode ? 'bg-gray-700' : 'bg-gray-200'
+                }`}
+              >
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    isFull
+                      ? 'bg-red-500'
+                      : remainingSpots <= capacity * 0.2
+                        ? 'bg-orange-500'
+                        : 'bg-primary'
+                  }`}
+                  style={{
+                    width: `${Math.min(((capacity - remainingSpots) / capacity) * 100, 100)}%`,
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Instructor Section */}
         {instructor && (
           <div
@@ -451,26 +513,44 @@ export const EventDetailsSidebar = ({
 
               <button
                 onClick={handleRegister}
-                className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 rounded-lg transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                disabled={!isRegistrationOpen || isPending}
+                className={`w-full font-semibold py-3 rounded-lg transition-all duration-200 transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${
+                  isFull
+                    ? darkMode
+                      ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-primary hover:bg-primary/90 text-white hover:scale-[1.02]'
+                }`}
+                disabled={!isRegistrationOpen || isPending || isFull}
               >
                 {isPending
                   ? 'Processing...'
-                  : isRegistrationOpen
-                    ? 'Register Now'
-                    : 'Registration Closed'}
+                  : isFull
+                    ? 'Event Full'
+                    : isRegistrationOpen
+                      ? 'Register Now'
+                      : 'Registration Closed'}
               </button>
             </div>
           )}
 
           {/* Registration Info */}
-          {isRegistrationOpen && !isRegistered && (
+          {isRegistrationOpen && !isRegistered && !isFull && (
             <p
               className={`text-xs text-center mt-4 ${
                 darkMode ? 'text-gray-400' : 'text-gray-500'
               }`}
             >
               Limited seats available. Register soon!
+            </p>
+          )}
+
+          {isFull && !isRegistered && (
+            <p
+              className={`text-xs text-center mt-4 font-medium ${
+                darkMode ? 'text-red-300' : 'text-red-500'
+              }`}
+            >
+              This event has reached maximum capacity.
             </p>
           )}
 

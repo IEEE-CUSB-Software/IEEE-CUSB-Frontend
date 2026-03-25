@@ -38,6 +38,15 @@ export const API_ENDPOINTS = {
     DELETE: (id: string) => `/roles/${id}`,
   },
 
+  // Awards endpoints
+  AWARDS: {
+    GET_ALL: '/awards',
+    GET_ONE: (id: string) => `/awards/${id}`,
+    CREATE: '/admin/awards',
+    UPDATE: (id: string) => `/admin/awards/${id}`,
+    DELETE: (id: string) => `/admin/awards/${id}`,
+  },
+
   // Events endpoints
   EVENTS: {
     CREATE: '/admin/events',
@@ -49,7 +58,7 @@ export const API_ENDPOINTS = {
     CANCEL_REGISTRATION: (id: string) => `/events/${id}/cancel`,
     GET_REGISTRATIONS: (id: string) => `/admin/events/${id}/registrations`,
     UPDATE_REGISTRATION_STATUS: (eventId: string, registrationId: string) =>
-      `admin/events/${eventId}/registrations/${registrationId}/status`,
+      `/admin/events/${eventId}/registrations/${registrationId}/status`,
   },
 
   // Committees endpoints
@@ -109,5 +118,9 @@ export const QUERY_KEYS = {
   COMMITTEE_CATEGORIES: {
     ALL: ['categories'],
     ONE: (id: string) => ['categories', id],
+  },
+  AWARDS: {
+    ALL: ['awards'],
+    ONE: (id: string) => ['awards', id],
   },
 } as const;

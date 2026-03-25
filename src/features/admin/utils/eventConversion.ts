@@ -44,7 +44,7 @@ export const convertApiEventToAdminEvent = (event: ApiEvent): AdminEvent => {
     eventType: 'Workshop', // Default value
     media: [],
     sponsors: [],
-    category: 'Technical', // Default value
+    category: event.category || 'Technical',
     registeredCount: 0, // This would come from registrations count
     attendeeCount: 0, // This would come from attended registrations count
     endTime: new Date(event.end_time).toISOString().slice(0, 16),
@@ -72,6 +72,7 @@ export const convertFormDataToCreateRequest = (
   return {
     title: formData.title,
     description: formData.description,
+    category: formData.category as 'Technical' | 'Non-Technical' | 'Social',
     location: formData.location,
     start_time: formData.start_time,
     end_time: formData.end_time,
@@ -90,6 +91,7 @@ export const convertFormDataToUpdateRequest = (
   return {
     title: formData.title,
     description: formData.description,
+    category: formData.category as 'Technical' | 'Non-Technical' | 'Social',
     location: formData.location,
     start_time: formData.start_time,
     end_time: formData.end_time,

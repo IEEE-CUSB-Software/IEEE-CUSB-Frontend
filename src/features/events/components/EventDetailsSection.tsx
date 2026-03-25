@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { HiArrowLeft } from 'react-icons/hi';
 import { useTheme } from '@/shared/hooks/useTheme';
-import { EventDetailsHero } from './EventDetailsHero';
+import { EventDetailsBanner } from './EventDetailsBanner';
 import { EventDetailsSidebar } from './EventDetailsSidebar';
 import { EventDetailsContent } from './EventDetailsContent';
 import { useEvent } from '@/shared/queries/events';
@@ -21,11 +21,15 @@ const transformEvent = (event: Event) => {
     id: event.id,
     is_registered: event.is_registered,
     registration_id: event.registration_id,
-    // Default values for fields not yet in API
-    category: 'Workshop',
-    categoryBadge: 'WORKSHOP',
+    // Use real category from API
+    category: event.category || 'Workshop',
+    categoryBadge: (event.category || 'Workshop').toUpperCase(),
     image:
       'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200',
+    // Capacity info from API
+    capacity: event.capacity,
+    remainingSpots: event.remainingSpots ?? event.capacity,
+    is_full: event.is_full ?? false,
     // Use description as about content
     about: event.description,
     learningPoints: [] as string[],
@@ -118,8 +122,8 @@ export const EventDetailsSection = () => {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Hero Section */}
-            <EventDetailsHero
+            {/* Event Banner */}
+            <EventDetailsBanner
               title={eventData.title}
               description={eventData.description}
               image={eventData.image}
@@ -149,6 +153,9 @@ export const EventDetailsSection = () => {
                 eventId={eventData.id}
                 isRegistered={eventData.is_registered}
                 registrationId={eventData.registration_id}
+                capacity={eventData.capacity}
+                remainingSpots={eventData.remainingSpots}
+                isFull={eventData.is_full}
                 darkMode={isDark}
               />
             </div>

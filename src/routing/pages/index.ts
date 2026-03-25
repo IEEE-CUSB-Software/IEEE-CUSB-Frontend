@@ -6,3 +6,4 @@ export { UnderConstructionPage } from './UnderConstructionPage';
 export { EventDetailsPage } from './EventDetailsPage';
 export { AboutUsPage } from './AboutUsPage';
 export { CommitteesPage } from './CommitteesPage';
+export { AwardsPage } from './AwardsPage';
