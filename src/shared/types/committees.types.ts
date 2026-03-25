@@ -1,4 +1,19 @@
-import { RoleName, User } from './auth.types';
+/**
+ * Member roles within a committee
+ */
+export enum MemberRole {
+  HEAD = 'head',
+  VICE_HEAD = 'vice_head',
+  MEMBER = 'member',
+}
+
+export const MEMBER_ROLE_LABELS: Record<MemberRole, string> = {
+  [MemberRole.HEAD]: 'Head',
+  [MemberRole.VICE_HEAD]: 'Vice Head',
+  [MemberRole.MEMBER]: 'Member',
+};
+
+// ── Categories ──────────────────────────────────────────────
 
 export interface CommitteeCategory {
   id: string;
@@ -17,6 +32,8 @@ export interface UpdateCategory {
   name?: string;
   description?: string;
 }
+
+// ── Committees ──────────────────────────────────────────────
 
 export interface Committee {
   id: string;
@@ -40,22 +57,24 @@ export interface UpdateCommittee {
   category_id?: string;
 }
 
+// ── Committee Members ───────────────────────────────────────
+
 export interface CommitteeMember {
   id: string;
   committee_id: string;
+  name: string;
   email: string;
-  role: RoleName;
+  role: MemberRole;
   image_url?: string;
   created_at: string;
   updated_at: string;
-  user?: User;
 }
 
 export interface AddCommitteeMember {
   committee_id: string;
   name: string;
   email: string;
-  role: RoleName;
+  role: MemberRole;
   image_url?: string;
 }
 
@@ -63,29 +82,41 @@ export interface UpdateCommitteeMember {
   committee_id?: string;
   name?: string;
   email?: string;
-  role?: RoleName;
+  role?: MemberRole;
   image_url?: string;
 }
 
-/**
- * Pagination params
- */
-export interface PaginationParams {
-  page: number;
-  limit: number;
+// ── Board Members ───────────────────────────────────────────
+
+export interface BoardMember {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  image_url?: string;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface PaginatedCommitteeMembersResponse {
-  data: CommitteeMember[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+export interface CreateBoardMember {
+  name: string;
+  email: string;
+  role: string;
+  image_url?: string;
+  display_order?: number;
 }
 
-/**
- * API Response wrapper (matches backend response format)
- */
+export interface UpdateBoardMember {
+  name?: string;
+  email?: string;
+  role?: string;
+  image_url?: string;
+  display_order?: number;
+}
+
+// ── API Response ────────────────────────────────────────────
+
 export interface CommitteeApiResponse<T> {
   data: T;
   count: number;

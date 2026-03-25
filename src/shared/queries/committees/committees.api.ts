@@ -1,6 +1,6 @@
 import { apiClient } from '@/shared/config/api.config';
 import { API_ENDPOINTS } from '@/shared/constants/apiConstants';
-import {
+import type {
   AddCommitteeMember,
   Committee,
   CommitteeApiResponse,
@@ -8,28 +8,40 @@ import {
   CommitteeMember,
   CreateCategory,
   CreateCommittee,
-  PaginatedCommitteeMembersResponse,
-  PaginationParams,
   UpdateCategory,
   UpdateCommittee,
   UpdateCommitteeMember,
 } from '@/shared/types/committees.types';
 
+interface CategoriesListResponse {
+  categories: CommitteeCategory[];
+  count: number;
+}
+
+interface CommitteesListResponse {
+  committees: Committee[];
+  count: number;
+}
+
+interface MembersListResponse {
+  members: CommitteeMember[];
+  count: number;
+}
+
 export const committeeApi = {
-  /**
-   * Create a new category (Admin only)
-   */
+  // ── Categories ──────────────────────────────────────────
+
+  getCategories: async (): Promise<CommitteeCategory[]> => {
+    const response = await apiClient.get<
+      CommitteeApiResponse<CategoriesListResponse>
+    >(API_ENDPOINTS.COMMITTEE_CATEGORIES.GET_ALL);
+    return response.data.data.categories;
+  },
+
   createCategory: async (data: CreateCategory): Promise<CommitteeCategory> => {
     const response = await apiClient.post<
       CommitteeApiResponse<CommitteeCategory>
     >(API_ENDPOINTS.COMMITTEE_CATEGORIES.CREATE, data);
-    return response.data.data;
-  },
-
-  getCategories: async (): Promise<CommitteeCategory[]> => {
-    const response = await apiClient.get<
-      CommitteeApiResponse<CommitteeCategory[]>
-    >(API_ENDPOINTS.COMMITTEE_CATEGORIES.GET_ALL);
     return response.data.data;
   },
 
@@ -47,9 +59,33 @@ export const committeeApi = {
     await apiClient.delete(API_ENDPOINTS.COMMITTEE_CATEGORIES.DELETE(id));
   },
 
-  /**
-   * Create a new committee (Admin only)
-   */
+  // ── Committees ──────────────────────────────────────────
+
+  getCommittees: async (): Promise<Committee[]> => {
+    const response = await apiClient.get<
+      CommitteeApiResponse<CommitteesListResponse>
+    >(API_ENDPOINTS.COMMITTEES.GET_ALL);
+    return response.data.data.committees;
+  },
+
+  getCommitteesByCategory: async (
+    categoryId: string
+  ): Promise<Committee[]> => {
+    const response = await apiClient.get<
+      CommitteeApiResponse<CommitteesListResponse>
+    >(API_ENDPOINTS.COMMITTEES.GET_ALL, {
+      params: { category_id: categoryId },
+    });
+    return response.data.data.committees;
+  },
+
+  getCommitteeById: async (id: string): Promise<Committee> => {
+    const response = await apiClient.get<CommitteeApiResponse<Committee>>(
+      API_ENDPOINTS.COMMITTEES.GET_ONE(id)
+    );
+    return response.data.data;
+  },
+
   createCommittee: async (data: CreateCommittee): Promise<Committee> => {
     const response = await apiClient.post<CommitteeApiResponse<Committee>>(
       API_ENDPOINTS.COMMITTEES.CREATE,
@@ -58,45 +94,6 @@ export const committeeApi = {
     return response.data.data;
   },
 
-  /**
-   * Get all committees with pagination
-   */
-  getCommittees: async (): Promise<Committee[]> => {
-    const response = await apiClient.get<CommitteeApiResponse<Committee[]>>(
-      API_ENDPOINTS.COMMITTEES.GET_ALL
-    );
-    // Unwrap the nested data structure
-    return response.data.data;
-  },
-
-  getCommitteesOfOneCategory: async (
-    categoryId: string
-  ): Promise<Committee[]> => {
-    const response = await apiClient.get<CommitteeApiResponse<Committee[]>>(
-      API_ENDPOINTS.COMMITTEES.GET_ALL,
-      {
-        params: {
-          category_id: categoryId,
-        },
-      }
-    );
-    // Unwrap the nested data structure
-    return response.data.data;
-  },
-
-  /**
-   * Get a single committee by ID
-   */
-  getCommitteById: async (id: string): Promise<Committee> => {
-    const response = await apiClient.get<CommitteeApiResponse<Committee>>(
-      API_ENDPOINTS.COMMITTEES.GET_ONE(id)
-    );
-    return response.data.data;
-  },
-
-  /**
-   * Update an committee (Admin only)
-   */
   updateCommittee: async (
     id: string,
     data: UpdateCommittee
@@ -108,20 +105,19 @@ export const committeeApi = {
     return response.data.data;
   },
 
-  /**
-   * Delete an committee (Admin only)
-   */
   deleteCommittee: async (id: string): Promise<void> => {
     await apiClient.delete(API_ENDPOINTS.COMMITTEES.DELETE(id));
   },
 
+  // ── Committee Members ───────────────────────────────────
+
   getCommitteeMembers: async (
-    params: PaginationParams
-  ): Promise<PaginatedCommitteeMembersResponse> => {
-    const response = await apiClient.get<{
-      data: PaginatedCommitteeMembersResponse;
-    }>(API_ENDPOINTS.COMMITTEES.GET_MEMBERS(params.page.toString()));
-    return response.data.data;
+    committeeId: string
+  ): Promise<CommitteeMember[]> => {
+    const response = await apiClient.get<
+      CommitteeApiResponse<MembersListResponse>
+    >(API_ENDPOINTS.COMMITTEES.GET_MEMBERS(committeeId));
+    return response.data.data.members;
   },
 
   createCommitteeMember: async (

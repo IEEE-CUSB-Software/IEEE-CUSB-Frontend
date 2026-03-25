@@ -80,6 +80,14 @@ export const API_ENDPOINTS = {
     UPDATE: (id: string) => `/admin/categories/${id}`,
     DELETE: (id: string) => `/admin/categories/${id}`,
   },
+
+  // Board endpoints
+  BOARD: {
+    GET_ALL: '/board',
+    CREATE: '/admin/board',
+    UPDATE: (id: string) => `/admin/board/${id}`,
+    DELETE: (id: string) => `/admin/board/${id}`,
+  },
 } as const;
 
 /**
@@ -122,5 +130,8 @@ export const QUERY_KEYS = {
   AWARDS: {
     ALL: ['awards'],
     ONE: (id: string) => ['awards', id],
+  },
+  BOARD: {
+    ALL: ['board'],
   },
 } as const;
