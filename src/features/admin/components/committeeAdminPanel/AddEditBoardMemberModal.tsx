@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { InputField, Button, TextArea, Modal } from '@ieee-ui/ui';
+import { InputField, Button, Modal } from '@ieee-ui/ui';
 import { useTheme } from '@/shared/hooks/useTheme';
 import type {
   BoardMember,

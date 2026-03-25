@@ -212,7 +212,6 @@ export const useUpdateCommitteeMember = () => {
   return useMutation({
     mutationFn: ({
       id,
-      committee_id,
       data,
     }: {
       id: string;

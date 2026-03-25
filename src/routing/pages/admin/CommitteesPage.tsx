@@ -1,17 +1,18 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useTheme } from '@/shared/hooks/useTheme';
-import { MdAdd } from 'react-icons/md';
 import { HiChevronRight } from 'react-icons/hi2';
-import {
-  FiEdit2,
-  FiTrash2,
-  FiUsers,
-  FiGrid,
-  FiSearch,
-  FiChevronLeft,
-} from 'react-icons/fi';
-import { Table, type ColumnDef } from '@ieee-ui/ui';
+import { FiEdit2, FiTrash2, FiUsers, FiGrid } from 'react-icons/fi';
+import { type ColumnDef } from '@ieee-ui/ui';
 import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
+import { AdminMobileCard } from '@/shared/components/AdminMobileCard';
+import {
+  SectionHeader,
+  AddButton,
+  ResponsiveDataList,
+  SearchBar,
+  LoadingBlock,
+  EmptyBlock,
+} from '@/features/admin/components/shared/AdminPageComponents';
 
 // ── Queries ─────────────────────────────────────────────────
 import {
@@ -90,7 +91,6 @@ export const CommitteesPage = () => {
         <MembersView
           isDark={isDark}
           committee={view.committee}
-          category={view.category}
         />
       )}
     </div>
@@ -158,61 +158,9 @@ const Breadcrumb = ({
   );
 };
 
-/* ============================================================
-   Section Header helper
-   ============================================================ */
-const SectionHeader = ({
-  icon,
-  title,
-  subtitle,
-  isDark,
-  action,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  subtitle: string;
-  isDark: boolean;
-  action?: React.ReactNode;
-}) => (
-  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-    <div className="flex items-center gap-3">
-      <div
-        className={`p-2.5 rounded-xl ${isDark ? 'bg-primary/20' : 'bg-primary/10'}`}
-      >
-        {icon}
-      </div>
-      <div>
-        <h2
-          className={`text-xl font-bold leading-tight ${
-            isDark ? 'text-white' : 'text-gray-900'
-          }`}
-        >
-          {title}
-        </h2>
-        <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-          {subtitle}
-        </p>
-      </div>
-    </div>
-    {action}
-  </div>
-);
 
 /* ============================================================
-   Add Button helper
-   ============================================================ */
-const AddButton = ({ label, onClick }: { label: string; onClick: () => void }) => (
-  <button
-    onClick={onClick}
-    className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary/90 active:scale-95 transition-all duration-200 shadow-md shadow-primary/20"
-  >
-    <MdAdd className="text-xl" />
-    {label}
-  </button>
-);
-
-/* ============================================================
-   HOME VIEW – Board table + Categories cards
+   HOME VIEW – Board table + Categories table
    ============================================================ */
 const HomeView = ({
   isDark,
@@ -276,13 +224,17 @@ const BoardSection = ({ isDark }: { isDark: boolean }) => {
         header: 'Name',
         cell: (item: BoardMember) => (
           <div className="flex items-center gap-3 min-w-0">
-            <div
-              className={`flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold ${
-                isDark ? 'bg-primary/20 text-primary' : 'bg-primary/10 text-primary'
-              }`}
-            >
-              {item.name.charAt(0)}
-            </div>
+            {item.image_url ? (
+              <img src={item.image_url} alt={item.name} className="flex-shrink-0 w-9 h-9 rounded-full object-cover" onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+            ) : (
+              <div
+                className={`flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold ${
+                  isDark ? 'bg-primary/20 text-primary' : 'bg-primary/10 text-primary'
+                }`}
+              >
+                {item.name.charAt(0)}
+              </div>
+            )}
             <div className="min-w-0">
               <p className={`font-semibold text-sm truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 {item.name}
@@ -299,9 +251,7 @@ const BoardSection = ({ isDark }: { isDark: boolean }) => {
         cell: (item: BoardMember) => (
           <span
             className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold ${
-              isDark
-                ? 'bg-primary/15 text-primary'
-                : 'bg-primary/10 text-primary'
+              isDark ? 'bg-primary/15 text-primary' : 'bg-primary/10 text-primary'
             }`}
           >
             {item.role}
@@ -325,9 +275,7 @@ const BoardSection = ({ isDark }: { isDark: boolean }) => {
             <button
               onClick={() => { setEditTarget(item); setModalOpen(true); }}
               className={`group p-2 rounded-lg transition-all duration-200 ${
-                isDark
-                  ? 'text-gray-500 hover:text-primary hover:bg-primary/10'
-                  : 'text-gray-400 hover:text-primary hover:bg-primary/5'
+                isDark ? 'text-gray-500 hover:text-primary hover:bg-primary/10' : 'text-gray-400 hover:text-primary hover:bg-primary/5'
               }`}
               title="Edit"
             >
@@ -336,9 +284,7 @@ const BoardSection = ({ isDark }: { isDark: boolean }) => {
             <button
               onClick={() => setDeleteTarget(item)}
               className={`group p-2 rounded-lg transition-all duration-200 ${
-                isDark
-                  ? 'text-gray-500 hover:text-red-400 hover:bg-red-400/10'
-                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+                isDark ? 'text-gray-500 hover:text-red-400 hover:bg-red-400/10' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
               }`}
               title="Delete"
             >
@@ -354,42 +300,48 @@ const BoardSection = ({ isDark }: { isDark: boolean }) => {
   return (
     <div className="space-y-5">
       <SectionHeader
-        icon={<FiUsers className={`w-5 h-5 ${isDark ? 'text-primary' : 'text-primary'}`} />}
+        icon={<FiUsers className="w-5 h-5 text-primary" />}
         title="High Board"
         subtitle="Manage executive board members"
         isDark={isDark}
         action={
-          <AddButton
-            label="Add Board Member"
-            onClick={() => { setEditTarget(undefined); setModalOpen(true); }}
-          />
+          <AddButton label="Add Member" onClick={() => { setEditTarget(undefined); setModalOpen(true); }} />
         }
       />
+      <SearchBar value={search} onChange={setSearch} placeholder="Search board members…" isDark={isDark} />
 
-      {/* Search */}
-      <SearchBar value={search} onChange={setSearch} isDark={isDark} />
-
-      {/* Table */}
       {isLoading ? (
         <LoadingBlock isDark={isDark} text="Loading board…" />
       ) : filtered.length === 0 ? (
-        <EmptyBlock
-          isDark={isDark}
-          message={search ? 'No matching board members' : 'No board members yet'}
-          onAdd={!search ? () => { setEditTarget(undefined); setModalOpen(true); } : undefined}
-          addLabel="Add Board Member"
-        />
+        <EmptyBlock isDark={isDark} message={search ? 'No matching board members' : 'No board members yet'} onAdd={!search ? () => { setEditTarget(undefined); setModalOpen(true); } : undefined} addLabel="Add Board Member" />
       ) : (
-        <div
-          className={`rounded-2xl overflow-hidden border transition-colors duration-300 ${
-            isDark ? 'border-gray-800' : 'border-gray-100 shadow-sm'
-          }`}
-        >
-          <Table data={filtered} columns={columns} emptyMessage="" darkMode={isDark} />
-        </div>
+        <ResponsiveDataList
+          data={filtered}
+          columns={columns}
+          isDark={isDark}
+          renderMobileCard={item => (
+            <AdminMobileCard
+              isDark={isDark}
+              title={item.name}
+              subtitle={item.email}
+              badge={`#${item.display_order}`}
+              description={item.role}
+              avatar={
+                item.image_url ? (
+                  <img src={item.image_url} alt={item.name} className="flex-shrink-0 w-10 h-10 rounded-full object-cover" />
+                ) : (
+                  <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${isDark ? 'bg-primary/20 text-primary' : 'bg-primary/10 text-primary'}`}>
+                    {item.name.charAt(0)}
+                  </div>
+                )
+              }
+              onEdit={() => { setEditTarget(item); setModalOpen(true); }}
+              onDelete={() => setDeleteTarget(item)}
+            />
+          )}
+        />
       )}
 
-      {/* Modals */}
       {modalOpen && (
         <AddEditBoardMemberModal
           member={editTarget}
@@ -430,8 +382,18 @@ const CategoriesSection = ({
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<CommitteeCategory | undefined>();
   const [deleteTarget, setDeleteTarget] = useState<CommitteeCategory | null>(null);
+  const [search, setSearch] = useState('');
 
   const categories = useMemo(() => cats ?? [], [cats]);
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return categories;
+    return categories.filter(
+      c =>
+        c.name.toLowerCase().includes(q) ||
+        c.description.toLowerCase().includes(q)
+    );
+  }, [categories, search]);
 
   const handleSave = useCallback(
     (data: CreateCategory | UpdateCategory, id?: string) => {
@@ -449,95 +411,130 @@ const CategoriesSection = ({
     [createMutation, updateMutation]
   );
 
+  const columns = useMemo<ColumnDef<CommitteeCategory>[]>(
+    () => [
+      {
+        header: 'Category',
+        cell: (item: CommitteeCategory) => (
+          <div
+            onClick={() => onNavigate({ kind: 'committees', category: item })}
+            className="flex items-center gap-3 min-w-0 cursor-pointer group"
+          >
+            <div
+              className={`flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold ${
+                isDark ? 'bg-purple-900/30 text-purple-400 group-hover:bg-purple-900/50' : 'bg-purple-50 text-purple-600 group-hover:bg-purple-100'
+              } transition-colors`}
+            >
+              {item.name.charAt(0)}
+            </div>
+            <div className="min-w-0">
+              <p className={`font-semibold text-sm truncate group-hover:underline ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                {item.name}
+              </p>
+            </div>
+          </div>
+        ),
+      },
+      {
+        header: 'Description',
+        cell: (item: CommitteeCategory) => (
+          <div
+            onClick={() => onNavigate({ kind: 'committees', category: item })}
+            className="cursor-pointer"
+          >
+            <span className={`line-clamp-2 text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+              {item.description}
+            </span>
+          </div>
+        ),
+      },
+      {
+        header: 'Actions',
+        className: 'text-right',
+        cell: (item: CommitteeCategory) => (
+          <div className="flex items-center justify-end gap-1">
+            <button
+              onClick={() => onNavigate({ kind: 'committees', category: item })}
+              className={`group p-2 rounded-lg transition-all duration-200 ${
+                isDark ? 'text-gray-500 hover:text-blue-400 hover:bg-blue-400/10' : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50'
+              }`}
+              title="View committees"
+            >
+              <FiUsers className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            </button>
+            <button
+              onClick={() => { setEditTarget(item); setModalOpen(true); }}
+              className={`group p-2 rounded-lg transition-all duration-200 ${
+                isDark ? 'text-gray-500 hover:text-primary hover:bg-primary/10' : 'text-gray-400 hover:text-primary hover:bg-primary/5'
+              }`}
+              title="Edit"
+            >
+              <FiEdit2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            </button>
+            <button
+              onClick={() => setDeleteTarget(item)}
+              className={`group p-2 rounded-lg transition-all duration-200 ${
+                isDark ? 'text-gray-500 hover:text-red-400 hover:bg-red-400/10' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+              }`}
+              title="Delete"
+            >
+              <FiTrash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [isDark, onNavigate]
+  );
+
   return (
     <div className="space-y-5">
       <SectionHeader
-        icon={<FiGrid className={`w-5 h-5 ${isDark ? 'text-primary' : 'text-primary'}`} />}
+        icon={<FiGrid className="w-5 h-5 text-primary" />}
         title="Categories"
-        subtitle="Click a category to manage its committees"
+        subtitle="Manage available committee categories"
         isDark={isDark}
         action={
-          <AddButton
-            label="Add Category"
-            onClick={() => { setEditTarget(undefined); setModalOpen(true); }}
-          />
+          <AddButton label="Add Category" onClick={() => { setEditTarget(undefined); setModalOpen(true); }} />
         }
       />
+      <SearchBar value={search} onChange={setSearch} placeholder="Search categories…" isDark={isDark} />
 
       {isLoading ? (
         <LoadingBlock isDark={isDark} text="Loading categories…" />
-      ) : categories.length === 0 ? (
-        <EmptyBlock
-          isDark={isDark}
-          message="No categories yet"
-          onAdd={() => { setEditTarget(undefined); setModalOpen(true); }}
-          addLabel="Add Category"
-        />
+      ) : filtered.length === 0 ? (
+        <EmptyBlock isDark={isDark} message={search ? 'No matching categories' : 'No categories yet'} onAdd={!search ? () => { setEditTarget(undefined); setModalOpen(true); } : undefined} addLabel="Add Category" />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {categories.map(cat => (
-            <div
-              key={cat.id}
+        <ResponsiveDataList
+          data={filtered}
+          columns={columns}
+          isDark={isDark}
+          renderMobileCard={cat => (
+            <AdminMobileCard
+              isDark={isDark}
+              title={cat.name}
+              description={cat.description}
               onClick={() => onNavigate({ kind: 'committees', category: cat })}
-              className={`group relative rounded-2xl border p-5 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 ${
-                isDark
-                  ? 'bg-gray-900 border-gray-800 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5'
-                  : 'bg-white border-gray-100 shadow-sm hover:shadow-md hover:border-primary/30'
-              }`}
-            >
-              <div className="flex items-start justify-between mb-3">
-                <h3
-                  className={`text-base font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}
-                >
-                  {cat.name}
-                </h3>
-                <div
-                  className="flex items-center gap-1"
-                  onClick={e => e.stopPropagation()}
-                >
-                  <button
-                    onClick={() => { setEditTarget(cat); setModalOpen(true); }}
-                    className={`p-1.5 rounded-lg transition-colors ${
-                      isDark
-                        ? 'text-gray-600 hover:text-primary hover:bg-primary/10'
-                        : 'text-gray-400 hover:text-primary hover:bg-primary/5'
-                    }`}
-                  >
-                    <FiEdit2 className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => setDeleteTarget(cat)}
-                    className={`p-1.5 rounded-lg transition-colors ${
-                      isDark
-                        ? 'text-gray-600 hover:text-red-400 hover:bg-red-400/10'
-                        : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
-                    }`}
-                  >
-                    <FiTrash2 className="w-3.5 h-3.5" />
-                  </button>
+              avatar={
+                <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold ${isDark ? 'bg-purple-900/30 text-purple-400' : 'bg-purple-50 text-purple-600'}`}>
+                  {cat.name.charAt(0)}
                 </div>
-              </div>
-              <p
-                className={`text-sm line-clamp-2 ${
-                  isDark ? 'text-gray-500' : 'text-gray-500'
-                }`}
-              >
-                {cat.description}
-              </p>
-              <div
-                className={`mt-3 flex items-center gap-1 text-xs font-semibold ${
-                  isDark ? 'text-primary/70' : 'text-primary'
-                } group-hover:gap-2 transition-all`}
-              >
-                View Committees
-                <HiChevronRight className="w-3.5 h-3.5" />
-              </div>
-            </div>
-          ))}
-        </div>
+              }
+              onEdit={() => { setEditTarget(cat); setModalOpen(true); }}
+              onDelete={() => setDeleteTarget(cat)}
+              extraActions={[
+                {
+                  icon: <FiUsers className="w-3.5 h-3.5" />,
+                  label: 'Committees',
+                  onClick: () => onNavigate({ kind: 'committees', category: cat }),
+                  color: 'info',
+                },
+              ]}
+            />
+          )}
+        />
       )}
 
-      {/* Modals */}
       {modalOpen && (
         <AddEditCategoryModal
           category={editTarget}
@@ -554,10 +551,7 @@ const CategoriesSection = ({
         isDark={isDark}
         isPending={deleteMutation.isPending}
         onConfirm={() => {
-          if (deleteTarget)
-            deleteMutation.mutate(deleteTarget.id, {
-              onSuccess: () => setDeleteTarget(null),
-            });
+          if (deleteTarget) deleteMutation.mutate(deleteTarget.id, { onSuccess: () => setDeleteTarget(null) });
         }}
         onClose={() => setDeleteTarget(null)}
       />
@@ -566,7 +560,7 @@ const CategoriesSection = ({
 };
 
 /* ============================================================
-   COMMITTEES VIEW – table of committees for a category
+   COMMITTEES VIEW
    ============================================================ */
 const CommitteesView = ({
   isDark,
@@ -620,17 +614,17 @@ const CommitteesView = ({
         cell: (item: Committee) => (
           <div
             onClick={() => onNavigate({ kind: 'members', category, committee: item })}
-            className="flex items-center gap-3 min-w-0 cursor-pointer"
+            className="flex items-center gap-3 min-w-0 cursor-pointer group"
           >
             <div
               className={`flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold ${
-                isDark ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-50 text-blue-600'
-              }`}
+                isDark ? 'bg-blue-900/30 text-blue-400 group-hover:bg-blue-900/50' : 'bg-blue-50 text-blue-600 group-hover:bg-blue-100'
+              } transition-colors`}
             >
               {item.name.charAt(0)}
             </div>
             <div className="min-w-0">
-              <p className={`font-semibold text-sm truncate hover:underline ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              <p className={`font-semibold text-sm truncate group-hover:underline ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 {item.name}
               </p>
             </div>
@@ -640,9 +634,14 @@ const CommitteesView = ({
       {
         header: 'About',
         cell: (item: Committee) => (
-          <span className={`line-clamp-2 text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-            {item.about}
-          </span>
+          <div
+            onClick={() => onNavigate({ kind: 'members', category, committee: item })}
+            className="cursor-pointer"
+          >
+            <span className={`line-clamp-2 text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+              {item.about}
+            </span>
+          </div>
         ),
       },
       {
@@ -653,9 +652,7 @@ const CommitteesView = ({
             <button
               onClick={() => onNavigate({ kind: 'members', category, committee: item })}
               className={`group p-2 rounded-lg transition-all duration-200 ${
-                isDark
-                  ? 'text-gray-500 hover:text-blue-400 hover:bg-blue-400/10'
-                  : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50'
+                isDark ? 'text-gray-500 hover:text-blue-400 hover:bg-blue-400/10' : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50'
               }`}
               title="View members"
             >
@@ -664,9 +661,7 @@ const CommitteesView = ({
             <button
               onClick={() => { setEditTarget(item); setModalOpen(true); }}
               className={`group p-2 rounded-lg transition-all duration-200 ${
-                isDark
-                  ? 'text-gray-500 hover:text-primary hover:bg-primary/10'
-                  : 'text-gray-400 hover:text-primary hover:bg-primary/5'
+                isDark ? 'text-gray-500 hover:text-primary hover:bg-primary/10' : 'text-gray-400 hover:text-primary hover:bg-primary/5'
               }`}
               title="Edit"
             >
@@ -675,9 +670,7 @@ const CommitteesView = ({
             <button
               onClick={() => setDeleteTarget(item)}
               className={`group p-2 rounded-lg transition-all duration-200 ${
-                isDark
-                  ? 'text-gray-500 hover:text-red-400 hover:bg-red-400/10'
-                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+                isDark ? 'text-gray-500 hover:text-red-400 hover:bg-red-400/10' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
               }`}
               title="Delete"
             >
@@ -693,40 +686,51 @@ const CommitteesView = ({
   return (
     <div className="space-y-5">
       <SectionHeader
-        icon={<FiUsers className={`w-5 h-5 ${isDark ? 'text-primary' : 'text-primary'}`} />}
-        title={`${category.name} Committees`}
-        subtitle="Manage committees in this category"
+        icon={<FiGrid className="w-5 h-5 text-primary" />}
+        title="Committees"
+        subtitle={`Manage committees in ${category.name}`}
         isDark={isDark}
         action={
-          <AddButton
-            label="Add Committee"
-            onClick={() => { setEditTarget(undefined); setModalOpen(true); }}
-          />
+          <AddButton label="Add Committee" onClick={() => { setEditTarget(undefined); setModalOpen(true); }} />
         }
       />
-
-      <SearchBar value={search} onChange={setSearch} isDark={isDark} />
+      <SearchBar value={search} onChange={setSearch} placeholder="Search committees…" isDark={isDark} />
 
       {isLoading ? (
         <LoadingBlock isDark={isDark} text="Loading committees…" />
       ) : filtered.length === 0 ? (
-        <EmptyBlock
-          isDark={isDark}
-          message={search ? 'No matching committees' : 'No committees in this category yet'}
-          onAdd={!search ? () => { setEditTarget(undefined); setModalOpen(true); } : undefined}
-          addLabel="Add Committee"
-        />
+        <EmptyBlock isDark={isDark} message={search ? 'No matching committees' : 'No committees yet'} onAdd={!search ? () => { setEditTarget(undefined); setModalOpen(true); } : undefined} addLabel="Add Committee" />
       ) : (
-        <div
-          className={`rounded-2xl overflow-hidden border transition-colors duration-300 ${
-            isDark ? 'border-gray-800' : 'border-gray-100 shadow-sm'
-          }`}
-        >
-          <Table data={filtered} columns={columns} emptyMessage="" darkMode={isDark} />
-        </div>
+        <ResponsiveDataList
+          data={filtered}
+          columns={columns}
+          isDark={isDark}
+          renderMobileCard={item => (
+            <AdminMobileCard
+              isDark={isDark}
+              title={item.name}
+              description={item.about}
+              onClick={() => onNavigate({ kind: 'members', category, committee: item })}
+              avatar={
+                <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold ${isDark ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-50 text-blue-600'}`}>
+                  {item.name.charAt(0)}
+                </div>
+              }
+              onEdit={() => { setEditTarget(item); setModalOpen(true); }}
+              onDelete={() => setDeleteTarget(item)}
+              extraActions={[
+                {
+                  icon: <FiUsers className="w-3.5 h-3.5" />,
+                  label: 'Members',
+                  onClick: () => onNavigate({ kind: 'members', category, committee: item }),
+                  color: 'info',
+                },
+              ]}
+            />
+          )}
+        />
       )}
 
-      {/* Modals */}
       {modalOpen && (
         <AddEditCommitteeModal
           committee={editTarget}
@@ -745,10 +749,7 @@ const CommitteesView = ({
         isDark={isDark}
         isPending={deleteMutation.isPending}
         onConfirm={() => {
-          if (deleteTarget)
-            deleteMutation.mutate(deleteTarget.id, {
-              onSuccess: () => setDeleteTarget(null),
-            });
+          if (deleteTarget) deleteMutation.mutate(deleteTarget.id, { onSuccess: () => setDeleteTarget(null) });
         }}
         onClose={() => setDeleteTarget(null)}
       />
@@ -757,16 +758,14 @@ const CommitteesView = ({
 };
 
 /* ============================================================
-   MEMBERS VIEW – table of members for a committee
+   MEMBERS VIEW
    ============================================================ */
 const MembersView = ({
   isDark,
   committee,
-  category,
 }: {
   isDark: boolean;
   committee: Committee;
-  category: CommitteeCategory;
 }) => {
   const { data: mems, isLoading } = useCommitteeMembers(committee.id);
   const createMutation = useCreateCommitteeMember();
@@ -806,6 +805,15 @@ const MembersView = ({
     [createMutation, updateMutation, committee.id]
   );
 
+  const roleColors = (role: string, dark: boolean) => {
+    const map: Record<string, string> = {
+      head: dark ? 'bg-yellow-900/30 text-yellow-400' : 'bg-yellow-50 text-yellow-700',
+      vice_head: dark ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-50 text-blue-700',
+      member: dark ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-700',
+    };
+    return map[role] ?? map.member;
+  };
+
   const columns = useMemo<ColumnDef<CommitteeMember>[]>(
     () => [
       {
@@ -813,52 +821,26 @@ const MembersView = ({
         cell: (item: CommitteeMember) => (
           <div className="flex items-center gap-3 min-w-0">
             {item.image_url ? (
-              <img
-                src={item.image_url}
-                alt={item.name}
-                className="w-9 h-9 rounded-full object-cover flex-shrink-0"
-                onError={e => {
-                  (e.currentTarget as HTMLImageElement).style.display = 'none';
-                }}
-              />
+              <img src={item.image_url} alt={item.name} className="flex-shrink-0 w-9 h-9 rounded-full object-cover" onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
             ) : (
-              <div
-                className={`flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold ${
-                  isDark ? 'bg-green-900/30 text-green-400' : 'bg-green-50 text-green-600'
-                }`}
-              >
+              <div className={`flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold ${isDark ? 'bg-green-900/30 text-green-400' : 'bg-green-50 text-green-600'}`}>
                 {item.name.charAt(0)}
               </div>
             )}
             <div className="min-w-0">
-              <p className={`font-semibold text-sm truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                {item.name}
-              </p>
-              <p className={`text-xs truncate ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                {item.email}
-              </p>
+              <p className={`font-semibold text-sm truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>{item.name}</p>
+              <p className={`text-xs truncate ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{item.email}</p>
             </div>
           </div>
         ),
       },
       {
         header: 'Role',
-        cell: (item: CommitteeMember) => {
-          const colors: Record<string, string> = {
-            head: isDark ? 'bg-yellow-900/30 text-yellow-400' : 'bg-yellow-50 text-yellow-700',
-            vice_head: isDark ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-50 text-blue-700',
-            member: isDark ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-700',
-          };
-          return (
-            <span
-              className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold ${
-                colors[item.role] ?? colors.member
-              }`}
-            >
-              {MEMBER_ROLE_LABELS[item.role] ?? item.role}
-            </span>
-          );
-        },
+        cell: (item: CommitteeMember) => (
+          <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold ${roleColors(item.role, isDark)}`}>
+            {MEMBER_ROLE_LABELS[item.role] ?? item.role}
+          </span>
+        ),
       },
       {
         header: 'Actions',
@@ -867,22 +849,14 @@ const MembersView = ({
           <div className="flex items-center justify-end gap-1">
             <button
               onClick={() => { setEditTarget(item); setModalOpen(true); }}
-              className={`group p-2 rounded-lg transition-all duration-200 ${
-                isDark
-                  ? 'text-gray-500 hover:text-primary hover:bg-primary/10'
-                  : 'text-gray-400 hover:text-primary hover:bg-primary/5'
-              }`}
+              className={`group p-2 rounded-lg transition-all duration-200 ${isDark ? 'text-gray-500 hover:text-primary hover:bg-primary/10' : 'text-gray-400 hover:text-primary hover:bg-primary/5'}`}
               title="Edit"
             >
               <FiEdit2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
             </button>
             <button
               onClick={() => setDeleteTarget(item)}
-              className={`group p-2 rounded-lg transition-all duration-200 ${
-                isDark
-                  ? 'text-gray-500 hover:text-red-400 hover:bg-red-400/10'
-                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
-              }`}
+              className={`group p-2 rounded-lg transition-all duration-200 ${isDark ? 'text-gray-500 hover:text-red-400 hover:bg-red-400/10' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'}`}
               title="Delete"
             >
               <FiTrash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
@@ -897,40 +871,47 @@ const MembersView = ({
   return (
     <div className="space-y-5">
       <SectionHeader
-        icon={<FiUsers className={`w-5 h-5 ${isDark ? 'text-primary' : 'text-primary'}`} />}
-        title={`${committee.name} Members`}
-        subtitle={`Members of ${committee.name} — ${category.name}`}
+        icon={<FiUsers className="w-5 h-5 text-primary" />}
+        title="Members"
+        subtitle={`Manage members of ${committee.name}`}
         isDark={isDark}
         action={
-          <AddButton
-            label="Add Member"
-            onClick={() => { setEditTarget(undefined); setModalOpen(true); }}
-          />
+          <AddButton label="Add Member" onClick={() => { setEditTarget(undefined); setModalOpen(true); }} />
         }
       />
-
-      <SearchBar value={search} onChange={setSearch} isDark={isDark} />
+      <SearchBar value={search} onChange={setSearch} placeholder="Search members…" isDark={isDark} />
 
       {isLoading ? (
         <LoadingBlock isDark={isDark} text="Loading members…" />
       ) : filtered.length === 0 ? (
-        <EmptyBlock
-          isDark={isDark}
-          message={search ? 'No matching members' : 'No members yet'}
-          onAdd={!search ? () => { setEditTarget(undefined); setModalOpen(true); } : undefined}
-          addLabel="Add Member"
-        />
+        <EmptyBlock isDark={isDark} message={search ? 'No matching members' : 'No members yet'} onAdd={!search ? () => { setEditTarget(undefined); setModalOpen(true); } : undefined} addLabel="Add Member" />
       ) : (
-        <div
-          className={`rounded-2xl overflow-hidden border transition-colors duration-300 ${
-            isDark ? 'border-gray-800' : 'border-gray-100 shadow-sm'
-          }`}
-        >
-          <Table data={filtered} columns={columns} emptyMessage="" darkMode={isDark} />
-        </div>
+        <ResponsiveDataList
+          data={filtered}
+          columns={columns}
+          isDark={isDark}
+          renderMobileCard={item => (
+            <AdminMobileCard
+              isDark={isDark}
+              title={item.name}
+              subtitle={item.email}
+              badge={MEMBER_ROLE_LABELS[item.role] ?? item.role}
+              avatar={
+                item.image_url ? (
+                  <img src={item.image_url} alt={item.name} className="flex-shrink-0 w-10 h-10 rounded-full object-cover" />
+                ) : (
+                  <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${isDark ? 'bg-green-900/30 text-green-400' : 'bg-green-50 text-green-600'}`}>
+                    {item.name.charAt(0)}
+                  </div>
+                )
+              }
+              onEdit={() => { setEditTarget(item); setModalOpen(true); }}
+              onDelete={() => setDeleteTarget(item)}
+            />
+          )}
+        />
       )}
 
-      {/* Modals */}
       {modalOpen && (
         <AddEditMemberModal
           member={editTarget}
@@ -948,11 +929,7 @@ const MembersView = ({
         isDark={isDark}
         isPending={deleteMutation.isPending}
         onConfirm={() => {
-          if (deleteTarget)
-            deleteMutation.mutate(
-              { id: deleteTarget.id, committee_id: committee.id },
-              { onSuccess: () => setDeleteTarget(null) }
-            );
+          if (deleteTarget) deleteMutation.mutate({ id: deleteTarget.id, committee_id: committee.id }, { onSuccess: () => setDeleteTarget(null) });
         }}
         onClose={() => setDeleteTarget(null)}
       />
@@ -960,90 +937,3 @@ const MembersView = ({
   );
 };
 
-/* ============================================================
-   Shared UI helpers
-   ============================================================ */
-const SearchBar = ({
-  value,
-  onChange,
-  isDark,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  isDark: boolean;
-}) => (
-  <div
-    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-colors duration-300 ${
-      isDark
-        ? 'bg-gray-900 border-gray-800 focus-within:border-primary/50'
-        : 'bg-white border-gray-200 focus-within:border-primary/40 shadow-sm'
-    }`}
-  >
-    <FiSearch className={`w-4 h-4 flex-shrink-0 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
-    <input
-      type="text"
-      placeholder="Search…"
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      className={`flex-1 text-sm bg-transparent outline-none ${
-        isDark ? 'text-white placeholder:text-gray-600' : 'text-gray-900 placeholder:text-gray-400'
-      }`}
-    />
-    {value && (
-      <button
-        onClick={() => onChange('')}
-        className={`text-xs px-2 py-0.5 rounded-md transition-colors ${
-          isDark
-            ? 'text-gray-500 hover:text-gray-300 hover:bg-gray-800'
-            : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
-        }`}
-      >
-        Clear
-      </button>
-    )}
-  </div>
-);
-
-const LoadingBlock = ({ isDark, text }: { isDark: boolean; text: string }) => (
-  <div
-    className={`rounded-2xl p-12 flex items-center justify-center border ${
-      isDark ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-100 shadow-sm'
-    }`}
-  >
-    <div className="flex items-center gap-3">
-      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
-      <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{text}</p>
-    </div>
-  </div>
-);
-
-const EmptyBlock = ({
-  isDark,
-  message,
-  onAdd,
-  addLabel,
-}: {
-  isDark: boolean;
-  message: string;
-  onAdd?: () => void;
-  addLabel?: string;
-}) => (
-  <div
-    className={`rounded-2xl p-12 flex flex-col items-center gap-4 border transition-colors duration-300 ${
-      isDark ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-100 shadow-sm'
-    }`}
-  >
-    <p className={`font-semibold text-base ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-      {message}
-    </p>
-    {onAdd && addLabel && (
-      <button
-        onClick={onAdd}
-        className="mt-2 flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors"
-      >
-        <MdAdd className="text-base" />
-        {addLabel}
-      </button>
-    )}
-  </div>
-);

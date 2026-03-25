@@ -1,14 +1,21 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useTheme } from '@/shared/hooks/useTheme';
-import { MdAdd } from 'react-icons/md';
-import { FiEdit2, FiTrash2, FiUsers, FiCalendar, FiSearch } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiUsers, FiCalendar } from 'react-icons/fi';
 import AddEditEventModal from '@/features/admin/components/eventAdminPanel/AddEditEventModal';
 import EventDetailModal from '@/features/admin/components/eventAdminPanel/EventDetailModal';
 import { EventRegistrationsModal } from '@/features/admin/components/eventAdminPanel/EventRegistrationsModal';
 import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
-import { Table, type ColumnDef } from '@ieee-ui/ui';
+import { AdminMobileCard } from '@/shared/components/AdminMobileCard';
+import { type ColumnDef } from '@ieee-ui/ui';
 import { Pagination } from '@/shared/components/ui/Pagination';
-import { MobileEventCard } from '@/features/admin/components/eventAdminPanel/MobileEventCard';
+import {
+  SectionHeader,
+  AddButton,
+  ResponsiveDataList,
+  SearchBar,
+  LoadingBlock,
+  EmptyBlock,
+} from '@/features/admin/components/shared/AdminPageComponents';
 import {
   useEvents,
   useCreateEvent,
@@ -316,167 +323,62 @@ export const EventsPage = () => {
   return (
     <div className="space-y-6">
       {/* ── Page header ─────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div
-            className={`p-2.5 rounded-xl ${
-              isDark ? 'bg-primary/20' : 'bg-primary/10'
-            }`}
-          >
-            <FiCalendar
-              className={`w-6 h-6 ${isDark ? 'text-primary-light' : 'text-primary'}`}
-            />
-          </div>
-          <div>
-            <h1
-              className={`text-2xl font-bold leading-tight ${
-                isDark ? 'text-white' : 'text-gray-900'
-              }`}
-            >
-              Event Management
-            </h1>
-            <p
-              className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
-            >
-              Create and manage upcoming events
-            </p>
-          </div>
-        </div>
-
-        <button
-          onClick={handleAdd}
-          className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary/90 active:scale-95 transition-all duration-200 shadow-md shadow-primary/20"
-        >
-          <MdAdd className="text-xl" />
-          Add Event
-        </button>
-      </div>
+      <SectionHeader
+        icon={<FiCalendar className="w-5 h-5 text-primary" />}
+        title="Event Management"
+        subtitle="Create and manage upcoming events"
+        isDark={isDark}
+        action={<AddButton label="Add Event" onClick={handleAdd} />}
+      />
 
       {/* ── Search bar ──────────────────────────────────────── */}
-      <div
-        className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-colors duration-300 ${
-          isDark
-            ? 'bg-gray-900 border-gray-800 focus-within:border-primary/50'
-            : 'bg-white border-gray-200 focus-within:border-primary/40 shadow-sm'
-        }`}
-      >
-        <FiSearch
-          className={`w-4 h-4 flex-shrink-0 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}
-        />
-        <input
-          type="text"
-          placeholder="Search by title, description, or location…"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className={`flex-1 text-sm bg-transparent outline-none placeholder:transition-colors ${
-            isDark
-              ? 'text-white placeholder:text-gray-600'
-              : 'text-gray-900 placeholder:text-gray-400'
-          }`}
-        />
-        {search && (
-          <button
-            onClick={() => setSearch('')}
-            className={`text-xs px-2 py-0.5 rounded-md transition-colors ${
-              isDark
-                ? 'text-gray-500 hover:text-gray-300 hover:bg-gray-800'
-                : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            Clear
-          </button>
-        )}
-      </div>
+      <SearchBar
+        value={search}
+        onChange={setSearch}
+        placeholder="Search by title, description, or location…"
+        isDark={isDark}
+      />
 
       {/* ── Content ─────────────────────────────────────────── */}
       {isLoading ? (
-        <div
-          className={`rounded-2xl p-12 flex items-center justify-center border ${
-            isDark
-              ? 'bg-gray-900 border-gray-800'
-              : 'bg-white border-gray-100 shadow-sm'
-          }`}
-        >
-          <p
-            className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
-          >
-            Loading events…
-          </p>
-        </div>
+        <LoadingBlock isDark={isDark} text="Loading events…" />
       ) : filtered.length === 0 ? (
-        <div
-          className={`rounded-2xl p-12 flex flex-col items-center gap-4 border transition-colors duration-300 ${
-            isDark
-              ? 'bg-gray-900 border-gray-800'
-              : 'bg-white border-gray-100 shadow-sm'
-          }`}
-        >
-          <div
-            className={`w-16 h-16 rounded-2xl flex items-center justify-center ${
-              isDark ? 'bg-gray-800' : 'bg-gray-50'
-            }`}
-          >
-            <FiCalendar
-              className={`w-8 h-8 ${isDark ? 'text-gray-600' : 'text-gray-300'}`}
-            />
-          </div>
-          <div className="text-center">
-            <p
-              className={`font-semibold text-base ${
-                isDark ? 'text-gray-300' : 'text-gray-700'
-              }`}
-            >
-              {search ? 'No matching events' : 'No events yet'}
-            </p>
-            <p
-              className={`text-sm mt-1 ${isDark ? 'text-gray-600' : 'text-gray-400'}`}
-            >
-              {search
-                ? 'Try a different search term.'
-                : 'Click "Add Event" to create your first one.'}
-            </p>
-          </div>
-          {!search && (
-            <button
-              onClick={handleAdd}
-              className="mt-2 flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors"
-            >
-              <MdAdd className="text-base" />
-              Add Event
-            </button>
-          )}
-        </div>
+        <EmptyBlock
+          isDark={isDark}
+          message={search ? 'No matching events' : 'No events yet'}
+          onAdd={!search ? handleAdd : undefined}
+          addLabel="Add Event"
+        />
       ) : (
         <>
-          {/* Mobile – Cards */}
-          <div className="block md:hidden space-y-3">
-            {filtered.map(event => (
-              <MobileEventCard
-                key={event.id}
-                event={event}
+          <ResponsiveDataList
+            data={filtered}
+            columns={columns}
+            isDark={isDark}
+            renderMobileCard={(event) => (
+              <AdminMobileCard
                 isDark={isDark}
-                onEdit={handleEdit}
-                onViewRegistrations={handleViewRegistrations}
-                onDelete={handleDelete}
-                getEventStatus={getEventStatus}
-                onView={handleView}
+                title={event.title}
+                subtitle={`${formatDate(event.start_time)} · ${event.location}`}
+                badge={getEventStatus(event)}
+                description={event.description}
+                avatar={
+                  <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? 'bg-primary/20' : 'bg-primary/10'}`}>
+                    <FiCalendar className={`w-5 h-5 ${isDark ? 'text-primary-light' : 'text-primary'}`} />
+                  </div>
+                }
+                onEdit={() => handleEdit(event)}
+                onDelete={() => handleDelete(event)}
+                onView={() => handleView(event)}
+                extraActions={[{
+                  icon: <FiUsers className="w-3.5 h-3.5" />,
+                  label: 'Registrations',
+                  onClick: () => handleViewRegistrations(event),
+                  color: 'info'
+                }]}
               />
-            ))}
-          </div>
-
-          {/* Desktop – Table */}
-          <div
-            className={`hidden md:block rounded-2xl overflow-hidden border transition-colors duration-300 ${
-              isDark ? 'border-gray-800' : 'border-gray-100 shadow-sm'
-            }`}
-          >
-            <Table
-              data={filtered}
-              columns={columns}
-              emptyMessage="No events found"
-              darkMode={isDark}
-            />
-          </div>
+            )}
+          />
 
           {/* Result count */}
           {search && (

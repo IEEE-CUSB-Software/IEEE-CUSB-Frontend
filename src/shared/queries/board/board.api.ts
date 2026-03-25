@@ -8,7 +8,7 @@ import type {
 } from '@/shared/types/committees.types';
 
 interface BoardListResponse {
-  board: BoardMember[];
+  members: BoardMember[];
   count: number;
 }
 
@@ -17,7 +17,7 @@ export const boardApi = {
     const response = await apiClient.get<
       CommitteeApiResponse<BoardListResponse>
     >(API_ENDPOINTS.BOARD.GET_ALL);
-    return response.data.data.board;
+    return response.data.data.members;
   },
 
   createBoardMember: async (
