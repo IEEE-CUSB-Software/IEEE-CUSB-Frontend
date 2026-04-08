@@ -47,10 +47,19 @@ apiClient.interceptors.response.use(
   response => response,
   async error => {
     const originalRequest = error.config;
+    const requestUrl = originalRequest?.url || '';
+    const accessToken = localStorage.getItem('access_token');
 
-    // Handle 401 Unauthorized errors (skip if this is already a retry or a refresh request)
+    const isPublicAuthRequest =
+      requestUrl.includes('/auth/login') ||
+      requestUrl.includes('/auth/register') ||
+      requestUrl.includes('/auth/password/reset') ||
+      requestUrl.includes('/auth/otp/password/send');
+
     if (
       error.response?.status === 401 &&
+      !!accessToken &&
+      !isPublicAuthRequest &&
       !originalRequest._retry &&
       !originalRequest.url?.includes('/auth/token/refresh')
     ) {
