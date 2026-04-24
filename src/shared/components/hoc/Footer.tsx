@@ -1,5 +1,53 @@
+import { Link } from 'react-router-dom';
+import { FaFacebookF, FaLinkedinIn } from 'react-icons/fa';
 import logoImage from '@/assets/logo.jpg';
 import { useTheme } from '@/shared/hooks/useTheme';
+
+const SOCIAL_LINKS = [
+  {
+    icon: FaFacebookF,
+    href: 'https://www.facebook.com/IEEECUSB/',
+    label: 'Facebook',
+  },
+  {
+    icon: FaLinkedinIn,
+    href: 'https://www.linkedin.com/company/ieeecusb/', 
+    label: 'LinkedIn',
+  },
+];
+
+const QUICK_LINKS = [
+  { label: 'Home', to: '/' },
+  { label: 'About Us', to: '/about' },
+  { label: 'Committees', to: '/committees' },
+  { label: 'Events', to: '/events' },
+  { label: 'Join Us', to: '/join' },
+];
+
+const RESOURCE_LINKS = [
+  { label: 'IEEE.org', href: 'https://www.ieee.org/' },
+  {
+    label: 'IEEE Xplore',
+    href: 'https://ieeexplore.ieee.org/Xplore/home.jsp',
+  },
+  { label: 'IEEE Spectrum', href: 'https://spectrum.ieee.org/' },
+  { label: 'IEEE Standards', href: 'https://standards.ieee.org/' },
+];
+
+const POLICY_LINKS = [
+  {
+    label: 'IEEE Privacy Policy',
+    href: 'https://www.ieee.org/security-privacy.html',
+  },
+  {
+    label: 'IEEE Terms & Conditions',
+    href: 'https://www.ieee.org/about/help/site-terms-conditions.html',
+  },
+  {
+    label: 'IEEE Non-Discrimination Policy',
+    href: 'https://www.ieee.org/about/corporate/governance/p9-26.html',
+  },
+];
 
 export const Footer = () => {
   const { isDark } = useTheme();
@@ -29,36 +77,22 @@ export const Footer = () => {
             Cairo University.
           </p>
           <div className="flex gap-3">
-            <a
-              href="#"
-              className={`w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition-all ${
-                isDark
-                  ? 'bg-gray-800 text-white'
-                  : 'bg-white text-gray-600 shadow-sm border border-gray-100'
-              }`}
-            >
-              <span className="text-sm font-bold">f</span>
-            </a>
-            <a
-              href="#"
-              className={`w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition-all ${
-                isDark
-                  ? 'bg-gray-800 text-white'
-                  : 'bg-white text-gray-600 shadow-sm border border-gray-100'
-              }`}
-            >
-              <span className="text-sm font-bold">in</span>
-            </a>
-            <a
-              href="#"
-              className={`w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition-all ${
-                isDark
-                  ? 'bg-gray-800 text-white'
-                  : 'bg-white text-gray-600 shadow-sm border border-gray-100'
-              }`}
-            >
-              <span className="text-sm font-bold">tw</span>
-            </a>
+            {SOCIAL_LINKS.map(({ icon: Icon, href, label }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className={`w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-all ${
+                  isDark
+                    ? 'bg-gray-800 text-white'
+                    : 'bg-white text-gray-600 shadow-sm border border-gray-100'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+              </a>
+            ))}
           </div>
         </div>
 
@@ -70,29 +104,16 @@ export const Footer = () => {
             Quick Links
           </h3>
           <ul className="space-y-2 text-sm">
-            <li>
-              <a href="#" className="hover:text-primary transition-colors">
-                Home
-              </a>
-            </li>
-            <li>
-              <a href="#about" className="hover:text-primary transition-colors">
-                About Us
-              </a>
-            </li>
-            <li>
-              <a
-                href="#committees"
-                className="hover:text-primary transition-colors"
-              >
-                Our Committees
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-primary transition-colors">
-                Our Team
-              </a>
-            </li>
+            {QUICK_LINKS.map(({ label, to }) => (
+              <li key={to}>
+                <Link
+                  to={to}
+                  className="hover:text-primary transition-colors"
+                >
+                  {label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
 
@@ -104,21 +125,18 @@ export const Footer = () => {
             Resources
           </h3>
           <ul className="space-y-2 text-sm">
-            <li>
-              <a href="#" className="hover:text-primary transition-colors">
-                IEEE.org
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-primary transition-colors">
-                IEEE xplore
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-primary transition-colors">
-                Spectrum Online
-              </a>
-            </li>
+            {RESOURCE_LINKS.map(({ label, href }) => (
+              <li key={href}>
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-primary transition-colors"
+                >
+                  {label}
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
 
@@ -136,7 +154,12 @@ export const Footer = () => {
             </li>
             <li className="flex items-start gap-2">
               <span>📧</span>
-              <span>contact@ieeecusb.org</span>
+              <a
+                href="mailto:contact@ieeecusb.org"
+                className="hover:text-primary transition-colors"
+              >
+                contact@ieeecusb.org
+              </a>
             </li>
           </ul>
         </div>
@@ -149,10 +172,25 @@ export const Footer = () => {
             : 'border-gray-200 text-gray-500'
         }`}
       >
-        <p>
-          © 2026 IEEE Cairo University Student Branch. All rights reserved.
-          Privacy Policy | Terms of Service
+        <p className="mb-2">
+          &copy; {new Date().getFullYear()} IEEE Cairo University Student
+          Branch. All rights reserved.
         </p>
+        <div className="flex flex-wrap justify-center gap-x-1">
+          {POLICY_LINKS.map(({ label, href }, index) => (
+            <span key={href}>
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-primary transition-colors underline-offset-2 hover:underline"
+              >
+                {label}
+              </a>
+              {index < POLICY_LINKS.length - 1 && <span> | </span>}
+            </span>
+          ))}
+        </div>
       </div>
     </footer>
   );
