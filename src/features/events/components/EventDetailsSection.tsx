@@ -6,8 +6,12 @@ import { useTheme } from '@/shared/hooks/useTheme';
 import { EventDetailsBanner } from './EventDetailsBanner';
 import { EventDetailsSidebar } from './EventDetailsSidebar';
 import { EventDetailsContent } from './EventDetailsContent';
-import { useEvent } from '@/shared/queries/events';
+import { EventGallery } from './EventGallery';
+import { useEvent, useEventGallery } from '@/shared/queries/events';
 import type { Event } from '@/shared/types/events.types';
+
+const FALLBACK_IMAGE =
+  'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200';
 
 // Transform API event to display format
 const transformEvent = (event: Event) => {
@@ -24,8 +28,7 @@ const transformEvent = (event: Event) => {
     // Use real category from API
     category: event.category || 'Workshop',
     categoryBadge: (event.category || 'Workshop').toUpperCase(),
-    image:
-      'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200',
+    image: event.image_url || FALLBACK_IMAGE,
     // Capacity info from API
     capacity: event.capacity,
     remainingSpots: event.remainingSpots ?? event.capacity,
@@ -45,6 +48,9 @@ export const EventDetailsSection = () => {
 
   // Fetch event data from API
   const { data: event, isLoading, isError } = useEvent(id || '');
+
+  // Fetch gallery images
+  const { data: galleryImages } = useEventGallery(id || '', !!id);
 
   // Scroll to top on mount
   useEffect(() => {
@@ -139,6 +145,11 @@ export const EventDetailsSection = () => {
               prerequisites={eventData.prerequisites}
               darkMode={isDark}
             />
+
+            {/* Gallery Section */}
+            {galleryImages && galleryImages.length > 0 && (
+              <EventGallery images={galleryImages} darkMode={isDark} />
+            )}
           </div>
 
           {/* Right Column - Sidebar */}
