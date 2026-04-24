@@ -7,65 +7,53 @@ import { EventDetailsBanner } from './EventDetailsBanner';
 import { EventDetailsSidebar } from './EventDetailsSidebar';
 import { EventDetailsContent } from './EventDetailsContent';
 import { EventGallery } from './EventGallery';
-import { useEvent, useEventGallery } from '@/shared/queries/events';
+import { useEvent } from '@/shared/queries/events';
 import type { Event } from '@/shared/types/events.types';
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200';
 
-// Transform API event to display format
-const transformEvent = (event: Event) => {
-  return {
-    title: event.title,
-    description: event.description,
-    location: event.location,
-    startTime: event.start_time,
-    endTime: event.end_time,
-    registrationDeadline: event.registration_deadline,
-    id: event.id,
-    is_registered: event.is_registered,
-    registration_id: event.registration_id,
-    // Use real category from API
-    category: event.category || 'Workshop',
-    categoryBadge: (event.category || 'Workshop').toUpperCase(),
-    image: event.image_url || FALLBACK_IMAGE,
-    // Capacity info from API
-    capacity: event.capacity,
-    remainingSpots: event.remainingSpots ?? event.capacity,
-    is_full: event.is_full ?? false,
-    // Use description as about content
-    about: event.description,
-    learningPoints: [] as string[],
-    prerequisites: [] as string[],
-    instructor: undefined,
-  };
-};
+const transformEvent = (event: Event) => ({
+  title: event.title,
+  description: event.description,
+  location: event.location,
+  startTime: event.start_time,
+  endTime: event.end_time,
+  registrationDeadline: event.registration_deadline,
+  id: event.id,
+  is_registered: event.is_registered,
+  registration_id: event.registration_id,
+  category: event.category || 'Workshop',
+  categoryBadge: (event.category || 'Workshop').toUpperCase(),
+  image: event.image_url || FALLBACK_IMAGE,
+  capacity: event.capacity,
+  remainingSpots: event.remainingSpots ?? event.capacity,
+  is_full: event.is_full ?? false,
+  about: event.description,
+  learningPoints: [] as string[],
+  prerequisites: [] as string[],
+  instructor: undefined,
+});
 
 export const EventDetailsSection = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { isDark } = useTheme();
 
-  // Fetch event data from API
   const { data: event, isLoading, isError } = useEvent(id || '');
 
-  // Fetch gallery images
-  const { data: galleryImages } = useEventGallery(id || '', !!id);
+  // Gallery comes embedded in the event response
+  const galleryImages = event?.images ?? [];
 
-  // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Loading skeleton
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background py-8 md:py-16">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          {/* Back button skeleton */}
           <div className="h-10 w-32 bg-gray-200 rounded-lg mb-6 animate-pulse" />
-
-          {/* Main content skeleton */}
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
               <div className="h-96 bg-gray-200 rounded-3xl animate-pulse" />
@@ -81,15 +69,12 @@ export const EventDetailsSection = () => {
     );
   }
 
-  // Error state
   if (isError || !event) {
     return (
       <div className="min-h-screen bg-background py-8 md:py-16">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="text-center py-12">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              Event Not Found
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Event Not Found</h1>
             <p className="text-gray-600 mb-8">
               The event you're looking for doesn't exist or has been removed.
             </p>
@@ -106,7 +91,6 @@ export const EventDetailsSection = () => {
     );
   }
 
-  // Transform event data for components
   const eventData = transformEvent(event);
 
   return (
@@ -126,9 +110,8 @@ export const EventDetailsSection = () => {
 
         {/* Main Content Grid */}
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left Column - Main Content */}
+          {/* Left Column */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Event Banner */}
             <EventDetailsBanner
               title={eventData.title}
               description={eventData.description}
@@ -138,7 +121,6 @@ export const EventDetailsSection = () => {
               darkMode={isDark}
             />
 
-            {/* Content Section */}
             <EventDetailsContent
               about={eventData.about}
               learningPoints={eventData.learningPoints}
@@ -146,8 +128,8 @@ export const EventDetailsSection = () => {
               darkMode={isDark}
             />
 
-            {/* Gallery Section */}
-            {galleryImages && galleryImages.length > 0 && (
+            {/* Gallery — sourced directly from event.images */}
+            {galleryImages.length > 0 && (
               <EventGallery images={galleryImages} darkMode={isDark} />
             )}
           </div>

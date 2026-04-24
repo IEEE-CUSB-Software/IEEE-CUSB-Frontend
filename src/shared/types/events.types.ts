@@ -19,6 +19,7 @@ export interface Event {
   updated_at: string;
   image_url?: string | null;
   image_public_id?: string | null;
+  images?: EventGalleryImage[];
   is_registered?: boolean;
   registration_id?: string;
 }

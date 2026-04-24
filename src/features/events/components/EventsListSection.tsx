@@ -59,8 +59,7 @@ const transformEvent = (event: Event) => {
     // Use real category from API
     category: event.category || 'Technical',
     categoryBadge: (event.category || 'Technical').toUpperCase(),
-    // Placeholder image - can be extended when API supports images
-    image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800',
+    image: event.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800',
     is_registered: event.is_registered,
     registration_id: event.registration_id,
   };
