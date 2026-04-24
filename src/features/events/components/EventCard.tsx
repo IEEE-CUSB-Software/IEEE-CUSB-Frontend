@@ -25,6 +25,7 @@ interface EventCardProps {
     registration_id?: string;
     remainingSpots?: number;
     is_full?: boolean;
+    registrationDeadline?: string;
   };
   index: number;
   darkMode?: boolean;
@@ -42,6 +43,12 @@ export const EventCard = ({ event, index, darkMode }: EventCardProps) => {
   const { mutate: cancelRegistration, isPending: isCancelling } =
     useCancelRegistration();
 
+  const isRegistrationClosed = event.registrationDeadline
+    ? new Date() > new Date(event.registrationDeadline)
+    : false;
+
+  const isPending = isRegistering || isCancelling;
+
   const handleRegister = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!isAuthenticated) {
@@ -58,7 +65,6 @@ export const EventCard = ({ event, index, darkMode }: EventCardProps) => {
     }
   };
 
-  const isPending = isRegistering || isCancelling;
 
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
@@ -192,7 +198,7 @@ export const EventCard = ({ event, index, darkMode }: EventCardProps) => {
           {event.status !== 'Completed' && !isAdmin && (
             <>
               {/* Spots remaining indicator */}
-              {event.remainingSpots !== undefined && (
+              {event.remainingSpots !== undefined && (!isRegistrationClosed || event.is_registered) && (
                 <p
                   className={`text-xs text-center mt-2 font-medium ${
                     event.is_full
@@ -217,11 +223,11 @@ export const EventCard = ({ event, index, darkMode }: EventCardProps) => {
                 onClick={
                   event.is_registered ? handleCancelRegistration : handleRegister
                 }
-                disabled={isPending || (!event.is_registered && event.is_full)}
+                disabled={isPending || (!event.is_registered && (event.is_full || isRegistrationClosed))}
                 className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 hover:shadow-lg mt-2 ${
                   event.is_registered
                     ? 'bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30'
-                    : event.is_full
+                    : (event.is_full || isRegistrationClosed)
                       ? darkMode
                         ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                         : 'bg-gray-100 text-gray-400 cursor-not-allowed'
@@ -232,9 +238,11 @@ export const EventCard = ({ event, index, darkMode }: EventCardProps) => {
                   ? 'Processing...'
                   : event.is_registered
                     ? 'Cancel Registration'
-                    : event.is_full
-                      ? 'Event Full'
-                      : 'Register Now'}
+                    : isRegistrationClosed
+                      ? 'Registration Closed'
+                      : event.is_full
+                        ? 'Event Full'
+                        : 'Register Now'}
               </motion.button>
             </>
           )}

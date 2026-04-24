@@ -461,7 +461,7 @@ export const EventDetailsSidebar = ({
               darkMode ? 'text-white' : 'text-gray-900'
             }`}
           >
-            {isRegistered ? 'You are registered!' : 'Secure your spot'}
+            {isRegistered ? 'You are registered!' : !isRegistrationOpen ? 'Registration Closed' : 'Secure your spot'}
           </h2>
 
           {isRegistered ? (
@@ -514,7 +514,7 @@ export const EventDetailsSidebar = ({
               <button
                 onClick={handleRegister}
                 className={`w-full font-semibold py-3 rounded-lg transition-all duration-200 transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${
-                  isFull
+                  isFull || !isRegistrationOpen
                     ? darkMode
                       ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                       : 'bg-gray-100 text-gray-400 cursor-not-allowed'
@@ -524,11 +524,11 @@ export const EventDetailsSidebar = ({
               >
                 {isPending
                   ? 'Processing...'
-                  : isFull
-                    ? 'Event Full'
-                    : isRegistrationOpen
-                      ? 'Register Now'
-                      : 'Registration Closed'}
+                  : !isRegistrationOpen
+                    ? 'Registration Closed'
+                    : isFull
+                      ? 'Event Full'
+                      : 'Register Now'}
               </button>
             </div>
           )}
