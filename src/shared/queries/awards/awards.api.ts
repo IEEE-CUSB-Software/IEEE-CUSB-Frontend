@@ -69,4 +69,29 @@ export const awardsApi = {
   deleteAward: async (id: string): Promise<void> => {
     await apiClient.delete(API_ENDPOINTS.AWARDS.DELETE(id));
   },
+
+  /**
+   * Upload or replace award image (Admin only)
+   */
+  uploadAwardImage: async (id: string, file: File): Promise<Award> => {
+    const formData = new FormData();
+    formData.append('image', file);
+    const response = await apiClient.post<AwardApiResponse<Award>>(
+      API_ENDPOINTS.AWARDS.UPLOAD_IMAGE(id),
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+    return response.data.data;
+  },
+
+  /**
+   * Delete award image (Admin only)
+   */
+  deleteAwardImage: async (id: string): Promise<Award> => {
+    const response = await apiClient.delete<AwardApiResponse<Award>>(
+      API_ENDPOINTS.AWARDS.DELETE_IMAGE(id)
+    );
+    return response.data.data;
+  },
 };
+

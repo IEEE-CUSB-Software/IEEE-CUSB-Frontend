@@ -93,3 +93,53 @@ export const useDeleteAward = () => {
     },
   });
 };
+
+// ─── Award Image Hooks ──────────────────────────────────────────────────────
+
+/**
+ * Hook to upload/replace award image (Admin only)
+ */
+export const useUploadAwardImage = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, file }: { id: string; file: File }) =>
+      awardsApi.uploadAwardImage(id, file),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.AWARDS.ALL });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.AWARDS.ONE(variables.id),
+      });
+      toast.success('Award image uploaded successfully!');
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || 'Failed to upload award image.';
+      toast.error(message);
+    },
+  });
+};
+
+/**
+ * Hook to delete award image (Admin only)
+ */
+export const useDeleteAwardImage = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => awardsApi.deleteAwardImage(id),
+    onSuccess: (updatedAward) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.AWARDS.ALL });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.AWARDS.ONE(updatedAward.id),
+      });
+      toast.success('Award image deleted successfully!');
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || 'Failed to delete award image.';
+      toast.error(message);
+    },
+  });
+};
+

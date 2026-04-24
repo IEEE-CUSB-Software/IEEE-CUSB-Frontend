@@ -3,6 +3,7 @@ import { API_ENDPOINTS } from '@/shared/constants/apiConstants';
 import type {
   Event,
   EventRegistration,
+  EventGalleryImage,
   CreateEventRequest,
   UpdateEventRequest,
   UpdateRegistrationStatusRequest,
@@ -76,6 +77,64 @@ export const eventsApi = {
   },
 
   /**
+   * Upload or replace the primary event image (Admin only)
+   */
+  uploadEventImage: async (id: string, file: File): Promise<Event> => {
+    const formData = new FormData();
+    formData.append('image', file);
+    const response = await apiClient.post<EventApiResponse<Event>>(
+      API_ENDPOINTS.EVENTS.UPLOAD_IMAGE(id),
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+    return response.data.data;
+  },
+
+  /**
+   * Delete the primary event image (Admin only)
+   */
+  deleteEventImage: async (id: string): Promise<Event> => {
+    const response = await apiClient.delete<EventApiResponse<Event>>(
+      API_ENDPOINTS.EVENTS.DELETE_IMAGE(id)
+    );
+    return response.data.data;
+  },
+
+  /**
+   * Upload one or more gallery images (Admin only)
+   */
+  uploadEventGallery: async (id: string, files: File[]): Promise<EventGalleryImage[]> => {
+    const formData = new FormData();
+    files.forEach((file) => formData.append('images', file));
+    const response = await apiClient.post<EventApiResponse<EventGalleryImage[]>>(
+      API_ENDPOINTS.EVENTS.UPLOAD_GALLERY(id),
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+    return response.data.data;
+  },
+
+  /**
+   * Delete a single gallery image (Admin only)
+   */
+  deleteEventGalleryImage: async (id: string, imageId: string): Promise<EventGalleryImage> => {
+    const response = await apiClient.delete<EventApiResponse<EventGalleryImage>>(
+      API_ENDPOINTS.EVENTS.DELETE_GALLERY_IMAGE(id, imageId)
+    );
+    return response.data.data;
+  },
+
+  /**
+   * Get event gallery images (Public)
+   */
+  getEventGallery: async (id: string): Promise<EventGalleryImage[]> => {
+    const response = await apiClient.get<EventApiResponse<EventGalleryImage[]>>(
+      API_ENDPOINTS.EVENTS.GET_GALLERY(id)
+    );
+    return response.data.data;
+  },
+
+  /**
    * Register for an event
    */
   registerForEvent: async (eventId: string): Promise<EventRegistration> => {
@@ -128,3 +187,4 @@ export const eventsApi = {
     return response.data.data;
   },
 };
+

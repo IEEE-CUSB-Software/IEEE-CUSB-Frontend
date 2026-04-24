@@ -224,3 +224,111 @@ export const useUpdateRegistrationStatus = () => {
     },
   });
 };
+
+// ─── Event Image Hooks ──────────────────────────────────────────────────────
+
+/**
+ * Hook to upload/replace primary event image (Admin only)
+ */
+export const useUploadEventImage = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, file }: { id: string; file: File }) =>
+      eventsApi.uploadEventImage(id, file),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.EVENTS.ALL });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.EVENTS.ONE(variables.id),
+      });
+      toast.success('Event image uploaded successfully!');
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || 'Failed to upload event image.';
+      toast.error(message);
+    },
+  });
+};
+
+/**
+ * Hook to delete primary event image (Admin only)
+ */
+export const useDeleteEventImage = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => eventsApi.deleteEventImage(id),
+    onSuccess: (updatedEvent) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.EVENTS.ALL });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.EVENTS.ONE(updatedEvent.id),
+      });
+      toast.success('Event image deleted successfully!');
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || 'Failed to delete event image.';
+      toast.error(message);
+    },
+  });
+};
+
+/**
+ * Hook to upload event gallery images (Admin only)
+ */
+export const useUploadEventGallery = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, files }: { id: string; files: File[] }) =>
+      eventsApi.uploadEventGallery(id, files),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.EVENTS.GALLERY(variables.id),
+      });
+      toast.success('Gallery images uploaded successfully!');
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || 'Failed to upload gallery images.';
+      toast.error(message);
+    },
+  });
+};
+
+/**
+ * Hook to delete a single gallery image (Admin only)
+ */
+export const useDeleteEventGalleryImage = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ eventId, imageId }: { eventId: string; imageId: string }) =>
+      eventsApi.deleteEventGalleryImage(eventId, imageId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.EVENTS.GALLERY(variables.eventId),
+      });
+      toast.success('Gallery image deleted successfully!');
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || 'Failed to delete gallery image.';
+      toast.error(message);
+    },
+  });
+};
+
+/**
+ * Hook to get event gallery images (Public)
+ */
+export const useEventGallery = (eventId: string, enabled: boolean = true) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.EVENTS.GALLERY(eventId),
+    queryFn: () => eventsApi.getEventGallery(eventId),
+    enabled: enabled && !!eventId,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
