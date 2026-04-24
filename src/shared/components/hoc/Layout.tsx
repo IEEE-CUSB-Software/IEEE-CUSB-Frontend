@@ -31,10 +31,8 @@ export const Layout = () => {
         </div>
       )}
 
-      {/* Desktop Navbar - Hidden on mobile, fixed position */}
-      <div className="hidden md:block pb-20 md:pb-16 lg:pb-16 xl:pb-15 2xl:pb-10">
-        <Navbar />
-      </div>
+      {/* Desktop Navbar - Hidden on mobile, sticky position */}
+      <Navbar />
 
       {/* Main Content */}
       <main className="flex-1 w-full pb-24 md:pb-0">

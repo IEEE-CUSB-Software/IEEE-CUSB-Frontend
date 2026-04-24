@@ -48,8 +48,9 @@ export const Navbar = () => {
     user?.role?.name === RoleName.SUPER_ADMIN;
 
   return (
+    <nav className="hidden md:block sticky top-5 z-50 mt-5">
     <div
-      className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-[1237px] h-[74px] rounded-full flex items-center px-4 lg:px-8 transition-all duration-300 
+      className={`mx-auto w-[95%] max-w-[1237px] h-[74px] rounded-full flex items-center px-4 lg:px-8 transition-all duration-300 
         ${
           scrolled
             ? isDark
@@ -273,5 +274,6 @@ export const Navbar = () => {
         )}
       </div>
     </div>
+    </nav>
   );
 };
