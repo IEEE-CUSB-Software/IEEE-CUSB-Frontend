@@ -45,6 +45,8 @@ export const API_ENDPOINTS = {
     CREATE: '/admin/awards',
     UPDATE: (id: string) => `/admin/awards/${id}`,
     DELETE: (id: string) => `/admin/awards/${id}`,
+    UPLOAD_IMAGE: (id: string) => `/admin/awards/${id}/image`,
+    DELETE_IMAGE: (id: string) => `/admin/awards/${id}/image`,
   },
 
   // Events endpoints
@@ -59,6 +61,12 @@ export const API_ENDPOINTS = {
     GET_REGISTRATIONS: (id: string) => `/admin/events/${id}/registrations`,
     UPDATE_REGISTRATION_STATUS: (eventId: string, registrationId: string) =>
       `/admin/events/${eventId}/registrations/${registrationId}/status`,
+    UPLOAD_IMAGE: (id: string) => `/admin/events/${id}/image`,
+    DELETE_IMAGE: (id: string) => `/admin/events/${id}/image`,
+    UPLOAD_GALLERY: (id: string) => `/admin/events/${id}/images`,
+    DELETE_GALLERY_IMAGE: (id: string, imageId: string) =>
+      `/admin/events/${id}/images/${imageId}`,
+    GET_GALLERY: (id: string) => `/events/${id}/images`,
   },
 
   // Committees endpoints
@@ -110,6 +118,7 @@ export const QUERY_KEYS = {
     INFINITE: ['events', 'infinite'],
     ONE: (id: string) => ['events', id],
     REGISTRATIONS: (eventId: string) => ['events', eventId, 'registrations'],
+    GALLERY: (eventId: string) => ['events', eventId, 'gallery'],
   },
   COMMITTEES: {
     ALL: ['committees'],

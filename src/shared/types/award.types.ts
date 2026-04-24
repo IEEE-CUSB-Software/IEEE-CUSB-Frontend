@@ -15,7 +15,8 @@ export const AWARD_SOURCE_LABELS: Record<AwardSource, string> = {
 /** Backend Award shape */
 export interface Award {
   id: string;
-  image_url: string;
+  image_url: string | null;
+  image_public_id?: string | null;
   title: string;
   description: string;
   won_count: number;
@@ -28,7 +29,6 @@ export interface Award {
 export interface CreateAwardRequest {
   title: string;
   description: string;
-  image_url?: string;
   won_count?: number;
   year?: number;
   source?: AwardSource;
@@ -37,7 +37,6 @@ export interface CreateAwardRequest {
 export interface UpdateAwardRequest {
   title?: string;
   description?: string;
-  image_url?: string;
   won_count?: number;
   year?: number;
   source?: AwardSource;
@@ -46,7 +45,6 @@ export interface UpdateAwardRequest {
 export interface AwardFormValues {
   title: string;
   description: string;
-  image_url: string;
   won_count: string;
   year: string;
   source: AwardSource;

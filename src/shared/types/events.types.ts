@@ -17,8 +17,23 @@ export interface Event {
   created_by: string;
   created_at: string;
   updated_at: string;
+  image_url?: string | null;
+  image_public_id?: string | null;
   is_registered?: boolean;
   registration_id?: string;
+}
+
+/**
+ * Event gallery image entity
+ */
+export interface EventGalleryImage {
+  id: string;
+  event_id: string;
+  image_url: string;
+  image_public_id: string;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
 }
 
 /**
