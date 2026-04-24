@@ -26,6 +26,7 @@ import {
   useUploadEventGallery,
   useDeleteEventGalleryImage,
 } from '@/shared/queries/events';
+import { toast } from 'react-hot-toast';
 import type { Event } from '@/shared/types/events.types';
 import { FiUpload, FiTrash2, FiImage, FiX } from 'react-icons/fi';
 
@@ -55,6 +56,7 @@ const AddEditEventModal: React.FC<ExtendedAddEditEventModalProps> = ({
     convertEventToFormValues(event)
   );
   const [errors, setErrors] = useState<FormErrors>({});
+  const [isSaving, setIsSaving] = useState(false);
 
   // Pending primary image (local preview, upload on Save)
   const [pendingPrimary, setPendingPrimary] = useState<File | null>(null);
@@ -88,6 +90,7 @@ const AddEditEventModal: React.FC<ExtendedAddEditEventModalProps> = ({
     galleryPreviews.forEach(url => URL.revokeObjectURL(url));
     setPendingGallery([]);
     setGalleryPreviews([]);
+    setIsSaving(false);
   }, [formKey]);
 
   // Cleanup object URLs on unmount
@@ -127,6 +130,12 @@ const AddEditEventModal: React.FC<ExtendedAddEditEventModalProps> = ({
   const handlePrimarySelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    
+    // Warn on large files (often causes ns_binding_aborted on reverse proxies)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File is very large — it might be rejected by the server depending on payload limits.');
+    }
+
     if (primaryPreview) URL.revokeObjectURL(primaryPreview);
     setPendingPrimary(file);
     setPrimaryPreview(URL.createObjectURL(file));
@@ -148,6 +157,12 @@ const AddEditEventModal: React.FC<ExtendedAddEditEventModalProps> = ({
   const handleGallerySelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
+    
+    const totalSize = files.reduce((acc, f) => acc + f.size, 0);
+    if (totalSize > 5 * 1024 * 1024) {
+       toast.error(`Total size is ${(totalSize/1024/1024).toFixed(2)}MB. This might cause server aborts if it exceeds backend limits.`);
+    }
+
     const newPreviews = files.map(f => URL.createObjectURL(f));
     setPendingGallery(prev => [...prev, ...files]);
     setGalleryPreviews(prev => [...prev, ...newPreviews]);
@@ -161,12 +176,19 @@ const AddEditEventModal: React.FC<ExtendedAddEditEventModalProps> = ({
   };
 
   /* ── Save ──────────────────────────────────────── */
-  const handleSave = async () => {
+  const handleSave = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
     const validationErrors = validateAllFields(formValues);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
+    
+    setIsSaving(true);
 
     // Fire image uploads first if editing an existing event
     if (eventId) {
@@ -178,6 +200,7 @@ const AddEditEventModal: React.FC<ExtendedAddEditEventModalProps> = ({
         
         await Promise.all(promises);
       } catch (err) {
+        setIsSaving(false);
         // Errors are handled and toasted by the mutations themselves
         return; // Stop the save if images failed to upload
       }
@@ -185,7 +208,12 @@ const AddEditEventModal: React.FC<ExtendedAddEditEventModalProps> = ({
 
     // Now save the metadata (this closes the modal)
     const eventFormData = convertFormValuesToEventFormData(formValues, event);
-    onSave(eventFormData);
+    
+    try {
+      await onSave(eventFormData);
+    } catch {
+      setIsSaving(false);
+    }
   };
 
   const displayPrimary = primaryPreview ?? (deletePrimary ? null : apiEvent?.image_url ?? null);
@@ -327,8 +355,8 @@ const AddEditEventModal: React.FC<ExtendedAddEditEventModalProps> = ({
 
         {/* ── Actions ─── */}
         <div className="flex items-center justify-end gap-3 pt-4">
-          <Button buttonText="Cancel" onClick={onClose} type="basic" width="fit" darkMode={isDark} disabled={isLoading} />
-          <Button buttonText={isEditMode ? 'Save Changes' : 'Create Event'} onClick={handleSave} type="primary" width="fit" darkMode={isDark} loading={isLoading} />
+          <Button buttonText="Cancel" onClick={onClose} type="basic" width="fit" darkMode={isDark} disabled={isLoading || isSaving} />
+          <Button buttonText={isEditMode ? 'Save Changes' : 'Create Event'} onClick={handleSave} type="primary" width="fit" darkMode={isDark} loading={isLoading || isSaving} disabled={isLoading || isSaving} />
         </div>
       </div>
     </Modal>

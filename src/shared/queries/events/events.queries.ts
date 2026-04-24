@@ -284,9 +284,9 @@ export const useUploadEventGallery = () => {
     mutationFn: ({ id, files }: { id: string; files: File[] }) =>
       eventsApi.uploadEventGallery(id, files),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.EVENTS.GALLERY(variables.id),
-      });
+      // Invalidate both the list and the single event so event.images stays fresh
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.EVENTS.ALL });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.EVENTS.ONE(variables.id) });
       toast.success('Gallery images uploaded successfully!');
     },
     onError: (error: any) => {
@@ -307,9 +307,8 @@ export const useDeleteEventGalleryImage = () => {
     mutationFn: ({ eventId, imageId }: { eventId: string; imageId: string }) =>
       eventsApi.deleteEventGalleryImage(eventId, imageId),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.EVENTS.GALLERY(variables.eventId),
-      });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.EVENTS.ALL });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.EVENTS.ONE(variables.eventId) });
       toast.success('Gallery image deleted successfully!');
     },
     onError: (error: any) => {
@@ -317,18 +316,6 @@ export const useDeleteEventGalleryImage = () => {
         error?.response?.data?.message || 'Failed to delete gallery image.';
       toast.error(message);
     },
-  });
-};
-
-/**
- * Hook to get event gallery images (Public)
- */
-export const useEventGallery = (eventId: string, enabled: boolean = true) => {
-  return useQuery({
-    queryKey: QUERY_KEYS.EVENTS.GALLERY(eventId),
-    queryFn: () => eventsApi.getEventGallery(eventId),
-    enabled: enabled && !!eventId,
-    staleTime: 5 * 60 * 1000,
   });
 };
 

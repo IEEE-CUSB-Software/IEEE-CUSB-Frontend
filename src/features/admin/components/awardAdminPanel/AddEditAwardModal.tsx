@@ -71,6 +71,7 @@ const AddEditAwardModal: React.FC<AddEditAwardModalProps> = ({
 
   const [formValues, setFormValues] = useState<AwardFormValues>(awardToForm(award));
   const [errors, setErrors] = useState<AwardFormErrors>({});
+  const [isSaving, setIsSaving] = useState(false);
 
   // Local file state for preview (upload happens on Save)
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -87,6 +88,7 @@ const AddEditAwardModal: React.FC<AddEditAwardModalProps> = ({
     setPendingFile(null);
     setPreviewUrl(null);
     setDeleteImage(false);
+    setIsSaving(false);
   }, [award, isOpen]);
 
   // Cleanup object URL when pendingFile changes
@@ -131,12 +133,19 @@ const AddEditAwardModal: React.FC<AddEditAwardModalProps> = ({
     handleClearPending();
   };
 
-  const handleSave = async () => {
+  const handleSave = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
     const validationErrors = validate(formValues);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
+    
+    setIsSaving(true);
 
     const payload: CreateAwardRequest | UpdateAwardRequest = {
       title: formValues.title.trim(),
@@ -154,12 +163,17 @@ const AddEditAwardModal: React.FC<AddEditAwardModalProps> = ({
         if (deleteImage) promises.push(removeImage.mutateAsync(award.id));
         await Promise.all(promises);
       } catch (err) {
+        setIsSaving(false);
         return; // Errors are handled by the mutations, stop save if it fails
       }
     }
 
     // Call parent save last (create/update metadata), which closes the modal
-    onSave(payload, award?.id);
+    try {
+      await onSave(payload, award?.id);
+    } catch {
+      setIsSaving(false);
+    }
   };
 
   // The image to display: pending preview > existing API url > fallback trophy
@@ -380,15 +394,16 @@ const AddEditAwardModal: React.FC<AddEditAwardModalProps> = ({
             type="basic"
             width="fit"
             darkMode={isDark}
-            disabled={isPending}
+            disabled={isPending || isSaving}
           />
           <Button
-            buttonText={isPending ? 'Saving…' : isEditMode ? 'Save Changes' : 'Create Award'}
+            buttonText={isPending || isSaving ? 'Saving…' : isEditMode ? 'Save Changes' : 'Create Award'}
             onClick={handleSave}
             type="primary"
             width="fit"
             darkMode={isDark}
-            disabled={isPending}
+            disabled={isPending || isSaving}
+            loading={isPending || isSaving}
           />
         </div>
       </div>

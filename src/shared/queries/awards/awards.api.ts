@@ -78,8 +78,7 @@ export const awardsApi = {
     formData.append('image', file);
     const response = await apiClient.post<AwardApiResponse<Award>>(
       API_ENDPOINTS.AWARDS.UPLOAD_IMAGE(id),
-      formData,
-      { headers: { 'Content-Type': 'multipart/form-data' } }
+      formData
     );
     return response.data.data;
   },

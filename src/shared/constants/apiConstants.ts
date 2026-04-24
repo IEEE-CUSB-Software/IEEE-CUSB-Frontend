@@ -66,7 +66,6 @@ export const API_ENDPOINTS = {
     UPLOAD_GALLERY: (id: string) => `/admin/events/${id}/images`,
     DELETE_GALLERY_IMAGE: (id: string, imageId: string) =>
       `/admin/events/${id}/images/${imageId}`,
-    GET_GALLERY: (id: string) => `/events/${id}/images`,
   },
 
   // Committees endpoints
@@ -118,7 +117,6 @@ export const QUERY_KEYS = {
     INFINITE: ['events', 'infinite'],
     ONE: (id: string) => ['events', id],
     REGISTRATIONS: (eventId: string) => ['events', eventId, 'registrations'],
-    GALLERY: (eventId: string) => ['events', eventId, 'gallery'],
   },
   COMMITTEES: {
     ALL: ['committees'],

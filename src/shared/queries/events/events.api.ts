@@ -84,8 +84,7 @@ export const eventsApi = {
     formData.append('image', file);
     const response = await apiClient.post<EventApiResponse<Event>>(
       API_ENDPOINTS.EVENTS.UPLOAD_IMAGE(id),
-      formData,
-      { headers: { 'Content-Type': 'multipart/form-data' } }
+      formData
     );
     return response.data.data;
   },
@@ -108,8 +107,7 @@ export const eventsApi = {
     files.forEach((file) => formData.append('images', file));
     const response = await apiClient.post<EventApiResponse<EventGalleryImage[]>>(
       API_ENDPOINTS.EVENTS.UPLOAD_GALLERY(id),
-      formData,
-      { headers: { 'Content-Type': 'multipart/form-data' } }
+      formData
     );
     return response.data.data;
   },
@@ -120,16 +118,6 @@ export const eventsApi = {
   deleteEventGalleryImage: async (id: string, imageId: string): Promise<EventGalleryImage> => {
     const response = await apiClient.delete<EventApiResponse<EventGalleryImage>>(
       API_ENDPOINTS.EVENTS.DELETE_GALLERY_IMAGE(id, imageId)
-    );
-    return response.data.data;
-  },
-
-  /**
-   * Get event gallery images (Public)
-   */
-  getEventGallery: async (id: string): Promise<EventGalleryImage[]> => {
-    const response = await apiClient.get<EventApiResponse<EventGalleryImage[]>>(
-      API_ENDPOINTS.EVENTS.GET_GALLERY(id)
     );
     return response.data.data;
   },
