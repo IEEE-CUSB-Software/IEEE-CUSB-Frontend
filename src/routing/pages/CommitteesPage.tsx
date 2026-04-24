@@ -4,6 +4,7 @@ import { PageHeroSection } from '@/shared/components/PageHeroSection';
 import { OrgChartView } from '@/features/committees/components/OrgChartView';
 import { TabbedView } from '@/features/committees/components/TabbedView';
 import { CommitteeDetailModal } from '@/features/committees/components/CommitteeDetailModal';
+import { ChaptersSection } from '@/features/committees/components/ChaptersSection';
 import { Committee } from '@/features/committees/constants/committeeData';
 import Lenis from 'lenis';
 
@@ -40,7 +41,7 @@ export const CommitteesPage = () => {
       <PageHeroSection
         eyebrow="Our Structure"
         title="Committees & Structure"
-        description="Explore the organizational structure of IEEE Cairo University Student Branch. Discover our executive board, technical sections, and the teams behind every achievement."
+        description="Explore the organizational structure of IEEE Cairo University Student Branch. Discover our executive board, technical sections, chapters and affinity groups, and the teams behind every achievement."
       />
       {/* Org chart — visible on md and above */}
       <div className="hidden md:block">
@@ -50,6 +51,9 @@ export const CommitteesPage = () => {
       <div className="block md:hidden">
         <TabbedView onViewDetails={handleViewDetails} />
       </div>
+      
+      <ChaptersSection />
+      
       <CommitteeDetailModal
         committee={selectedCommittee}
         onClose={handleCloseModal}
