@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { initSmoothScroll } from '@/shared/utils/smoothScroll';
 import { HeroSection } from '@/features/home/components/HeroSection';
 import { StatsSection } from '@/features/home/components/StatsSection';
-import { LatestNewsSection } from '@/features/home/components/LatestNewsSection';
+import { UpcomingEventsSection } from '@/features/home/components/UpcomingEventsSection';
+import { AboutIEEESection } from '@/features/home/components/AboutIEEESection';
 import { EmpoweringSection } from '@/features/home/components/EmpoweringSection';
 import { TeamSection } from '@/features/home/components/TeamSection';
 
@@ -32,7 +33,8 @@ export const HomePage = () => {
         onCardExpand={setActiveCardIndex}
       />
       <StatsSection />
-      <LatestNewsSection />
+      <AboutIEEESection />
+      <UpcomingEventsSection />
       <EmpoweringSection />
       <TeamSection />
     </div>

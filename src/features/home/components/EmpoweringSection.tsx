@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { SectionReveal } from './SectionReveal';
 import universityCampus from '@/assets/university_campus.jpg';
 
@@ -134,12 +135,12 @@ export const EmpoweringSection = () => {
               ))}
             </div>
 
-            <a
-              href="#join"
+            <Link
+              to="/about"
               className="inline-block bg-primary text-white px-8 py-4 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
             >
               Read Our Full Mission →
-            </a>
+            </Link>
           </SectionReveal>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { SwishUnderline } from './SwishUnderline';
 import { FeatureCard } from './FeatureCard';
 import { SponsorsMarquee } from './SponsorsMarquee';
@@ -31,38 +32,40 @@ export const HeroSection = ({
 
   const ctaContent = (
     <div className="flex items-center gap-4">
-      <motion.a
-        href="#join"
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        className="inline-flex items-center gap-3 bg-primary text-primary-foreground px-6 py-3 rounded-full font-semibold hover:bg-primary/90 transition-all shadow-xl hover:shadow-2xl group"
-      >
-        <span>Join IEEE CUSB</span>
-        <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:rotate-45 transition-transform duration-300">
-          <svg
-            className="w-4 h-4 text-white"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17 8l4 4m0 0l-4 4m4-4H3"
-            />
-          </svg>
-        </div>
-      </motion.a>
+      <Link to="/join">
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="inline-flex items-center gap-3 bg-primary text-primary-foreground px-6 py-3 rounded-full font-semibold hover:bg-primary/90 transition-all shadow-xl hover:shadow-2xl group"
+        >
+          <span>Join IEEE CUSB</span>
+          <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:rotate-45 transition-transform duration-300">
+            <svg
+              className="w-4 h-4 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 8l4 4m0 0l-4 4m4-4H3"
+              />
+            </svg>
+          </div>
+        </motion.div>
+      </Link>
 
-      <motion.a
-        href="#about"
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold border border-border text-foreground hover:bg-surface transition-all"
-      >
-        Learn More
-      </motion.a>
+      <Link to="/about">
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold border border-border text-foreground hover:bg-surface transition-all"
+        >
+          Learn More
+        </motion.div>
+      </Link>
     </div>
   );
 
