@@ -7,3 +7,4 @@ export { EventDetailsPage } from './EventDetailsPage';
 export { AboutUsPage } from './AboutUsPage';
 export { CommitteesPage } from './CommitteesPage';
 export { AwardsPage } from './AwardsPage';
+export { MembershipPage } from './MembershipPage';

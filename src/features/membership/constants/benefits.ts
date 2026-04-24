@@ -1,0 +1,50 @@
+export const BENEFITS = [
+  {
+    id: 'ieee-xtreme',
+    name: 'IEEE Xtreme',
+    description: 'A global hackathon where teams of IEEE Student members compete in an up to 24-hour time span against each other to solve a set of programming problems.',
+    link: 'https://ieeextreme.org/',
+    image: '/sponsers/IEEEXTREME.svg',
+    icon: 'FaCode',
+  },
+  {
+    id: 'ieee-duino',
+    name: 'IEEE Duino',
+    description: 'An international competition for IEEE student members to develop Arduino-based projects to solve real-world problems.',
+    link: 'https://ieeeduino.org/',
+    image: '/sponsers/IEEEDuino.svg',
+    icon: 'FaMicrochip',
+  },
+  {
+    id: 'ieee-xplore',
+    name: 'IEEE Xplore',
+    description: 'A digital library providing access to the world\'s highest quality technical literature in engineering and technology.',
+    link: 'https://ieeexplore.ieee.org/Xplore/home.jsp',
+    image: '/sponsers/IEEE-XploreDigitalLibrary.svg',
+    icon: 'FaBook',
+  },
+  {
+    id: 'ieee-tv',
+    name: 'IEEE TV',
+    description: 'An award-winning online video program featuring technology and engineering television networks.',
+    link: 'https://ieeetv.ieee.org/about',
+    image: '/sponsers/ieeetv-logo.svg',
+    icon: 'FaTv',
+  },
+  {
+    id: 'spc',
+    name: 'Student Paper Contest (SPC)',
+    description: 'A competition for IEEE student members to present their papers and get recognized for their technical research.',
+    link: 'https://ieeer8.org/category/student-activities/sa-spc/',
+    image: '/sponsers/IEEE.svg',
+    icon: 'FaFileAlt',
+  },
+  {
+    id: 'ieee-spectrum',
+    name: 'IEEE Spectrum',
+    description: 'The flagship magazine and website of the IEEE, exploring modern engineering, science, and technology.',
+    link: 'https://spectrum.ieee.org/',
+    image: '/sponsers/logo-ieee-spectrum.svg',
+    icon: 'FaGlobe',
+  }
+];

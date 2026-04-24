@@ -12,6 +12,7 @@ import {
   HomePage,
   CommitteesPage,
   AwardsPage,
+  MembershipPage,
 } from './pages';
 import EventsPage from './pages/EventsPage';
 import { AdminLayout } from '../features/admin/layouts/AdminLayout';
@@ -117,7 +118,7 @@ const routes: RouteObject[] = [
       },
       {
         path: 'join',
-        element: <UnderConstructionPage />, // Join Us - Under Construction
+        element: <MembershipPage />,
       },
       {
         path: 'profile',
