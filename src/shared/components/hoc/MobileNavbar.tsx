@@ -17,14 +17,12 @@ import { useLogout } from '@/shared/queries/auth';
 import { RoleName } from '@/shared/types/auth.types';
 import logo from '@/assets/logo.png';
 
-
 export const MobileNavbar = () => {
   const { isDark, toggleTheme } = useTheme();
   const { user, isAuthenticated } = useAppSelector(state => state.auth);
   const { mutate: logout } = useLogout();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
 
   const isAdmin =
     user?.role?.name === RoleName.ADMIN ||
@@ -243,14 +241,14 @@ export const MobileNavbar = () => {
           </NavLink>
         </div>
 
-        {/* 2. About Us */}
+        {/* 2. Committees */}
         <div className="col-start-2 flex justify-center">
           <NavLink
             className={({ isActive }) => getNavLinkClass(isActive)}
-            to="/about"
+            to="/committees"
           >
-            <FaInfo size={20} />
-            <span className="text-[10px] font-medium">About</span>
+            <FaUsers size={20} />
+            <span className="text-[10px] font-medium">Committees</span>
           </NavLink>
         </div>
 
@@ -279,14 +277,14 @@ export const MobileNavbar = () => {
           </NavLink>
         </div>
 
-        {/* 6. Committees */}
+        {/* 6. About Us */}
         <div className="col-start-6 flex justify-center">
           <NavLink
             className={({ isActive }) => getNavLinkClass(isActive)}
-            to="/committees"
+            to="/about"
           >
-            <FaUsers size={20} />
-            <span className="text-[10px] font-medium">Committees</span>
+            <FaInfo size={20} />
+            <span className="text-[10px] font-medium">About</span>
           </NavLink>
         </div>
 
