@@ -14,9 +14,6 @@ export const API_BASE_URL =
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000, // 30 seconds
-  headers: {
-    'Content-Type': 'application/json',
-  },
   withCredentials: true, // Include cookies (httpOnly refresh_token) in requests
 });
 

@@ -25,7 +25,6 @@ import {
   useDeleteEventImage,
   useUploadEventGallery,
   useDeleteEventGalleryImage,
-  useEventGallery,
 } from '@/shared/queries/events';
 import type { Event } from '@/shared/types/events.types';
 import { FiUpload, FiTrash2, FiImage, FiX } from 'react-icons/fi';
@@ -71,7 +70,8 @@ const AddEditEventModal: React.FC<ExtendedAddEditEventModalProps> = ({
   const deleteImage = useDeleteEventImage();
   const uploadGallery = useUploadEventGallery();
   const deleteGalleryImage = useDeleteEventGalleryImage();
-  const { data: existingGallery } = useEventGallery(eventId || '', isEditMode && !!eventId);
+  // Gallery already embedded in apiEvent.images — no extra API call needed
+  const existingGallery = apiEvent?.images ?? [];
 
   // Reset when modal opens / event changes
   React.useEffect(() => {
@@ -168,15 +168,24 @@ const AddEditEventModal: React.FC<ExtendedAddEditEventModalProps> = ({
       return;
     }
 
+    // Fire image uploads first if editing an existing event
+    if (eventId) {
+      try {
+        const promises = [];
+        if (pendingPrimary) promises.push(uploadImage.mutateAsync({ id: eventId, file: pendingPrimary }));
+        if (deletePrimary) promises.push(deleteImage.mutateAsync(eventId));
+        if (pendingGallery.length > 0) promises.push(uploadGallery.mutateAsync({ id: eventId, files: pendingGallery }));
+        
+        await Promise.all(promises);
+      } catch (err) {
+        // Errors are handled and toasted by the mutations themselves
+        return; // Stop the save if images failed to upload
+      }
+    }
+
+    // Now save the metadata (this closes the modal)
     const eventFormData = convertFormValuesToEventFormData(formValues, event);
     onSave(eventFormData);
-
-    // Fire image uploads after saving metadata (only if editing existing event)
-    if (eventId) {
-      if (pendingPrimary) uploadImage.mutate({ id: eventId, file: pendingPrimary });
-      if (deletePrimary) deleteImage.mutate(eventId);
-      if (pendingGallery.length > 0) uploadGallery.mutate({ id: eventId, files: pendingGallery });
-    }
   };
 
   const displayPrimary = primaryPreview ?? (deletePrimary ? null : apiEvent?.image_url ?? null);

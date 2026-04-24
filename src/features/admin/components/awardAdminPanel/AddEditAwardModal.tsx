@@ -146,17 +146,20 @@ const AddEditAwardModal: React.FC<AddEditAwardModalProps> = ({
       source: formValues.source,
     };
 
-    // Call parent save first (create/update metadata)
-    onSave(payload, award?.id);
+    // If we have a new image to upload (and an existing award id), upload it first
+    if (award?.id) {
+      try {
+        const promises = [];
+        if (pendingFile) promises.push(uploadImage.mutateAsync({ id: award.id, file: pendingFile }));
+        if (deleteImage) promises.push(removeImage.mutateAsync(award.id));
+        await Promise.all(promises);
+      } catch (err) {
+        return; // Errors are handled by the mutations, stop save if it fails
+      }
+    }
 
-    // If we have a new image to upload (and an existing award id), upload it now
-    if (pendingFile && award?.id) {
-      uploadImage.mutate({ id: award.id, file: pendingFile });
-    }
-    // If user deleted the existing image
-    if (deleteImage && award?.id) {
-      removeImage.mutate(award.id);
-    }
+    // Call parent save last (create/update metadata), which closes the modal
+    onSave(payload, award?.id);
   };
 
   // The image to display: pending preview > existing API url > fallback trophy
