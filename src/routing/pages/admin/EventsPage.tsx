@@ -410,6 +410,7 @@ export const EventsPage = () => {
           onClose={handleClose}
           onSave={handleSaveEvent}
           event={selectedAdminEvent}
+          apiEvent={selectedEvent}
           isLoading={isPending}
         />
       )}
