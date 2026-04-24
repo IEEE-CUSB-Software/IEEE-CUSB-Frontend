@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { HiArrowRight } from 'react-icons/hi';
+import { Link } from 'react-router-dom';
 
 interface JoinLegacyCTAProps {
   darkMode?: boolean;
@@ -52,20 +53,25 @@ export const JoinLegacyCTA = ({ darkMode }: JoinLegacyCTAProps) => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <motion.button
+            <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`inline-flex items-center gap-3 px-8 py-4 rounded-full font-bold text-lg transition-all shadow-2xl group ${
-                darkMode
-                  ? 'bg-white text-gray-900 hover:bg-gray-100'
-                  : 'bg-white text-blue-900 hover:bg-blue-50'
-              }`}
+              className="inline-block"
             >
-              <span>Apply Now</span>
-              <motion.div whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
-                <HiArrowRight className="w-6 h-6" />
-              </motion.div>
-            </motion.button>
+              <Link
+                to="/join"
+                className={`inline-flex items-center gap-3 px-8 py-4 rounded-full font-bold text-lg transition-all shadow-2xl group ${
+                  darkMode
+                    ? 'bg-white text-gray-900 hover:bg-gray-100'
+                    : 'bg-white text-blue-900 hover:bg-blue-50'
+                }`}
+              >
+                <span>Apply Now</span>
+                <motion.div whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
+                  <HiArrowRight className="w-6 h-6" />
+                </motion.div>
+              </Link>
+            </motion.div>
           </motion.div>
 
           {/* Social Proof */}
