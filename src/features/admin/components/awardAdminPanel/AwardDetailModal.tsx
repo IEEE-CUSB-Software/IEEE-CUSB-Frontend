@@ -24,24 +24,24 @@ const AwardDetailModal: React.FC<AwardDetailModalProps> = ({
   }, [award]);
 
   return (
-    <Modal isOpen={!!award} onClose={onClose} size="large" darkMode={isDark}>
+    <Modal isOpen={!!award} onClose={onClose} size="xl" darkMode={isDark}>
       {award && (
         <div
           data-lenis-prevent
-          className={`transition-all duration-[350ms] ease-out ${
+          className={`transition-all duration-[350ms] ease-out overflow-y-auto max-h-[80vh] sm:max-h-none ${
             visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
           }`}
         >
           {/* Award image */}
           <div
-            className={`relative w-full h-52 rounded-2xl overflow-hidden mb-6 flex items-center justify-center ${
+            className={`relative w-full h-40 sm:h-56 rounded-xl overflow-hidden mb-4 sm:mb-6 flex items-center justify-center ${
               isDark ? 'bg-gray-800' : 'bg-gray-50'
             }`}
           >
             <img
               src={award.image_url || IEEETrophy}
               alt={award.title}
-              className="h-full w-full object-contain p-4"
+              className="h-full w-full object-contain p-3 sm:p-5"
               onError={e => {
                 (e.currentTarget as HTMLImageElement).src = IEEETrophy;
               }}
@@ -50,7 +50,7 @@ const AwardDetailModal: React.FC<AwardDetailModalProps> = ({
 
           {/* Title */}
           <h2
-            className={`text-xl font-bold mb-4 leading-snug ${
+            className={`text-lg sm:text-2xl font-bold mb-3 sm:mb-4 leading-snug ${
               isDark ? 'text-white' : 'text-gray-900'
             }`}
           >
@@ -58,26 +58,26 @@ const AwardDetailModal: React.FC<AwardDetailModalProps> = ({
           </h2>
 
           {/* Meta row */}
-          <div className="flex flex-wrap gap-4 mb-5">
+          <div className="flex flex-wrap gap-3 sm:gap-4 mb-4 sm:mb-5">
             {award.won_count > 0 && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <HiTrophy
-                  className={`w-4 h-4 shrink-0 ${isDark ? 'text-yellow-400' : 'text-yellow-500'}`}
+                  className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${isDark ? 'text-yellow-400' : 'text-yellow-500'}`}
                 />
                 <span
-                  className={`text-sm font-medium ${isDark ? 'text-yellow-300' : 'text-yellow-700'}`}
+                  className={`text-xs sm:text-sm font-medium ${isDark ? 'text-yellow-300' : 'text-yellow-700'}`}
                 >
                   Won {award.won_count}{' '}
                   {award.won_count === 1 ? 'time' : 'times'}
                 </span>
               </div>
             )}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <FiCalendar
-                className={`w-4 h-4 shrink-0 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
+                className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
               />
               <span
-                className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
+                className={`text-xs sm:text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
               >
                 {award.year}
               </span>
@@ -86,12 +86,12 @@ const AwardDetailModal: React.FC<AwardDetailModalProps> = ({
 
           {/* Divider */}
           <div
-            className={`border-t mb-5 ${isDark ? 'border-gray-800' : 'border-gray-100'}`}
+            className={`border-t mb-4 sm:mb-5 ${isDark ? 'border-gray-800' : 'border-gray-100'}`}
           />
 
           {/* Description */}
           <p
-            className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}
+            className={`text-xs sm:text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}
           >
             {award.description}
           </p>
