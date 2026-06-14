@@ -20,6 +20,7 @@ import { EventsPage as AdminEventsPage } from './pages/admin/EventsPage';
 import { CommitteesPage as AdminCommittees } from './pages/admin/CommitteesPage';
 import { AwardsPage as AdminAwardsPage } from './pages/admin/AwardsPage';
 import { RoleName } from '@/shared/types/auth.types';
+import { WorkshopsPage } from './pages/WorkshopsPage';
 
 /**
  * Application Routes Configuration
@@ -114,7 +115,7 @@ const routes: RouteObject[] = [
       },
       {
         path: 'workshops',
-        element: <UnderConstructionPage />, // Workshops - Under Construction
+        element: <WorkshopsPage />, // Workshops - Working
       },
       {
         path: 'join',
