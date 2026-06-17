@@ -66,12 +66,12 @@ export const WorkshopCard = ({
   const handleCancelRegistration = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (workshop.id) {
-      //   cancelRegistration(workshop.id.toString());
+      //cancelRegistration(workshop.id.toString());
     }
   };
 
   const getCategoryColor = (category: string) => {
-    switch (category.toLowerCase()) {
+    switch (category?.toLowerCase()) {
       case 'technical':
         return darkMode
           ? 'bg-blue-900/40 text-blue-300'
@@ -92,7 +92,7 @@ export const WorkshopCard = ({
   };
 
   const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case 'upcoming':
         return darkMode
           ? 'bg-green-900/40 text-green-300'
@@ -184,7 +184,7 @@ export const WorkshopCard = ({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            onClick={() => navigate(`/events/${workshop.id}`)}
+            onClick={() => navigate(`/workshops/${workshop.id}`)}
             className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 hover:shadow-lg ${
               workshop.status === 'Completed'
                 ? darkMode
@@ -198,7 +198,7 @@ export const WorkshopCard = ({
             {workshop.status === 'Completed' ? 'View Recap' : 'View Details'}
           </motion.button>
 
-          {/* Registration Button - Only for non-completed events AND non-admin users */}
+          {/* Registration Button - Only for non-completed workshops AND non-admin users */}
           {workshop.status !== 'Completed' && !isAdmin && (
             <>
               {/* Spots remaining indicator */}
@@ -216,7 +216,7 @@ export const WorkshopCard = ({
                     }`}
                   >
                     {workshop.is_full
-                      ? 'Event is full'
+                      ? 'Workshop is full'
                       : `${workshop.remainingSpots} spot${workshop.remainingSpots !== 1 ? 's' : ''} remaining`}
                   </p>
                 )}
@@ -252,7 +252,7 @@ export const WorkshopCard = ({
                     : isRegistrationClosed
                       ? 'Registration Closed'
                       : workshop.is_full
-                        ? 'Event Full'
+                        ? 'Workshop Full'
                         : 'Register Now'}
               </motion.button>
             </>

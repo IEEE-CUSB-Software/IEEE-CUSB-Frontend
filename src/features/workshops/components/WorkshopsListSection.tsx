@@ -4,10 +4,71 @@ import { Pagination } from '@/shared/components/ui/Pagination';
 import type { Workshop } from '@/shared/types/workshops.types';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { WorkshopsFilterBar } from './WorkshopsFilterBar';
-import { useEvents } from '@/shared/queries/events';
 import { WorkshopCard } from './WorkshopCard';
 
 type FilterType = 'All' | 'Technical' | 'Non-Technical' | 'Social';
+
+const fakeworkshops: Workshop[] = [
+  {
+    id: '1',
+    title: 'Introduction to React',
+    description:
+      'Learn the basics of React and build your first web application.',
+    location: 'Online',
+    start_time: '2026-07-15T10:00:00Z',
+    end_time: '2026-07-15T12:00:00Z',
+    capacity: 50,
+    remainingSpots: 20,
+    is_full: false,
+    registration_deadline: '2026-07-10T23:59:59Z',
+    category: 'Technical',
+    image_url: null,
+    is_registered: false,
+    registration_id: 'null',
+    created_by: 'admin',
+    created_at: '2026-06-01T12:00:00Z',
+    updated_at: '2026-06-10T15:30:00Z',
+  },
+  {
+    id: '2',
+    title: 'Team Building Workshop',
+    description: 'Enhance your teamwork skills through interactive activities.',
+    location: 'Community Center',
+    start_time: '2026-07-20T14:00:00Z',
+    end_time: '2026-07-20T16:00:00Z',
+    capacity: 30,
+    remainingSpots: 5,
+    is_full: false,
+    registration_deadline: '2026-07-18T23:59:59Z',
+    category: 'Non-Technical',
+    image_url: null,
+    is_registered: true,
+    registration_id: 'reg-12345',
+    created_by: 'admin',
+    created_at: '2026-06-05T10:00:00Z',
+    updated_at: '2026-06-12T14:20:00Z',
+  },
+  {
+    id: '3',
+    title: 'Social Media Marketing',
+    description:
+      'Learn how to effectively market your brand on social media platforms.',
+    location: 'Online',
+    start_time: '2026-07-25T09:00:00Z',
+    end_time: '2026-07-25T11:00:00Z',
+    capacity: 40,
+    remainingSpots: 0,
+    is_full: true,
+    registration_deadline: '2026-07-22T23:59:59Z',
+    category: 'Social',
+    image_url: null,
+    is_registered: false,
+    registration_id: 'reg1234',
+    created_by: 'admin',
+    created_at: '2026-06-08T11:00:00Z',
+    updated_at: '2026-06-15T13:45:00Z',
+  },
+];
 
 // Helper function to determine workshop status based on dates
 const getWorkshopStatus = (
@@ -74,16 +135,19 @@ export const WorkshopsListSection = () => {
   const { isDark } = useTheme();
   const [activeFilter, setActiveFilter] = useState<FilterType>('All');
   const [page, setPage] = useState(1);
-  const limit = 12;
+  //const limit = 12;
 
   //   const { data, isLoading, isError, error, isFetching } = useWorkshops({
   //     page,
   //     limit,
   //   });
-  const { data, isLoading, isError, error, isFetching } = useEvents({
-    page,
-    limit,
-  });
+
+  // Placeholder for testing remove after implementing the actual API call and uncomment the above line
+  const data = { data: fakeworkshops, totalPages: 1 };
+  const isLoading = false;
+  const isError = false;
+  const [error] = useState<Error | null>(null);
+  const isFetching = false;
 
   // Safely extract workshops array - handle different response structures
   const workshops = Array.isArray(data?.data) ? data.data : [];
@@ -91,8 +155,7 @@ export const WorkshopsListSection = () => {
 
   // Transform and filter workshops based on active filter
   const getFilteredWorkshops = () => {
-    // const transformedWorkshops = workshops.map(transformWorkshop);
-    const transformedWorkshops = workshops;
+    const transformedWorkshops = workshops.map(transformWorkshop);
 
     if (activeFilter === 'All') return transformedWorkshops;
     return transformedWorkshops.filter(
@@ -204,7 +267,7 @@ export const WorkshopsListSection = () => {
           </div>
         ) : (
           <>
-            {/* Events Grid - 4 columns */}
+            {/* Workshops Grid - 4 columns */}
             <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {filteredWorkshops.map((workshop, index) => (
                 <WorkshopCard

@@ -21,7 +21,7 @@ import { CommitteesPage as AdminCommittees } from './pages/admin/CommitteesPage'
 import { AwardsPage as AdminAwardsPage } from './pages/admin/AwardsPage';
 import { RoleName } from '@/shared/types/auth.types';
 import { WorkshopsPage } from './pages/WorkshopsPage';
-
+import { WorkshopDetailsPage } from './pages/WorkshopDetailsPage';
 /**
  * Application Routes Configuration
  * Using React Router v6 Data APIs (createBrowserRouter)
@@ -116,6 +116,10 @@ const routes: RouteObject[] = [
       {
         path: 'workshops',
         element: <WorkshopsPage />, // Workshops - Working
+      },
+      {
+        path: 'workshops/:id',
+        element: <WorkshopDetailsPage />, // Workshop Details - Working
       },
       {
         path: 'join',
