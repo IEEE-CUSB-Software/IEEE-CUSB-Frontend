@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { HiArrowLeft } from 'react-icons/hi';
 import { useTheme } from '@/shared/hooks/useTheme';
@@ -95,21 +95,6 @@ const fakeWorkshop: Workshop = {
         'Follow-up workshops',
       ],
     },
-  ],
-  learningPoints: [
-    'Master fundamental concepts and best practices',
-    'Build real-world projects from scratch',
-    'Understand advanced techniques and patterns',
-    'Gain hands-on experience with practical exercises',
-    'Learn from industry experts and practitioners',
-    'Network with fellow engineers and enthusiasts',
-  ],
-  prerequisites: [
-    'Basic understanding of programming concepts',
-    'Familiarity with command-line interface',
-    'A computer with internet connection',
-    'Text editor or IDE installed',
-    'Willingness to learn and ask questions',
   ],
   is_registered: false,
   registration_id: undefined,
