@@ -2,11 +2,18 @@ import { User } from './auth.types';
 
 export type WorkshopCategory = 'Technical' | 'Non-Technical' | 'Social';
 
+export interface WorkshopContent {
+  sectionTitle: string;
+  subSection: string[];
+}
+
 export interface Workshop {
   id: string;
   title: string;
   description: string;
   category: WorkshopCategory;
+  instructor?: string;
+  content?: WorkshopContent[];
   location: string;
   start_time: string;
   end_time: string;

@@ -29,9 +29,12 @@ const transformWorkshop = (workshop: Workshop) => ({
   remainingSpots: workshop.remainingSpots ?? workshop.capacity,
   is_full: workshop.is_full ?? false,
   about: workshop.description,
+  content: workshop.content,
   learningPoints: [] as string[],
   prerequisites: [] as string[],
-  instructor: undefined,
+  instructor: workshop.instructor
+    ? { name: workshop.instructor, title: 'Workshop Instructor' }
+    : undefined,
 });
 const fakeWorkshop: Workshop = {
   id: '1',
@@ -51,6 +54,48 @@ const fakeWorkshop: Workshop = {
   image_url: null,
   image_public_id: null,
   images: [],
+  instructor: 'Sample Instructor',
+  content: [
+    {
+      sectionTitle: 'Workshop Overview',
+      subSection: ['What you will learn', 'How to prepare', 'Workshop goals'],
+    },
+    {
+      sectionTitle: 'Getting Started',
+      subSection: [
+        'Installation requirements',
+        'Setting up your environment',
+        'First steps guide',
+      ],
+    },
+    {
+      sectionTitle: 'Core Concepts',
+      subSection: [
+        'Understanding fundamentals',
+        'Best practices',
+        'Common patterns',
+        'Real-world examples',
+      ],
+    },
+    {
+      sectionTitle: 'Hands-On Practice',
+      subSection: [
+        'Exercise 1: Basic setup',
+        'Exercise 2: Intermediate concepts',
+        'Exercise 3: Advanced techniques',
+        'Group project',
+      ],
+    },
+    {
+      sectionTitle: 'Resources & Next Steps',
+      subSection: [
+        'Documentation links',
+        'Recommended readings',
+        'Community forums',
+        'Follow-up workshops',
+      ],
+    },
+  ],
   is_registered: false,
   registration_id: undefined,
 };
@@ -105,7 +150,7 @@ export const WorkshopDetailsSection = () => {
               The workshop you're looking for doesn't exist or has been removed.
             </p>
             <button
-              onClick={() => navigate('/events')}
+              onClick={() => navigate('/workshops')}
               className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
             >
               <HiArrowLeft className="w-5 h-5" />
@@ -149,12 +194,13 @@ export const WorkshopDetailsSection = () => {
 
             <WorkshopDetailsContent
               about={workshopData.about}
+              content={workshopData.content}
               learningPoints={workshopData.learningPoints}
               prerequisites={workshopData.prerequisites}
               darkMode={isDark}
             />
 
-            {/* Gallery — sourced directly from event.images */}
+            {/* Gallery — sourced directly from workshop.images */}
             {galleryImages.length > 0 && (
               <WorkshopGallery images={galleryImages} darkMode={isDark} />
             )}

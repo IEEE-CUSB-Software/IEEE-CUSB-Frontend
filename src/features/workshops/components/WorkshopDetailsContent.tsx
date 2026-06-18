@@ -1,12 +1,17 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   HiCheckCircle,
+  HiChevronDown,
   HiInformationCircle,
   HiLightningBolt,
+  HiAcademicCap,
 } from 'react-icons/hi';
+import type { WorkshopContent } from '@/shared/types/workshops';
 
 interface WorkshopDetailsContentProps {
   about: string;
+  content?: WorkshopContent[];
   learningPoints?: string[];
   prerequisites?: string[];
   darkMode?: boolean;
@@ -14,10 +19,16 @@ interface WorkshopDetailsContentProps {
 
 export const WorkshopDetailsContent = ({
   about,
+  content,
   learningPoints,
   prerequisites,
   darkMode,
 }: WorkshopDetailsContentProps) => {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  const toggleSection = (index: number) => {
+    setOpenIndex(prev => (prev === index ? null : index));
+  };
   return (
     <div className="space-y-8">
       {/* About Section */}
@@ -60,6 +71,86 @@ export const WorkshopDetailsContent = ({
           ))}
         </div>
       </motion.div>
+
+      {/* Workshop Content Section */}
+      {content && content.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className={`rounded-2xl shadow-lg p-8 ${
+            darkMode ? 'bg-gray-800' : 'bg-white'
+          }`}
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <div
+              className={`p-2 rounded-lg ${
+                darkMode ? 'bg-blue-900/40' : 'bg-blue-50'
+              }`}
+            >
+              <HiAcademicCap
+                className={`w-6 h-6 ${
+                  darkMode ? 'text-blue-300' : 'text-blue-600'
+                }`}
+              />
+            </div>
+            <h2
+              className={`text-2xl font-bold ${
+                darkMode ? 'text-white' : 'text-gray-900'
+              }`}
+            >
+              Workshop Content
+            </h2>
+          </div>
+
+          <div className="space-y-4">
+            {content.map((section, index) => {
+              const isOpen = openIndex === index;
+              return (
+                <div
+                  key={section.sectionTitle}
+                  className={`rounded-3xl border ${
+                    darkMode
+                      ? 'border-gray-700 bg-gray-900/40'
+                      : 'border-gray-200 bg-white'
+                  } overflow-hidden transition-shadow duration-200 hover:shadow-lg`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleSection(index)}
+                    className={`w-full flex items-center justify-between gap-3 px-6 py-5 text-left ${
+                      darkMode ? 'text-gray-100' : 'text-gray-900'
+                    }`}
+                  >
+                    <span className="text-lg font-semibold">
+                      {section.sectionTitle}
+                    </span>
+                    <HiChevronDown
+                      className={`w-5 h-5 transition-transform duration-200 ${
+                        isOpen ? 'rotate-180' : ''
+                      } ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}
+                    />
+                  </button>
+
+                  {isOpen && (
+                    <div
+                      className={`px-6 pb-5 ${
+                        darkMode ? 'text-gray-300' : 'text-gray-600'
+                      }`}
+                    >
+                      <ul className="space-y-3 pl-8 list-disc text-sm sm:text-base">
+                        {section.subSection.map((item, subIndex) => (
+                          <li key={`${item}-${subIndex}`}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </motion.div>
+      )}
 
       {/* Learning Points Section */}
       {learningPoints && learningPoints.length > 0 && (
