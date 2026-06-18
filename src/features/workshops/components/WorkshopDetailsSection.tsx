@@ -30,8 +30,8 @@ const transformWorkshop = (workshop: Workshop) => ({
   is_full: workshop.is_full ?? false,
   about: workshop.description,
   content: workshop.content,
-  learningPoints: [] as string[],
-  prerequisites: [] as string[],
+  learningPoints: (workshop as any).learningPoints || [],
+  prerequisites: (workshop as any).prerequisites || [],
   instructor: workshop.instructor
     ? { name: workshop.instructor, title: 'Workshop Instructor' }
     : undefined,
@@ -95,6 +95,21 @@ const fakeWorkshop: Workshop = {
         'Follow-up workshops',
       ],
     },
+  ],
+  learningPoints: [
+    'Master fundamental concepts and best practices',
+    'Build real-world projects from scratch',
+    'Understand advanced techniques and patterns',
+    'Gain hands-on experience with practical exercises',
+    'Learn from industry experts and practitioners',
+    'Network with fellow engineers and enthusiasts',
+  ],
+  prerequisites: [
+    'Basic understanding of programming concepts',
+    'Familiarity with command-line interface',
+    'A computer with internet connection',
+    'Text editor or IDE installed',
+    'Willingness to learn and ask questions',
   ],
   is_registered: false,
   registration_id: undefined,
