@@ -17,7 +17,7 @@ import { FaGithub, FaTwitter } from 'react-icons/fa';
 //   containerH — fixed container height = (expandedH + expandedY offset) + label
 //                → bottom of expanded card stays inside the container
 
-export type MemberCardSize = 'sm' | 'md' | 'lg';
+export type MemberCardSize = 'sm' | 'md' | 'lg' | 'xs' | '2xs'; // xs is for the mobile-only
 
 const SIZE: Record<
   MemberCardSize,
@@ -78,6 +78,34 @@ const SIZE: Record<
     bioCls: 'text-sm line-clamp-3',
     iconCls: 'text-xl',
   },
+  xs: {
+    circle: 64,
+    expandedW: 128,
+    expandedH: 180,
+    expandedY: -10,
+    containerH: 170, // expanded bottom (160) + 10 buffer
+    overlayPadding: 'p-3',
+    nameCls: 'text-sm font-semibold',
+    roleCls: 'text-xs',
+    nameOverlayCls: 'text-sm font-bold',
+    roleOverlayCls: 'text-xs',
+    bioCls: 'text-xs line-clamp-2',
+    iconCls: 'text-sm',
+  },
+  '2xs': {
+    circle: 48,
+    expandedW: 96,
+    expandedH: 140,
+    expandedY: -5,
+    containerH: 130, // expanded bottom (120) + 10 buffer
+    overlayPadding: 'p-2',
+    nameCls: 'text-xs font-semibold',
+    roleCls: 'text-2xs',
+    nameOverlayCls: 'text-xs font-bold',
+    roleOverlayCls: 'text-2xs',
+    bioCls: 'text-2xs line-clamp-2',
+    iconCls: 'text-xs',
+  },
 };
 
 // ─── Props ───────────────────────────────────────────────────────────────────
@@ -91,6 +119,8 @@ export interface MemberCardProps {
    * sm  — compact  (80px circle → 160×210 expanded)
    * md  — medium   (108px circle → 210×270 expanded)
    * lg  — full     (144px circle → 260×340 expanded)  ← default
+   * xs  — extra small (64px circle → 128×180 expanded)
+   * 2xs — extra extra small (48px circle → 96×140 expanded)
    */
   size?: MemberCardSize;
   /**

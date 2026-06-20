@@ -75,7 +75,9 @@ export const AwardsPage = () => {
     undefined
   );
   const [viewAward, setViewAward] = useState<Award | null>(null);
-  const [deleteAwardTarget, setDeleteAwardTarget] = useState<Award | null>(null);
+  const [deleteAwardTarget, setDeleteAwardTarget] = useState<Award | null>(
+    null
+  );
   const [search, setSearch] = useState('');
 
   /* filtered list */
@@ -297,15 +299,24 @@ export const AwardsPage = () => {
             data={filtered}
             columns={columns}
             isDark={isDark}
-            renderMobileCard={(award) => (
+            renderMobileCard={award => (
               <AdminMobileCard
                 isDark={isDark}
                 title={award.title}
                 subtitle={award.description}
                 badge={`${AWARD_SOURCE_LABELS[award.source]} • ${award.year}`}
                 avatar={
-                  <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden ${isDark ? 'bg-yellow-900/30' : 'bg-yellow-50'}`}>
-                    <img src={award.image_url || IEEETrophy} alt="trophy" className="w-6 h-6 object-contain" onError={e => { (e.currentTarget as HTMLImageElement).src = IEEETrophy; }} />
+                  <div
+                    className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden ${isDark ? 'bg-yellow-900/30' : 'bg-yellow-50'}`}
+                  >
+                    <img
+                      src={award.image_url || IEEETrophy}
+                      alt="trophy"
+                      className="w-6 h-6 object-contain"
+                      onError={e => {
+                        (e.currentTarget as HTMLImageElement).src = IEEETrophy;
+                      }}
+                    />
                   </div>
                 }
                 onEdit={() => handleEdit(award)}
@@ -317,7 +328,9 @@ export const AwardsPage = () => {
 
           {/* Result count */}
           {search && (
-            <p className={`text-xs text-center ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
+            <p
+              className={`text-xs text-center ${isDark ? 'text-gray-600' : 'text-gray-400'}`}
+            >
               Showing {filtered.length} of {awards.length} awards
             </p>
           )}

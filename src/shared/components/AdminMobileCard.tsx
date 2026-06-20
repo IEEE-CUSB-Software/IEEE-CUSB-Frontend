@@ -25,15 +25,18 @@ export interface AdminMobileCardProps {
 const colorMap = {
   primary: {
     dark: 'text-gray-400 hover:text-primary hover:bg-primary/10 border border-gray-800 hover:border-primary/30',
-    light: 'text-gray-600 hover:text-primary hover:bg-primary/5 border border-gray-100 hover:border-primary/20',
+    light:
+      'text-gray-600 hover:text-primary hover:bg-primary/5 border border-gray-100 hover:border-primary/20',
   },
   danger: {
     dark: 'text-gray-400 hover:text-red-400 hover:bg-red-400/10 border border-gray-800 hover:border-red-400/30',
-    light: 'text-gray-600 hover:text-red-500 hover:bg-red-50 border border-gray-100 hover:border-red-200',
+    light:
+      'text-gray-600 hover:text-red-500 hover:bg-red-50 border border-gray-100 hover:border-red-200',
   },
   info: {
     dark: 'text-gray-400 hover:text-blue-400 hover:bg-blue-400/10 border border-gray-800 hover:border-blue-400/30',
-    light: 'text-gray-600 hover:text-blue-500 hover:bg-blue-50 border border-gray-100 hover:border-blue-200',
+    light:
+      'text-gray-600 hover:text-blue-500 hover:bg-blue-50 border border-gray-100 hover:border-blue-200',
   },
 };
 
@@ -88,7 +91,9 @@ export const AdminMobileCard: React.FC<AdminMobileCardProps> = ({
     <div
       onClick={onClick}
       className={`rounded-2xl border overflow-hidden transition-all duration-300 ease-out select-none ${
-        onClick ? 'cursor-pointer hover:-translate-y-0.5 active:scale-[0.99]' : ''
+        onClick
+          ? 'cursor-pointer hover:-translate-y-0.5 active:scale-[0.99]'
+          : ''
       } ${
         isDark
           ? 'bg-gray-900 border-gray-800 hover:border-gray-600 hover:shadow-lg hover:shadow-black/30'
@@ -96,22 +101,34 @@ export const AdminMobileCard: React.FC<AdminMobileCardProps> = ({
       }`}
     >
       {/* Accent strip */}
-      <div className={`h-1 w-full ${isDark ? 'bg-primary/60' : 'bg-primary'}`} />
-
+      <div
+        className={`h-1 w-full ${isDark ? 'bg-primary/60' : 'bg-primary'}`}
+      />
       <div className="p-4">
         {/* Header row */}
-        <div className="flex items-start gap-3 mb-2">
-          {avatar && (
-            <div className="flex-shrink-0">{avatar}</div>
-          )}
+        <div className="flex items-start gap-2.5 mb-2">
+          {avatar && <div className="flex-shrink-0">{avatar}</div>}
           <div className="flex-1 min-w-0">
-            <h3
-              className={`font-bold text-sm leading-tight truncate ${
-                isDark ? 'text-white' : 'text-gray-900'
-              }`}
-            >
-              {title}
-            </h3>
+            <div className="flex items-start justify-between gap-2">
+              <h3
+                className={`font-bold text-sm leading-tight truncate ${
+                  isDark ? 'text-white' : 'text-gray-900'
+                }`}
+              >
+                {title}
+              </h3>
+              {badge && (
+                <span
+                  className={`flex-shrink-0 text-xs font-bold px-2 py-0.5 rounded-lg border whitespace-nowrap ${
+                    isDark
+                      ? 'bg-gray-800 border-gray-700 text-gray-300'
+                      : 'bg-gray-50 border-gray-200 text-gray-600'
+                  }`}
+                >
+                  {badge}
+                </span>
+              )}
+            </div>
             {subtitle && (
               <p
                 className={`text-xs mt-0.5 truncate ${
@@ -122,17 +139,6 @@ export const AdminMobileCard: React.FC<AdminMobileCardProps> = ({
               </p>
             )}
           </div>
-          {badge && (
-            <span
-              className={`flex-shrink-0 text-xs font-bold px-2.5 py-1 rounded-lg border ${
-                isDark
-                  ? 'bg-gray-800 border-gray-700 text-gray-300'
-                  : 'bg-gray-50 border-gray-200 text-gray-600'
-              }`}
-            >
-              {badge}
-            </span>
-          )}
         </div>
 
         {/* Description */}
