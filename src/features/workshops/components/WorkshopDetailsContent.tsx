@@ -11,7 +11,7 @@ import type { WorkshopContent } from '@/shared/types/workshops';
 
 interface WorkshopDetailsContentProps {
   about: string;
-  content?: WorkshopContent[];
+  content?: string | WorkshopContent[];
   learningPoints?: string[];
   prerequisites?: string[];
   darkMode?: boolean;
@@ -73,7 +73,7 @@ export const WorkshopDetailsContent = ({
       </motion.div>
 
       {/* Workshop Content Section */}
-      {content && content.length > 0 && (
+      {content && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -104,50 +104,62 @@ export const WorkshopDetailsContent = ({
           </div>
 
           <div className="space-y-4">
-            {content.map((section, index) => {
-              const isOpen = openIndex === index;
-              return (
-                <div
-                  key={section.sectionTitle}
-                  className={`rounded-3xl border ${
-                    darkMode
-                      ? 'border-gray-700 bg-gray-900/40'
-                      : 'border-gray-200 bg-white'
-                  } overflow-hidden transition-shadow duration-200 hover:shadow-lg`}
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggleSection(index)}
-                    className={`w-full flex items-center justify-between gap-3 px-6 py-5 text-left ${
-                      darkMode ? 'text-gray-100' : 'text-gray-900'
-                    }`}
+            {typeof content === 'string' ? (
+              <div
+                className={`prose prose-lg max-w-none leading-relaxed space-y-4 ${
+                  darkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}
+              >
+                {content.split('\n\n').map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
+                ))}
+              </div>
+            ) : content.length > 0 ? (
+              content.map((section, index) => {
+                const isOpen = openIndex === index;
+                return (
+                  <div
+                    key={section.sectionTitle}
+                    className={`rounded-3xl border ${
+                      darkMode
+                        ? 'border-gray-700 bg-gray-900/40'
+                        : 'border-gray-200 bg-white'
+                    } overflow-hidden transition-shadow duration-200 hover:shadow-lg`}
                   >
-                    <span className="text-lg font-semibold">
-                      {section.sectionTitle}
-                    </span>
-                    <HiChevronDown
-                      className={`w-5 h-5 transition-transform duration-200 ${
-                        isOpen ? 'rotate-180' : ''
-                      } ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}
-                    />
-                  </button>
-
-                  {isOpen && (
-                    <div
-                      className={`px-6 pb-5 ${
-                        darkMode ? 'text-gray-300' : 'text-gray-600'
+                    <button
+                      type="button"
+                      onClick={() => toggleSection(index)}
+                      className={`w-full flex items-center justify-between gap-3 px-6 py-5 text-left ${
+                        darkMode ? 'text-gray-100' : 'text-gray-900'
                       }`}
                     >
-                      <ul className="space-y-3 pl-8 list-disc text-sm sm:text-base">
-                        {section.subSection.map((item, subIndex) => (
-                          <li key={`${item}-${subIndex}`}>{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                      <span className="text-lg font-semibold">
+                        {section.sectionTitle}
+                      </span>
+                      <HiChevronDown
+                        className={`w-5 h-5 transition-transform duration-200 ${
+                          isOpen ? 'rotate-180' : ''
+                        } ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}
+                      />
+                    </button>
+
+                    {isOpen && (
+                      <div
+                        className={`px-6 pb-5 ${
+                          darkMode ? 'text-gray-300' : 'text-gray-600'
+                        }`}
+                      >
+                        <ul className="space-y-3 pl-8 list-disc text-sm sm:text-base">
+                          {section.subSection.map((item, subIndex) => (
+                            <li key={`${item}-${subIndex}`}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            ) : null}
           </div>
         </motion.div>
       )}

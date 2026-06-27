@@ -32,9 +32,12 @@ const transformWorkshop = (workshop: Workshop) => ({
   content: workshop.content,
   learningPoints: (workshop as any).learningPoints || [],
   prerequisites: (workshop as any).prerequisites || [],
-  instructor: workshop.instructor
-    ? { name: workshop.instructor, title: 'Workshop Instructor' }
-    : undefined,
+  instructors: workshop.instructors?.map(inst => ({
+    id: inst.id,
+    name: inst.name,
+    title: 'Workshop Instructor',
+    avatar: inst.image_url || undefined,
+  })),
 });
 const fakeWorkshop: Workshop = {
   id: '1',
@@ -55,49 +58,18 @@ const fakeWorkshop: Workshop = {
   image_public_id: null,
   images: [],
   instructor: 'Sample Instructor',
-  content: [
-    {
-      sectionTitle: 'Workshop Overview',
-      subSection: ['What you will learn', 'How to prepare', 'Workshop goals'],
-    },
-    {
-      sectionTitle: 'Getting Started',
-      subSection: [
-        'Installation requirements',
-        'Setting up your environment',
-        'First steps guide',
-      ],
-    },
-    {
-      sectionTitle: 'Core Concepts',
-      subSection: [
-        'Understanding fundamentals',
-        'Best practices',
-        'Common patterns',
-        'Real-world examples',
-      ],
-    },
-    {
-      sectionTitle: 'Hands-On Practice',
-      subSection: [
-        'Exercise 1: Basic setup',
-        'Exercise 2: Intermediate concepts',
-        'Exercise 3: Advanced techniques',
-        'Group project',
-      ],
-    },
-    {
-      sectionTitle: 'Resources & Next Steps',
-      subSection: [
-        'Documentation links',
-        'Recommended readings',
-        'Community forums',
-        'Follow-up workshops',
-      ],
-    },
-  ],
+  content: "Workshop Overview\n\nWhat you will learn\nHow to prepare\nWorkshop goals\n\nGetting Started\n\nInstallation requirements\nSetting up your environment\nFirst steps guide\n\nCore Concepts\n\nUnderstanding fundamentals\nBest practices\nCommon patterns\nReal-world examples",
   is_registered: false,
   registration_id: undefined,
+  instructors: [
+    {
+      id: '1',
+      name: 'Sample Instructor',
+      bio: 'Expert in the field',
+      created_at: '2024-06-01T10:00:00Z',
+      updated_at: '2024-06-15T10:00:00Z',
+    },
+  ],
 };
 
 export const WorkshopDetailsSection = () => {
@@ -213,7 +185,7 @@ export const WorkshopDetailsSection = () => {
                 startTime={workshopData.startTime}
                 endTime={workshopData.endTime}
                 location={workshopData.location}
-                instructor={workshopData.instructor}
+                instructors={workshopData.instructors}
                 registrationDeadline={workshopData.registrationDeadline}
                 workshopId={workshopData.id}
                 isRegistered={workshopData.is_registered}

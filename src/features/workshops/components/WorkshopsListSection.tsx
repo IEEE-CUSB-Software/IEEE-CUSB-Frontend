@@ -16,24 +16,7 @@ const fakeworkshops: Workshop[] = [
       'Learn the basics of React and build your first web application.',
     category: 'Technical',
     instructor: 'Jane Smith',
-    content: [
-      {
-        sectionTitle: 'React Fundamentals',
-        subSection: [
-          'JSX and Rendering',
-          'Component Lifecycle',
-          'Hooks Basics',
-        ],
-      },
-      {
-        sectionTitle: 'Building Components',
-        subSection: [
-          'Functional Components',
-          'Props and State',
-          'Event Handling',
-        ],
-      },
-    ],
+    content: 'Overview of workshop content...',
     location: 'Online',
     start_time: '2026-07-15T10:00:00Z',
     end_time: '2026-07-15T12:00:00Z',
@@ -54,24 +37,7 @@ const fakeworkshops: Workshop[] = [
     description: 'Enhance your teamwork skills through interactive activities.',
     category: 'Non-Technical',
     instructor: 'Aaron Lee',
-    content: [
-      {
-        sectionTitle: 'Collaboration Techniques',
-        subSection: [
-          'Communication Skills',
-          'Trust Building',
-          'Active Listening',
-        ],
-      },
-      {
-        sectionTitle: 'Team Dynamics',
-        subSection: [
-          'Conflict Resolution',
-          'Leadership Styles',
-          'Team Motivation',
-        ],
-      },
-    ],
+    content: 'Overview of workshop content...',
     location: 'Community Center',
     start_time: '2026-07-20T14:00:00Z',
     end_time: '2026-07-20T16:00:00Z',
@@ -93,24 +59,7 @@ const fakeworkshops: Workshop[] = [
       'Learn how to effectively market your brand on social media platforms.',
     category: 'Social',
     instructor: 'Priya Nair',
-    content: [
-      {
-        sectionTitle: 'Marketing Strategy',
-        subSection: [
-          'Audience Research',
-          'Content Planning',
-          'Target Demographics',
-        ],
-      },
-      {
-        sectionTitle: 'Platform-Specific Tactics',
-        subSection: [
-          'Instagram Strategy',
-          'LinkedIn for Professionals',
-          'TikTok Trends',
-        ],
-      },
-    ],
+    content: 'Overview of workshop content...',
     location: 'Online',
     start_time: '2026-07-25T09:00:00Z',
     end_time: '2026-07-25T11:00:00Z',

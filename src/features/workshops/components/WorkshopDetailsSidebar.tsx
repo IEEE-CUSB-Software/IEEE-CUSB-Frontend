@@ -15,11 +15,12 @@ interface WorkshopDetailsSidebarProps {
   startTime: string;
   endTime: string;
   location: string;
-  instructor?: {
+  instructors?: {
+    id: string;
     name: string;
-    title: string;
+    title?: string;
     avatar?: string;
-  };
+  }[];
   registrationDeadline: string;
   workshopId: string | number;
   isRegistered?: boolean;
@@ -34,7 +35,7 @@ export const WorkshopDetailsSidebar = ({
   startTime,
   endTime,
   location,
-  instructor,
+  instructors,
   registrationDeadline,
   workshopId,
   isRegistered,
@@ -396,8 +397,8 @@ export const WorkshopDetailsSidebar = ({
           </div>
         )}
 
-        {/* Instructor Section */}
-        {instructor && (
+        {/* Instructors Section */}
+        {instructors && instructors.length > 0 && (
           <div
             className={`mt-6 pt-6 border-t ${
               darkMode ? 'border-gray-700' : 'border-gray-200'
@@ -410,34 +411,40 @@ export const WorkshopDetailsSidebar = ({
             >
               Instructors
             </h3>
-            <div className="flex items-center gap-3">
-              {instructor.avatar ? (
-                <img
-                  src={instructor.avatar}
-                  alt={instructor.name}
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
-                  <HiUserCircle className="w-8 h-8 text-white" />
+            <div className="space-y-4">
+              {instructors.map((instructor) => (
+                <div key={instructor.id} className="flex items-center gap-3">
+                  {instructor.avatar ? (
+                    <img
+                      src={instructor.avatar}
+                      alt={instructor.name}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
+                      <HiUserCircle className="w-8 h-8 text-white" />
+                    </div>
+                  )}
+                  <div>
+                    <p
+                      className={`font-semibold ${
+                        darkMode ? 'text-white' : 'text-gray-900'
+                      }`}
+                    >
+                      {instructor.name}
+                    </p>
+                    {instructor.title && (
+                      <p
+                        className={`text-sm ${
+                          darkMode ? 'text-gray-300' : 'text-gray-600'
+                        }`}
+                      >
+                        {instructor.title}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              )}
-              <div>
-                <p
-                  className={`font-semibold ${
-                    darkMode ? 'text-white' : 'text-gray-900'
-                  }`}
-                >
-                  {instructor.name}
-                </p>
-                <p
-                  className={`text-sm ${
-                    darkMode ? 'text-gray-300' : 'text-gray-600'
-                  }`}
-                >
-                  {instructor.title}
-                </p>
-              </div>
+              ))}
             </div>
           </div>
         )}
