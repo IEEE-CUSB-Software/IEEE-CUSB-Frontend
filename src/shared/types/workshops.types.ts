@@ -7,13 +7,26 @@ export interface WorkshopContent {
   subSection: string[];
 }
 
+export interface Instructor {
+  id: string;
+  name: string;
+  bio: string;
+  image_url?: string | null;
+  image_public_id?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Workshop {
   id: string;
   title: string;
   description: string;
   category: WorkshopCategory;
   instructor?: string;
-  content?: WorkshopContent[];
+  instructors?: Instructor[];
+  instructor_ids?: string[];
+  // TODO: change this back to WorkshopContent[] when the backend is updated to return an array for workshop content
+  content?: string;
   location: string;
   start_time: string;
   end_time: string;
@@ -52,6 +65,8 @@ export enum WorkshopRegistrationStatus {
   WAITLISTED = 'waitlisted',
   CANCELLED = 'cancelled',
   ATTENDED = 'attended',
+  ACCEPTED = 'accepted',
+  REJECTED = 'rejected',
 }
 
 /**
@@ -74,11 +89,29 @@ export interface CreateWorkshopRequest {
   title: string;
   description: string;
   category: WorkshopCategory;
+  content: string;
   location: string;
   start_time: string;
   end_time: string;
   capacity: number;
   registration_deadline: string;
+  instructor_ids?: string[];
+}
+
+/**
+ * Create Instructor Request DTO
+ */
+export interface CreateInstructorRequest {
+  name: string;
+  bio: string;
+}
+
+/**
+ * Update Instructor Request DTO
+ */
+export interface UpdateInstructorRequest {
+  name?: string;
+  bio?: string;
 }
 
 /**
@@ -88,11 +121,13 @@ export interface UpdateWorkshopRequest {
   title?: string;
   description?: string;
   category?: WorkshopCategory;
+  content?: string;
   location?: string;
   start_time?: string;
   end_time?: string;
   capacity?: number;
   registration_deadline?: string;
+  instructor_ids?: string[];
 }
 
 /**
