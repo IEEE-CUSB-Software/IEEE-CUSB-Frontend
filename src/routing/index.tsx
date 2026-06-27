@@ -19,6 +19,7 @@ import { AdminLayout } from '../features/admin/layouts/AdminLayout';
 import { EventsPage as AdminEventsPage } from './pages/admin/EventsPage';
 import { CommitteesPage as AdminCommittees } from './pages/admin/CommitteesPage';
 import { AwardsPage as AdminAwardsPage } from './pages/admin/AwardsPage';
+import { AdminWorkshopsPage } from './pages/admin/WorkshopsPage';
 import { RoleName } from '@/shared/types/auth.types';
 import { WorkshopsPage } from './pages/WorkshopsPage';
 import { WorkshopDetailsPage } from './pages/WorkshopDetailsPage';
@@ -69,7 +70,7 @@ const routes: RouteObject[] = [
       },
       {
         path: 'workshops',
-        element: <UnderConstructionPage />, // Workshops - Under Construction
+        element: <AdminWorkshopsPage />, // Workshops - Working
       },
       {
         path: 'posts',
