@@ -95,6 +95,36 @@ export const API_ENDPOINTS = {
     UPDATE: (id: string) => `/admin/board/${id}`,
     DELETE: (id: string) => `/admin/board/${id}`,
   },
+
+  // Workshops endpoints
+  WORKSHOPS: {
+    CREATE: '/admin/workshops',
+    GET_ALL: '/workshops',
+    GET_ONE: (id: string) => `/workshops/${id}`,
+    UPDATE: (id: string) => `/admin/workshops/${id}`,
+    DELETE: (id: string) => `/admin/workshops/${id}`,
+    UPLOAD_IMAGE: (id: string) => `/admin/workshops/${id}/image`,
+    DELETE_IMAGE: (id: string) => `/admin/workshops/${id}/image`,
+    UPLOAD_GALLERY: (id: string) => `/admin/workshops/${id}/images`,
+    DELETE_GALLERY_IMAGE: (id: string, imageId: string) =>
+      `/admin/workshops/${id}/images/${imageId}`,
+
+    // Instructors
+    GET_INSTRUCTORS: '/workshops/instructors',
+    CREATE_INSTRUCTOR: '/admin/workshops/instructors',
+    UPDATE_INSTRUCTOR: (id: string) => `/admin/workshops/instructors/${id}`,
+    DELETE_INSTRUCTOR: (id: string) => `/admin/workshops/instructors/${id}`,
+    UPLOAD_INSTRUCTOR_IMAGE: (id: string) => `/admin/workshops/instructors/${id}/image`,
+    DELETE_INSTRUCTOR_IMAGE: (id: string) => `/admin/workshops/instructors/${id}/image`,
+
+    // Registrations
+    REGISTER: (id: string) => `/workshops/${id}/register`,
+    CANCEL_REGISTRATION: (id: string) => `/workshops/${id}/cancel`,
+    GET_REGISTRATIONS: (id: string) => `/admin/workshops/${id}/registrations`,
+    UPDATE_REGISTRATION_STATUS: (workshopId: string, registrationId: string) =>
+      `/admin/workshops/${workshopId}/registrations/${registrationId}/status`,
+    BULK_REGISTER: (id: string) => `/admin/workshops/${id}/bulk-register`,
+  },
 } as const;
 
 /**
@@ -140,5 +170,11 @@ export const QUERY_KEYS = {
   },
   BOARD: {
     ALL: ['board'],
+  },
+  WORKSHOPS: {
+    ALL: ['workshops'],
+    ONE: (id: string) => ['workshops', id],
+    INSTRUCTORS: ['workshops', 'instructors'],
+    REGISTRATIONS: (id: string) => ['workshops', id, 'registrations'],
   },
 } as const;
