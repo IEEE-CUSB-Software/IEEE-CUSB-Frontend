@@ -7,8 +7,8 @@ import {
   DateTimePicker,
   NumberField,
   Select,
-  MultiSelect,
 } from '@ieee-ui/ui';
+import { SearchableMultiSelect } from '@/shared/components/ui/SearchableMultiSelect';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { toast } from 'react-hot-toast';
 import { FiUpload, FiTrash2, FiImage, FiX } from 'react-icons/fi';
@@ -398,9 +398,9 @@ export const AddEditWorkshopModal: React.FC<ExtendedAddEditWorkshopModalProps> =
             darkMode={isDark}
           />
           <div className="md:col-span-2 mt-2">
-            <MultiSelect
+            <SearchableMultiSelect
               label="Instructors"
-              placeholder="Select instructors..."
+              placeholder="Search and select instructors..."
               options={instructorOptions}
               value={formValues.instructor_ids}
               onChange={handleInstructorsChange}
