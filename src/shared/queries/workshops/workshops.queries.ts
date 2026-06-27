@@ -99,10 +99,25 @@ export const useDeleteInstructorImage = () => {
 // WORKSHOPS
 // ==========================================
 
+export const useWorkshops = (page = 1, limit = 10) => {
+  return useQuery({
+    queryKey: [...QUERY_KEYS.WORKSHOPS.ALL, { page, limit }],
+    queryFn: () => api.getWorkshops(page, limit),
+  });
+};
+
 export const useGetAdminWorkshops = (page = 1, limit = 10) => {
   return useQuery({
     queryKey: [...QUERY_KEYS.WORKSHOPS.ALL, 'admin', { page, limit }],
     queryFn: () => api.getWorkshops(page, limit),
+  });
+};
+
+export const useGetWorkshopById = (id: string) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.WORKSHOPS.ONE(id),
+    queryFn: () => api.getWorkshop(id),
+    enabled: !!id,
   });
 };
 
@@ -243,6 +258,36 @@ export const useBulkRegisterToWorkshop = () => {
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || 'Failed to bulk register users');
+    }
+  });
+};
+
+export const useRegisterWorkshop = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.registerToWorkshop(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.WORKSHOPS.ONE(id) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.WORKSHOPS.ALL });
+      toast.success('Successfully registered for the workshop');
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Failed to register for workshop');
+    }
+  });
+};
+
+export const useCancelWorkshopRegistration = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.cancelWorkshopRegistration(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.WORKSHOPS.ONE(id) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.WORKSHOPS.ALL });
+      toast.success('Registration cancelled successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Failed to cancel registration');
     }
   });
 };

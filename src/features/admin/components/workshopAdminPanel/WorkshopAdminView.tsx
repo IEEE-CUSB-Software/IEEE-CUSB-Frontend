@@ -15,7 +15,7 @@ const WorkshopAdminView: React.FC = () => {
 
   return (
     <div className={`flex h-full flex-col ${isDark ? 'text-white' : 'text-gray-900'}`}>
-      <div className="flex border-b border-gray-200 dark:border-gray-800 mb-4 px-2">
+      <div className="flex mb-4 px-2">
         {tabs.map((tab) => (
           <button
             key={tab.id}

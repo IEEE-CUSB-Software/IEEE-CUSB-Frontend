@@ -102,6 +102,11 @@ export const getWorkshops = async (page = 1, limit = 10): Promise<PaginatedWorks
   return response.data.data;
 };
 
+export const getWorkshop = async (id: string): Promise<Workshop> => {
+  const response = await api.get<WorkshopApiResponse<Workshop>>(API_ENDPOINTS.WORKSHOPS.GET_ONE(id));
+  return response.data.data;
+};
+
 // ==========================================
 // REGISTRATIONS
 // ==========================================
@@ -121,4 +126,13 @@ export const updateRegistrationStatus = async (id: string, registrationId: strin
 export const bulkRegisterToWorkshop = async (id: string, userIds: string[]): Promise<WorkshopRegistration[]> => {
   const response = await api.post<WorkshopApiResponse<WorkshopRegistration[]>>(API_ENDPOINTS.WORKSHOPS.BULK_REGISTER(id), { user_ids: userIds });
   return response.data.data;
+};
+
+export const registerToWorkshop = async (id: string): Promise<WorkshopRegistration> => {
+  const response = await api.post<WorkshopApiResponse<WorkshopRegistration>>(API_ENDPOINTS.WORKSHOPS.REGISTER(id));
+  return response.data.data;
+};
+
+export const cancelWorkshopRegistration = async (id: string): Promise<void> => {
+  await api.post(API_ENDPOINTS.WORKSHOPS.CANCEL_REGISTRATION(id));
 };

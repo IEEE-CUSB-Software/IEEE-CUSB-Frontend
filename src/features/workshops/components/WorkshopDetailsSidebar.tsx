@@ -9,6 +9,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '@/shared/store/hooks';
 import { RoleName } from '@/shared/types/auth.types';
+import { useRegisterWorkshop, useCancelWorkshopRegistration } from '@/shared/queries/workshops';
 import { format } from 'date-fns/format';
 
 interface WorkshopDetailsSidebarProps {
@@ -51,26 +52,25 @@ export const WorkshopDetailsSidebar = ({
     user?.role?.name === RoleName.ADMIN ||
     user?.role?.name === RoleName.SUPER_ADMIN;
 
-  //   const { mutate: register, isPending: isRegistering } = useRegisterForWorkshop();
-  //   const { mutate: cancelRegistration, isPending: isCancelling } =
-  //     useCancelRegistration();
+  const { mutate: register, isPending: isRegistering } = useRegisterWorkshop();
+  const { mutate: cancelRegistration, isPending: isCancelling } =
+    useCancelWorkshopRegistration();
 
   const handleRegister = () => {
     if (!isAuthenticated) {
       navigate('/login');
       return;
     }
-    // register(workshopId.toString());
+    register(workshopId.toString());
   };
 
   const handleCancelRegistration = () => {
     if (workshopId) {
-      // cancelRegistration(workshopId.toString());
+      cancelRegistration(workshopId.toString());
     }
   };
 
-  // const isPending = isRegistering || isCancelling;
-  const isPending = false; // Placeholder until hooks are implemented
+  const isPending = isRegistering || isCancelling;
 
   // Check if workshops have valid dates
   const isValidDate = (dateString: string) => {

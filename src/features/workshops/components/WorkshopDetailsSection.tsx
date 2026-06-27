@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { HiArrowLeft } from 'react-icons/hi';
 import { useTheme } from '@/shared/hooks/useTheme';
-import { Workshop } from '@/shared/types/workshops';
+import { Workshop } from '@/shared/types/workshops.types';
+import { useGetWorkshopById } from '@/shared/queries/workshops';
 import { WorkshopDetailsContent } from './WorkshopDetailsContent';
 import { WorkshopGallery } from './WorkshopGallery';
 import { WorkshopDetailsSidebar } from './WorkshopDetailsSidebar';
@@ -39,50 +40,14 @@ const transformWorkshop = (workshop: Workshop) => ({
     avatar: inst.image_url || undefined,
   })),
 });
-const fakeWorkshop: Workshop = {
-  id: '1',
-  title: 'Sample Workshop',
-  description: 'This is a sample workshop description.',
-  category: 'Technical',
-  location: 'Online',
-  start_time: '2024-07-01T10:00:00Z',
-  end_time: '2024-07-01T12:00:00Z',
-  capacity: 100,
-  remainingSpots: 50,
-  is_full: false,
-  registration_deadline: '2024-06-30T23:59:59Z',
-  created_by: 'admin',
-  created_at: '2024-06-01T10:00:00Z',
-  updated_at: '2024-06-15T10:00:00Z',
-  image_url: null,
-  image_public_id: null,
-  images: [],
-  instructor: 'Sample Instructor',
-  content: "Workshop Overview\n\nWhat you will learn\nHow to prepare\nWorkshop goals\n\nGetting Started\n\nInstallation requirements\nSetting up your environment\nFirst steps guide\n\nCore Concepts\n\nUnderstanding fundamentals\nBest practices\nCommon patterns\nReal-world examples",
-  is_registered: false,
-  registration_id: undefined,
-  instructors: [
-    {
-      id: '1',
-      name: 'Sample Instructor',
-      bio: 'Expert in the field',
-      created_at: '2024-06-01T10:00:00Z',
-      updated_at: '2024-06-15T10:00:00Z',
-    },
-  ],
-};
+// Dummy data removed.
 
 export const WorkshopDetailsSection = () => {
-  //const { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { isDark } = useTheme();
 
-  //   const { data: workshop, isLoading, isError } = useWorkshop(id || '');
-
-  // Using fake data for now and remove them when the API is ready and uncomment the above lines
-  const workshop = fakeWorkshop;
-  const isLoading = false;
-  const isError = false;
+  const { data: workshop, isLoading, isError } = useGetWorkshopById(id || '');
   // Gallery comes embedded in the workshop response
   const galleryImages = workshop?.images ?? [];
 
