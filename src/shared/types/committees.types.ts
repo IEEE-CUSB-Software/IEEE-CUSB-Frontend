@@ -43,6 +43,7 @@ export interface Committee {
   category: CommitteeCategory;
   created_at: string;
   updated_at: string;
+  members?: CommitteeMember[];
 }
 
 export interface CreateCommittee {

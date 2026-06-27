@@ -1,39 +1,61 @@
-import { Committee } from '../constants/committeeData';
 import { getCommitteeIllustration } from '../constants/committeeIllustrations';
 import { HiArrowLeft } from 'react-icons/hi';
 import { TeamMember } from '@/shared/types/team.types';
 import { MemberCard as BoardMemberCard } from '@/shared/components/MemberCard';
 import { Modal } from '@ieee-ui/ui';
 import { useTheme } from '@/shared/hooks/useTheme';
+import { useCommittee } from '@/shared/queries/committees';
+import { MemberRole } from '@/shared/types/committees.types';
 
 interface CommitteeDetailModalProps {
-  committee: Committee | null;
+  committeeId: string | null;
   onClose: () => void;
 }
 
 export const CommitteeDetailModal = ({
-  committee,
+  committeeId,
   onClose,
 }: CommitteeDetailModalProps) => {
   const { isDark } = useTheme();
+  const { data: committee, isLoading } = useCommittee(
+    committeeId as string,
+    !!committeeId
+  );
 
   const boardMembers: { member: TeamMember; title: string }[] = [];
-  if (committee?.head) {
-    boardMembers.push({
-      member: committee.head,
-      title: `${committee.name} Head`,
+  const regularMembers: TeamMember[] = [];
+
+  if (committee?.members) {
+    committee.members.forEach((m) => {
+      const mappedMember: TeamMember = {
+        name: m.name,
+        role: m.role,
+        bio: '',
+        image: m.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&background=0f172a&color=fff&size=256`,
+        socials: {},
+      };
+      if (m.role === MemberRole.HEAD) {
+        boardMembers.push({
+          member: mappedMember,
+          title: `${committee.name} Head`,
+        });
+      } else if (m.role === MemberRole.VICE_HEAD) {
+        boardMembers.push({
+          member: mappedMember,
+          title: `${committee.name} Vice Head`,
+        });
+      } else {
+        regularMembers.push(mappedMember);
+      }
     });
   }
-  if (committee?.viceHead) {
-    boardMembers.push({
-      member: committee.viceHead,
-      title: `${committee.name} Vice Head`,
-    });
-  }
+
+  const slug = committee?.name?.toLowerCase().replace(/\s+/g, '-');
+  const illustration = slug ? getCommitteeIllustration(slug) : '';
 
   return (
     <Modal
-      isOpen={!!committee}
+      isOpen={!!committeeId}
       onClose={onClose}
       title={committee?.name ?? ''}
       size="4xl"
@@ -42,27 +64,34 @@ export const CommitteeDetailModal = ({
       {/* data-lenis-prevent tells Lenis to stop intercepting wheel/touch events
           inside the modal so the native overflow-y-auto scroll works */}
       <div data-lenis-prevent>
-        {committee && (
+        {isLoading && (
+          <div className="flex justify-center items-center py-20">
+            <p className="text-muted-foreground animate-pulse">
+              Loading committee details...
+            </p>
+          </div>
+        )}
+        {committee && !isLoading && (
           <>
             {/* ─── Header: illustration + meta ─── */}
             <div className="flex items-start gap-8 mb-8">
               <div className="flex-1">
                 <span className="text-primary font-semibold text-sm tracking-wide uppercase">
-                  {committee.sectionName}
+                  {committee.category?.name || 'Section'}
                 </span>
                 <p className="text-muted-foreground text-base mt-2 italic">
-                  {committee.description}
+                  {committee.about}
                 </p>
                 <p className="text-foreground/80 text-sm mt-3 leading-relaxed">
                   The {committee.name} committee is part of the{' '}
-                  {committee.sectionName} section. Our team works together to
+                  {committee.category?.name || 'Section'} section. Our team works together to
                   push boundaries, share knowledge, and grow as professionals in
                   the field of {committee.name.toLowerCase()}.
                 </p>
               </div>
               <div className="hidden sm:flex shrink-0 w-32 h-32 rounded-2xl bg-primary/5 items-center justify-center">
                 <img
-                  src={getCommitteeIllustration(committee.slug)}
+                  src={illustration}
                   alt={committee.name}
                   className="w-24 h-24 object-contain"
                 />
@@ -91,13 +120,13 @@ export const CommitteeDetailModal = ({
             )}
 
             {/* ─── Team Members ─── */}
-            {committee.members.length > 0 && (
+            {regularMembers.length > 0 && (
               <>
-                <h3 className="text-xl font-bold text-foreground text-center mb-9">
+                <h3 className="text-xl font-bold text-foreground text-center mb-9 mt-12">
                   Team Members
                 </h3>
                 <div className="flex flex-wrap justify-center gap-6">
-                  {committee.members.map((m, i) => (
+                  {regularMembers.map((m, i) => (
                     <BoardMemberCard
                       key={i}
                       member={m}
@@ -111,7 +140,7 @@ export const CommitteeDetailModal = ({
             )}
 
             {/* ─── Join CTA ─── */}
-            <div className="bg-primary/5 border border-border rounded-2xl px-8 py-6 mt-4 text-center">
+            <div className="bg-primary/5 border border-border rounded-2xl px-8 py-6 mt-10 text-center">
               <p className="text-foreground font-semibold text-lg mb-2">
                 Interested in Joining Us?
               </p>

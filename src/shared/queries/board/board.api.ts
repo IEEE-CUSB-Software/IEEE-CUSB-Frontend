@@ -42,4 +42,26 @@ export const boardApi = {
   deleteBoardMember: async (id: string): Promise<void> => {
     await apiClient.delete(API_ENDPOINTS.BOARD.DELETE(id));
   },
+
+  uploadBoardMemberImage: async (id: string, file: File): Promise<BoardMember> => {
+    const formData = new FormData();
+    formData.append('image', file);
+    const response = await apiClient.post<CommitteeApiResponse<BoardMember>>(
+      API_ENDPOINTS.BOARD.UPLOAD_IMAGE(id),
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data.data;
+  },
+
+  deleteBoardMemberImage: async (id: string): Promise<BoardMember> => {
+    const response = await apiClient.delete<CommitteeApiResponse<BoardMember>>(
+      API_ENDPOINTS.BOARD.DELETE_IMAGE(id)
+    );
+    return response.data.data;
+  },
 };

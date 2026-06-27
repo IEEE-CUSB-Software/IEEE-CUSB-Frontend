@@ -1,6 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { InputField, Button, Modal } from '@ieee-ui/ui';
 import { useTheme } from '@/shared/hooks/useTheme';
+import { FiUpload, FiTrash2, FiImage, FiX } from 'react-icons/fi';
+import { toast } from 'react-hot-toast';
+import {
+  useUploadBoardMemberImage,
+  useDeleteBoardMemberImage,
+} from '@/shared/queries/board/board.queries';
 import type {
   BoardMember,
   CreateBoardMember,
@@ -19,7 +25,6 @@ interface FormValues {
   name: string;
   email: string;
   role: string;
-  image_url: string;
   display_order: string;
 }
 
@@ -27,7 +32,6 @@ const empty = (): FormValues => ({
   name: '',
   email: '',
   role: '',
-  image_url: '',
   display_order: '0',
 });
 
@@ -37,7 +41,6 @@ const toForm = (m?: BoardMember): FormValues =>
         name: m.name,
         email: m.email,
         role: m.role,
-        image_url: m.image_url ?? '',
         display_order: String(m.display_order ?? 0),
       }
     : empty();
@@ -61,13 +64,35 @@ const AddEditBoardMemberModal: React.FC<Props> = ({
 }) => {
   const { isDark } = useTheme();
   const isEdit = !!member;
+  
   const [form, setForm] = useState<FormValues>(toForm(member));
   const [errors, setErrors] = useState<Errs>({});
+  
+  // Image Upload State
+  const primaryFileRef = useRef<HTMLInputElement>(null);
+  const [pendingPrimary, setPendingPrimary] = useState<File | null>(null);
+  const [primaryPreview, setPrimaryPreview] = useState<string | null>(null);
+  const [deletePrimary, setDeletePrimary] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const uploadImage = useUploadBoardMemberImage();
+  const deleteImage = useDeleteBoardMemberImage();
 
   useEffect(() => {
     setForm(toForm(member));
     setErrors({});
+    setPendingPrimary(null);
+    if (primaryPreview) URL.revokeObjectURL(primaryPreview);
+    setPrimaryPreview(null);
+    setDeletePrimary(false);
+    setIsUploading(false);
   }, [member, isOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (primaryPreview) URL.revokeObjectURL(primaryPreview);
+    };
+  }, []);
 
   const handleChange =
     (f: keyof FormValues) =>
@@ -76,21 +101,64 @@ const AddEditBoardMemberModal: React.FC<Props> = ({
       if (errors[f]) setErrors(p => ({ ...p, [f]: undefined }));
     };
 
-  const handleSave = () => {
+  const handlePrimarySelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File is too large. Keep it under 5MB.');
+    }
+
+    if (primaryPreview) URL.revokeObjectURL(primaryPreview);
+    setPendingPrimary(file);
+    setPrimaryPreview(URL.createObjectURL(file));
+    setDeletePrimary(false);
+    if (primaryFileRef.current) primaryFileRef.current.value = '';
+  };
+
+  const handleClearPrimary = () => {
+    if (primaryPreview) URL.revokeObjectURL(primaryPreview);
+    setPendingPrimary(null);
+    setPrimaryPreview(null);
+  };
+
+  const handleMarkDeletePrimary = () => {
+    handleClearPrimary();
+    setDeletePrimary(true);
+  };
+
+  const handleSave = async () => {
     const errs = validate(form);
     if (Object.keys(errs).length) {
       setErrors(errs);
       return;
     }
+
+    if (isEdit && member?.id) {
+      setIsUploading(true);
+      try {
+        const promises = [];
+        if (pendingPrimary) promises.push(uploadImage.mutateAsync({ id: member.id, file: pendingPrimary }));
+        if (deletePrimary) promises.push(deleteImage.mutateAsync(member.id));
+        await Promise.all(promises);
+      } catch (err) {
+        setIsUploading(false);
+        return; // Stop if images failed
+      }
+      setIsUploading(false);
+    }
+
     const payload: CreateBoardMember | UpdateBoardMember = {
       name: form.name.trim(),
       email: form.email.trim(),
       role: form.role.trim(),
-      ...(form.image_url.trim() && { image_url: form.image_url.trim() }),
       display_order: Number(form.display_order) || 0,
     };
     onSave(payload, member?.id);
   };
+
+  const displayPrimary = primaryPreview ?? (deletePrimary ? null : member?.image_url ?? null);
+  const disableActions = isPending || isUploading || uploadImage.isPending || deleteImage.isPending;
 
   return (
     <Modal
@@ -139,14 +207,53 @@ const AddEditBoardMemberModal: React.FC<Props> = ({
             id="board-order"
             darkMode={isDark}
           />
-          <InputField
-            label="Image URL (optional)"
-            value={form.image_url}
-            placeholder="https://..."
-            onChange={handleChange('image_url')}
-            id="board-image"
-            darkMode={isDark}
-          />
+        </div>
+
+        {/* ── Cover Image ─── */}
+        <div>
+          <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+            Member Image
+            {!isEdit && <span className={`ml-1 text-xs font-normal ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>(available after creating)</span>}
+          </label>
+          <div className={`rounded-xl border-2 border-dashed transition-colors ${isDark ? 'border-gray-700 bg-gray-800/50' : 'border-gray-200 bg-gray-50'}`}>
+            {displayPrimary ? (
+              <div className="flex items-center gap-4 p-4">
+                <div className="relative flex-shrink-0">
+                  <img src={displayPrimary} alt="Cover" className="w-20 h-20 rounded-full object-cover border border-gray-200 dark:border-gray-700" />
+                  {pendingPrimary && (
+                    <span className="absolute -top-1 -right-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary text-white leading-none">NEW</span>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  {pendingPrimary
+                    ? <p className={`text-sm font-medium truncate mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{pendingPrimary.name}</p>
+                    : <p className={`text-sm mb-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Current image</p>
+                  }
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => primaryFileRef.current?.click()} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${isDark ? 'bg-primary/20 text-primary-light hover:bg-primary/30' : 'bg-primary/10 text-primary hover:bg-primary/20'}`} disabled={!isEdit}>
+                      <FiUpload className="w-3.5 h-3.5" />{pendingPrimary ? 'Change' : 'Replace'}
+                    </button>
+                    {pendingPrimary ? (
+                      <button type="button" onClick={handleClearPrimary} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${isDark ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+                        <FiX className="w-3.5 h-3.5" />Cancel
+                      </button>
+                    ) : (
+                      <button type="button" onClick={handleMarkDeletePrimary} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${isDark ? 'bg-red-900/30 text-red-400 hover:bg-red-900/50' : 'bg-red-50 text-red-600 hover:bg-red-100'}`} disabled={!isEdit}>
+                        <FiTrash2 className="w-3.5 h-3.5" />Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <button type="button" onClick={() => primaryFileRef.current?.click()} disabled={!isEdit} className={`w-full flex flex-col items-center gap-2 py-6 rounded-xl transition-colors ${!isEdit ? 'opacity-50 cursor-not-allowed' : ''} ${isDark ? 'hover:bg-gray-700/50 text-gray-400' : 'hover:bg-gray-100 text-gray-500'}`}>
+                <FiImage className="w-8 h-8 opacity-60" />
+                <span className="text-sm font-medium">Click to select an image</span>
+                <span className="text-xs opacity-60">JPG, PNG or WebP</span>
+              </button>
+            )}
+            <input ref={primaryFileRef} type="file" accept="image/*" onChange={handlePrimarySelect} className="hidden" disabled={!isEdit} />
+          </div>
         </div>
 
         <div className="flex items-center justify-end gap-3 pt-2">
@@ -156,15 +263,15 @@ const AddEditBoardMemberModal: React.FC<Props> = ({
             type="basic"
             width="fit"
             darkMode={isDark}
-            disabled={isPending}
+            disabled={disableActions}
           />
           <Button
-            buttonText={isPending ? 'Saving…' : isEdit ? 'Save Changes' : 'Add Member'}
+            buttonText={disableActions ? 'Saving…' : isEdit ? 'Save Changes' : 'Add Member'}
             onClick={handleSave}
             type="primary"
             width="fit"
             darkMode={isDark}
-            disabled={isPending}
+            disabled={disableActions}
           />
         </div>
       </div>

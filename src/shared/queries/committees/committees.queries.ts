@@ -253,3 +253,35 @@ export const useDeleteCommitteeMember = () => {
     },
   });
 };
+
+export const useUploadCommitteeMemberImage = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, file }: { id: string; file: File }) =>
+      committeeApi.uploadCommitteeMemberImage(id, file),
+    onSuccess: () => {
+      // Invalidate both members list and committees list to reflect changes globally
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.COMMITTEES.ALL });
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || 'Failed to upload member image.';
+      toast.error(message);
+    },
+  });
+};
+
+export const useDeleteCommitteeMemberImage = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => committeeApi.deleteCommitteeMemberImage(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.COMMITTEES.ALL });
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || 'Failed to delete member image.';
+      toast.error(message);
+    },
+  });
+};
