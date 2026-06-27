@@ -12,7 +12,6 @@ import {
   useCreateWorkshop,
   useUpdateWorkshop,
   useDeleteWorkshop,
-  useUploadWorkshopCover,
 } from '@/shared/queries/workshops';
 import type { Workshop, CreateWorkshopRequest, UpdateWorkshopRequest } from '@/shared/types/workshops.types';
 
@@ -26,7 +25,6 @@ const WorkshopsTab: React.FC = () => {
   const createMutation = useCreateWorkshop();
   const updateMutation = useUpdateWorkshop();
   const deleteMutation = useDeleteWorkshop();
-  const uploadCoverMutation = useUploadWorkshopCover();
 
   // State
   const [isAddEditOpen, setIsAddEditOpen] = useState(false);
@@ -71,19 +69,12 @@ const WorkshopsTab: React.FC = () => {
 
   const handleSave = async (
     data: CreateWorkshopRequest | UpdateWorkshopRequest,
-    id?: string,
-    file?: File | null
+    id?: string
   ) => {
-    let savedWorkshop: Workshop;
-    
     if (id) {
-      savedWorkshop = await updateMutation.mutateAsync({ id, data });
+      await updateMutation.mutateAsync({ id, data });
     } else {
-      savedWorkshop = await createMutation.mutateAsync(data as CreateWorkshopRequest);
-    }
-
-    if (file && savedWorkshop?.id) {
-      await uploadCoverMutation.mutateAsync({ id: savedWorkshop.id, file });
+      await createMutation.mutateAsync(data as CreateWorkshopRequest);
     }
 
     setIsAddEditOpen(false);
@@ -265,8 +256,9 @@ const WorkshopsTab: React.FC = () => {
         isOpen={isAddEditOpen}
         onClose={() => setIsAddEditOpen(false)}
         workshop={selectedWorkshop}
+        apiWorkshop={selectedWorkshop}
         onSave={handleSave}
-        isPending={createMutation.isPending || updateMutation.isPending || uploadCoverMutation.isPending}
+        isPending={createMutation.isPending || updateMutation.isPending}
       />
 
       <ConfirmDeleteModal
