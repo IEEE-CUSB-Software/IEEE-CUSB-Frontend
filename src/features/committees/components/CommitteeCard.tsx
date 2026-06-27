@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
-import { Committee } from '../constants/committeeData';
 import { getCommitteeIllustration } from '../constants/committeeIllustrations';
 import { HiOutlineArrowNarrowRight } from 'react-icons/hi';
+import type { Committee } from '@/shared/types/committees.types';
 
 interface CommitteeCardProps {
     committee: Committee;
@@ -10,7 +10,8 @@ interface CommitteeCardProps {
 }
 
 export const CommitteeCard = ({ committee, delay = 0, onViewDetails }: CommitteeCardProps) => {
-    const illustration = getCommitteeIllustration(committee.slug);
+    const slug = committee.name.toLowerCase().replace(/\s+/g, '-');
+    const illustration = getCommitteeIllustration(slug);
 
     return (
         <motion.div
@@ -25,13 +26,13 @@ export const CommitteeCard = ({ committee, delay = 0, onViewDetails }: Committee
                 <div className="flex-1 pr-4 flex flex-col justify-between h-full min-h-[175px]">
                     <div>
                         <span className="text-primary font-semibold text-sm tracking-wide">
-                            {committee.sectionName}
+                            {committee.category?.name || 'Section'}
                         </span>
                         <h3 className="text-2xl font-extrabold text-foreground uppercase tracking-tight mt-1.5 leading-tight">
                             {committee.name}
                         </h3>
                         <p className="text-muted-foreground text-sm mt-3 leading-relaxed line-clamp-2">
-                            {committee.description}
+                            {committee.about}
                         </p>
                     </div>
 

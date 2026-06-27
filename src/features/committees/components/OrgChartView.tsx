@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { EXECUTIVE_BOARD, SECTIONS, Committee } from '../constants/committeeData';
 import { CommitteeCard } from './CommitteeCard';
 import { SectionIcon } from './SectionIcon';
 import { HiChevronDown } from 'react-icons/hi';
+import type {
+    BoardMember,
+    CommitteeCategory,
+    Committee,
+} from '@/shared/types/committees.types';
 
 // ─── Animation helpers ───────────────────────────────────────────────────────
 
@@ -28,17 +32,46 @@ const hLine = (delay = 0) => ({
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 interface OrgChartViewProps {
+    boardMembers: BoardMember[];
+    categories: CommitteeCategory[];
+    committees: Committee[];
     onViewDetails: (committee: Committee) => void;
 }
 
-export const OrgChartView = ({ onViewDetails }: OrgChartViewProps) => {
+export const OrgChartView = ({
+    boardMembers,
+    categories,
+    committees,
+    onViewDetails,
+}: OrgChartViewProps) => {
     const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
     const toggleSection = (sectionName: string) => {
         setExpandedSection(expandedSection === sectionName ? null : sectionName);
     };
 
-    const activeSection = SECTIONS.find((s) => s.name === expandedSection);
+    const sections = categories.map((category) => ({
+        name: category.name,
+        committees: committees.filter((c) => c.category_id === category.id),
+    }));
+
+    const activeSection = sections.find((s) => s.name === expandedSection);
+
+    const safeBoardMember = (index: number, defaultRole: string) => {
+        const m = boardMembers[index];
+        return {
+            label: m?.role || defaultRole,
+            subtitle: m?.name || 'Vacant',
+            avatar: m?.image_url || '',
+        };
+    };
+
+    const chair = safeBoardMember(0, 'Chair');
+    const viceChair = safeBoardMember(1, 'Vice Chair');
+    const secretary = safeBoardMember(2, 'Secretary');
+    const treasurer = safeBoardMember(3, 'Treasurer');
+    const pr = safeBoardMember(4, 'PR & FR');
+    const oc = safeBoardMember(5, 'OC');
 
     return (
         <div className="max-w-6xl mx-auto px-6 py-16">
@@ -46,8 +79,8 @@ export const OrgChartView = ({ onViewDetails }: OrgChartViewProps) => {
             <motion.div className="flex justify-center" {...inView(0)}>
                 <OrgNode
                     label="Chair & Vice Chair"
-                    subtitle={`${EXECUTIVE_BOARD[0]!.name} & ${EXECUTIVE_BOARD[1]!.name}`}
-                    avatar={EXECUTIVE_BOARD[0]!.image}
+                    subtitle={`${chair.subtitle} & ${viceChair.subtitle}`}
+                    avatar={chair.avatar}
                     highlighted
                     size="lg"
                 />
@@ -58,8 +91,8 @@ export const OrgChartView = ({ onViewDetails }: OrgChartViewProps) => {
 
             {/* ═══════════════ Level 2: Secretary & Treasurer ═══════════════ */}
             <TwoNodeRow
-                left={{ label: 'Secretary', subtitle: EXECUTIVE_BOARD[2]!.name, avatar: EXECUTIVE_BOARD[2]!.image }}
-                right={{ label: 'Treasurer', subtitle: EXECUTIVE_BOARD[3]!.name, avatar: EXECUTIVE_BOARD[3]!.image }}
+                left={{ label: 'Secretary', subtitle: secretary.subtitle, avatar: secretary.avatar }}
+                right={{ label: 'Treasurer', subtitle: treasurer.subtitle, avatar: treasurer.avatar }}
                 delay={0.15}
             />
 
@@ -68,8 +101,8 @@ export const OrgChartView = ({ onViewDetails }: OrgChartViewProps) => {
 
             {/* ═══════════════ Level 3: PR&FR and OC ═══════════════ */}
             <TwoNodeRow
-                left={{ label: 'PR & FR', subtitle: EXECUTIVE_BOARD[4]!.name, avatar: EXECUTIVE_BOARD[4]!.image }}
-                right={{ label: 'OC', subtitle: EXECUTIVE_BOARD[5]!.name, avatar: EXECUTIVE_BOARD[5]!.image }}
+                left={{ label: 'PR & FR', subtitle: pr.subtitle, avatar: pr.avatar }}
+                right={{ label: 'OC', subtitle: oc.subtitle, avatar: oc.avatar }}
                 delay={0.15}
             />
 
@@ -82,14 +115,14 @@ export const OrgChartView = ({ onViewDetails }: OrgChartViewProps) => {
                 <div className="flex justify-center">
                     <motion.div
                         className="h-px bg-border origin-center"
-                        style={{ width: `${Math.min(SECTIONS.length * 200, 900)}px` }}
+                        style={{ width: `${Math.min(sections.length * 200, 900)}px` }}
                         {...hLine(0.1)}
                     />
                 </div>
 
                 {/* Section buttons row */}
                 <div className="flex justify-center gap-4 sm:gap-6">
-                    {SECTIONS.map((section, i) => (
+                    {sections.map((section, i) => (
                         <motion.div
                             key={section.name}
                             className="flex flex-col items-center"
@@ -99,10 +132,11 @@ export const OrgChartView = ({ onViewDetails }: OrgChartViewProps) => {
                             <div className="w-px h-6 bg-border" />
                             <button onClick={() => toggleSection(section.name)} className="group">
                                 <motion.div
-                                    className={`px-5 py-3.5 rounded-2xl border-2 transition-all duration-200 flex items-center gap-2.5 text-sm sm:text-base ${expandedSection === section.name
-                                        ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25'
-                                        : 'bg-card border-border text-foreground hover:border-primary/50 hover:shadow-lg'
-                                        }`}
+                                    className={`px-5 py-3.5 rounded-2xl border-2 transition-all duration-200 flex items-center gap-2.5 text-sm sm:text-base ${
+                                        expandedSection === section.name
+                                            ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25'
+                                            : 'bg-card border-border text-foreground hover:border-primary/50 hover:shadow-lg'
+                                    }`}
                                     whileHover={{ y: -2, scale: 1.02 }}
                                     whileTap={{ scale: 0.96 }}
                                 >
@@ -113,8 +147,9 @@ export const OrgChartView = ({ onViewDetails }: OrgChartViewProps) => {
                                     />
                                     <span className="font-bold whitespace-nowrap">{section.name}</span>
                                     <HiChevronDown
-                                        className={`w-4 h-4 transition-transform duration-300 ${expandedSection === section.name ? 'rotate-180' : ''
-                                            }`}
+                                        className={`w-4 h-4 transition-transform duration-300 ${
+                                            expandedSection === section.name ? 'rotate-180' : ''
+                                        }`}
                                     />
                                 </motion.div>
                             </button>
@@ -162,7 +197,7 @@ export const OrgChartView = ({ onViewDetails }: OrgChartViewProps) => {
                                     const isLeft = i % 2 === 0;
                                     return (
                                         <motion.div
-                                            key={committee.slug}
+                                            key={committee.id}
                                             initial={{ opacity: 0, x: isLeft ? -30 : 30 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{
@@ -174,18 +209,20 @@ export const OrgChartView = ({ onViewDetails }: OrgChartViewProps) => {
                                         >
                                             {/* Horizontal branch from center line to card */}
                                             <div
-                                                className={`absolute top-1/2 -translate-y-1/2 h-px bg-primary/30 ${isLeft
-                                                    ? 'right-1/2 left-[5%] sm:left-[10%]'
-                                                    : 'left-1/2 right-[5%] sm:right-[10%]'
-                                                    }`}
+                                                className={`absolute top-1/2 -translate-y-1/2 h-px bg-primary/30 ${
+                                                    isLeft
+                                                        ? 'right-1/2 left-[5%] sm:left-[10%]'
+                                                        : 'left-1/2 right-[5%] sm:right-[10%]'
+                                                }`}
                                             />
                                             {/* Dot on the center line */}
                                             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-primary border-2 border-background z-10" />
 
                                             {/* Card container - alternating sides */}
                                             <div
-                                                className={`flex ${isLeft ? 'justify-start pr-[55%]' : 'justify-end pl-[55%]'
-                                                    }`}
+                                                className={`flex ${
+                                                    isLeft ? 'justify-start pr-[55%]' : 'justify-end pl-[55%]'
+                                                }`}
                                             >
                                                 <div className="w-full">
                                                     <CommitteeCard
@@ -255,11 +292,13 @@ interface OrgNodeProps {
 
 const OrgNode = ({ label, subtitle, avatar, highlighted, size = 'md' }: OrgNodeProps) => (
     <motion.div
-        className={`flex items-center rounded-2xl border-2 shadow-sm transition-shadow ${size === 'lg' ? 'gap-5 px-8 py-5' : 'gap-4 px-6 py-4'
-            } ${highlighted
+        className={`flex items-center rounded-2xl border-2 shadow-sm transition-shadow ${
+            size === 'lg' ? 'gap-5 px-8 py-5' : 'gap-4 px-6 py-4'
+        } ${
+            highlighted
                 ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25'
                 : 'bg-card border-border text-foreground hover:shadow-md'
-            }`}
+        }`}
         whileHover={{ y: -2, scale: 1.02 }}
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
     >
@@ -267,21 +306,24 @@ const OrgNode = ({ label, subtitle, avatar, highlighted, size = 'md' }: OrgNodeP
             <img
                 src={avatar}
                 alt={label}
-                className={`rounded-full object-cover flex-shrink-0 border-2 ${size === 'lg' ? 'w-16 h-16' : 'w-14 h-14'
-                    } ${highlighted ? 'border-white/30' : 'border-primary/20'}`}
+                className={`rounded-full object-cover flex-shrink-0 border-2 ${
+                    size === 'lg' ? 'w-16 h-16' : 'w-14 h-14'
+                } ${highlighted ? 'border-white/30' : 'border-primary/20'}`}
             />
         )}
         <div>
             <p
-                className={`font-bold ${size === 'lg' ? 'text-lg' : 'text-base'} ${highlighted ? 'text-white' : 'text-foreground'
-                    }`}
+                className={`font-bold ${size === 'lg' ? 'text-lg' : 'text-base'} ${
+                    highlighted ? 'text-white' : 'text-foreground'
+                }`}
             >
                 {label}
             </p>
             {subtitle && (
                 <p
-                    className={`${size === 'lg' ? 'text-base' : 'text-sm'} ${highlighted ? 'text-white/80' : 'text-muted-foreground'
-                        }`}
+                    className={`${size === 'lg' ? 'text-base' : 'text-sm'} ${
+                        highlighted ? 'text-white/80' : 'text-muted-foreground'
+                    }`}
                 >
                     {subtitle}
                 </p>
