@@ -46,7 +46,7 @@ export const TabbedView = ({
                 name: exec.name,
                 role: exec.role,
                 bio: '',
-                image: exec.image_url || '',
+                image: exec.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(exec.name)}&background=0f172a&color=fff&size=256`,
                 socials: {},
               }}
               roleOverride={exec.role}

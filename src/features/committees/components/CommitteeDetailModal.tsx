@@ -31,7 +31,7 @@ export const CommitteeDetailModal = ({
         name: m.name,
         role: m.role,
         bio: '',
-        image: m.image_url || '',
+        image: m.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&background=0f172a&color=fff&size=256`,
         socials: {},
       };
       if (m.role === MemberRole.HEAD) {

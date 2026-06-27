@@ -59,10 +59,11 @@ export const OrgChartView = ({
 
     const safeBoardMember = (index: number, defaultRole: string) => {
         const m = boardMembers[index];
+        const name = m?.name || 'Vacant';
         return {
             label: m?.role || defaultRole,
-            subtitle: m?.name || 'Vacant',
-            avatar: m?.image_url || '',
+            subtitle: name,
+            avatar: m?.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0f172a&color=fff&size=256`,
         };
     };
 
