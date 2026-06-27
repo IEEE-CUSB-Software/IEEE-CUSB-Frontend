@@ -3,7 +3,7 @@ import { initSmoothScroll } from '@/shared/utils/smoothScroll';
 import { MembershipHeroSection } from '@/features/membership/components/MembershipHeroSection';
 import { WhyJoinSection } from '@/features/membership/components/WhyJoinSection';
 import { MembershipBenefitsSection } from '@/features/membership/components/MembershipBenefitsSection';
-import { MembershipContactForm } from '@/features/membership/components/MembershipContactForm';
+import { RecruitmentApplicationForm } from '@/features/membership/components/RecruitmentApplicationForm';
 
 export const MembershipPage = () => {
   useEffect(() => {
@@ -16,7 +16,7 @@ export const MembershipPage = () => {
       <MembershipHeroSection />
       <WhyJoinSection />
       <MembershipBenefitsSection />
-      <MembershipContactForm />
+      <RecruitmentApplicationForm />
     </div>
   );
 };

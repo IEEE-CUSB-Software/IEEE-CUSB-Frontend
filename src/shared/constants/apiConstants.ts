@@ -129,6 +129,13 @@ export const API_ENDPOINTS = {
       `/admin/workshops/${workshopId}/registrations/${registrationId}/status`,
     BULK_REGISTER: (id: string) => `/admin/workshops/${id}/bulk-register`,
   },
+  // Recruitment endpoints
+  RECRUITMENT: {
+    GET_VACANCIES: '/recruitment/vacancies',
+    APPLY: (id: string) => `/recruitment/vacancies/${id}/apply`,
+    GET_MY_APPLICATIONS: '/recruitment/my-applications',
+    REVOKE_APPLICATION: (id: string) => `/recruitment/applications/${id}`,
+  },
 } as const;
 
 /**
@@ -180,5 +187,9 @@ export const QUERY_KEYS = {
     ONE: (id: string) => ['workshops', id],
     INSTRUCTORS: ['workshops', 'instructors'],
     REGISTRATIONS: (id: string) => ['workshops', id, 'registrations'],
+  },
+  RECRUITMENT: {
+    VACANCIES: ['recruitment', 'vacancies'],
+    MY_APPLICATIONS: ['recruitment', 'my-applications'],
   },
 } as const;
