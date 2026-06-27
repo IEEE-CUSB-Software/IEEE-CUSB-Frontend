@@ -63,3 +63,36 @@ export const useDeleteBoardMember = () => {
     },
   });
 };
+
+export const useUploadBoardMemberImage = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, file }: { id: string; file: File }) =>
+      boardApi.uploadBoardMemberImage(id, file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.BOARD.ALL });
+      toast.success('Board member image uploaded successfully!');
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || 'Failed to upload board member image.';
+      toast.error(message);
+    },
+  });
+};
+
+export const useDeleteBoardMemberImage = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => boardApi.deleteBoardMemberImage(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.BOARD.ALL });
+      toast.success('Board member image deleted successfully!');
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || 'Failed to delete board member image.';
+      toast.error(message);
+    },
+  });
+};

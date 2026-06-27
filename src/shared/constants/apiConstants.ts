@@ -79,6 +79,8 @@ export const API_ENDPOINTS = {
     CREATE_COMMITTEE_MEMBER: `/admin/committees/members`,
     UPDATE_COMMITTEE_MEMBER: (id: string) => `/admin/committees/members/${id}`,
     DELETE_COMMITTEE_MEMBER: (id: string) => `/admin/committees/members/${id}`,
+    UPLOAD_MEMBER_IMAGE: (id: string) => `/admin/committees/members/${id}/image`,
+    DELETE_MEMBER_IMAGE: (id: string) => `/admin/committees/members/${id}/image`,
   },
 
   COMMITTEE_CATEGORIES: {
@@ -94,6 +96,8 @@ export const API_ENDPOINTS = {
     CREATE: '/admin/board',
     UPDATE: (id: string) => `/admin/board/${id}`,
     DELETE: (id: string) => `/admin/board/${id}`,
+    UPLOAD_IMAGE: (id: string) => `/admin/board/${id}/image`,
+    DELETE_IMAGE: (id: string) => `/admin/board/${id}/image`,
   },
 } as const;
 

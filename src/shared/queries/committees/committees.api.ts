@@ -144,4 +144,26 @@ export const committeeApi = {
       API_ENDPOINTS.COMMITTEES.DELETE_COMMITTEE_MEMBER(id)
     );
   },
+
+  uploadCommitteeMemberImage: async (id: string, file: File): Promise<CommitteeMember> => {
+    const formData = new FormData();
+    formData.append('image', file);
+    const response = await apiClient.post<CommitteeApiResponse<CommitteeMember>>(
+      API_ENDPOINTS.COMMITTEES.UPLOAD_MEMBER_IMAGE(id),
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data.data;
+  },
+
+  deleteCommitteeMemberImage: async (id: string): Promise<CommitteeMember> => {
+    const response = await apiClient.delete<CommitteeApiResponse<CommitteeMember>>(
+      API_ENDPOINTS.COMMITTEES.DELETE_MEMBER_IMAGE(id)
+    );
+    return response.data.data;
+  },
 };
