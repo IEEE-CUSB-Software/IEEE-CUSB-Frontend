@@ -38,3 +38,33 @@ export interface Application {
 export interface ApplyToVacancyRequest {
   extra_data: ApplicationExtraData;
 }
+
+export interface AddVacancy {
+  title: string;
+  description: string;
+  is_open: boolean;
+}
+
+export interface UpdateVacancy {
+  title?: string;
+  description?: string;
+  is_open?: boolean;
+}
+
+export interface UpdateStatus {
+  status?: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+}
+
+export interface GetAllApplicationsParams {
+  vacancyId: string;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface ExportApplicationsParams {
+  vacancyId: string;
+  startDate?: string;
+  endDate?: string;
+}

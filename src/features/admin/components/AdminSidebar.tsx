@@ -10,6 +10,7 @@ import {
   FiAward,
 } from 'react-icons/fi';
 import { RiUserCommunityLine } from 'react-icons/ri';
+import { BsPersonWorkspace } from 'react-icons/bs';
 import logo from '@/assets/logo.png';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '@/shared/hooks/useTheme';
@@ -90,6 +91,12 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       label: 'Statistics',
       icon: <FiBarChart2 className="w-5 h-5" />,
       path: '/admin/statistics',
+    },
+    {
+      id: 'recruitment',
+      label: 'Recruitment',
+      icon: <BsPersonWorkspace className="w-5 h-5" />,
+      path: '/admin/recruitment',
     },
   ];
 
