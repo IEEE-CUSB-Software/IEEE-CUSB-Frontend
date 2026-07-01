@@ -34,10 +34,17 @@ export const authApi = {
    * Register new user (default role: Visitor)
    * Note: Backend does NOT return tokens on registration
    */
-  register: async (data: RegisterRequest): Promise<User> => {
+  register: async (data: RegisterRequest | FormData): Promise<User> => {
     const response = await apiClient.post<ApiResponse<{ user: User }>>(
       API_ENDPOINTS.AUTH.REGISTER,
-      data
+      data,
+      data instanceof FormData
+        ? {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        : undefined
     );
     return response.data.data.user;
   },

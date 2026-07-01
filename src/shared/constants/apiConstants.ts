@@ -24,9 +24,16 @@ export const API_ENDPOINTS = {
 
   // Users endpoints
   USERS: {
+    GET_ALL: '/users',
     GET_USER: (id: string) => `/users/${id}`,
     UPDATE_USER: (id: string) => `/users/${id}`,
     DELETE_USER: (id: string) => `/users/${id}`,
+    // CV endpoints
+    UPLOAD_CV: '/users/me/cv/upload',
+    DOWNLOAD_CV: '/users/me/cv/download',
+    DELETE_CV: '/users/me/cv',
+    // Admin CV endpoints
+    ADMIN_DOWNLOAD_CV: (userId: string) => `/admin/users/${userId}/cv/download`,
   },
 
   // Roles endpoints
@@ -135,6 +142,8 @@ export const API_ENDPOINTS = {
     APPLY: (id: string) => `/recruitment/vacancies/${id}/apply`,
     GET_MY_APPLICATIONS: '/recruitment/my-applications',
     REVOKE_APPLICATION: (id: string) => `/recruitment/applications/${id}`,
+    // Admin recruitment endpoints
+    ADMIN_VIEW_APPLICATION_CV: (id: string) => `/admin/recruitment/applications/${id}/cv`,
   },
 } as const;
 
