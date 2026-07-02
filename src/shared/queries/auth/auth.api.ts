@@ -11,6 +11,7 @@ import type {
   ResetPasswordRequest,
   ChangePasswordRequest,
   CompleteOAuthProfileRequest,
+  UpdateUserRequest,
   User,
 } from '@/shared/types/auth.types';
 
@@ -48,6 +49,17 @@ export const authApi = {
    */
   logout: async (): Promise<void> => {
     await apiClient.post(API_ENDPOINTS.AUTH.LOGOUT);
+  },
+
+  /**
+   * Update the authenticated user's profile information
+   */
+  updateUser: async (id: string, data: UpdateUserRequest): Promise<User> => {
+    const response = await apiClient.patch<ApiResponse<User>>(
+      API_ENDPOINTS.USERS.UPDATE_USER(id),
+      data
+    );
+    return response.data.data;
   },
 
   /**

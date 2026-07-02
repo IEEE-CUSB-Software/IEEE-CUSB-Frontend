@@ -9,6 +9,7 @@ import {
   setAccessToken,
   clearAuth,
 } from '@/shared/store/slices/authSlice';
+import type { UpdateUserRequest } from '@/shared/types/auth.types';
 
 /**
  * Hook to get the current authenticated user
@@ -76,15 +77,37 @@ export const useRegister = () => {
   return useMutation({
     mutationFn: authApi.register,
     onSuccess: () => {
-      toast.success(
-        'Registration successful! Please log in to continue.'
-      );
+      toast.success('Registration successful! Please log in to continue.');
       navigate('/login');
     },
     onError: (error: any) => {
       const message =
         error?.response?.data?.message ||
         'Registration failed. Please try again.';
+      toast.error(message);
+    },
+  });
+};
+
+/**
+ * Hook for updating the current user's profile
+ */
+export const useUpdateUser = () => {
+  const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateUserRequest }) =>
+      authApi.updateUser(id, data),
+    onSuccess: updatedUser => {
+      dispatch(setUser(updatedUser));
+      queryClient.setQueryData(QUERY_KEYS.AUTH.CURRENT_USER, updatedUser);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.AUTH.CURRENT_USER });
+      toast.success('Profile updated successfully.');
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || 'Failed to update profile.';
       toast.error(message);
     },
   });
