@@ -24,6 +24,7 @@ import { RoleName } from '@/shared/types/auth.types';
 import { WorkshopsPage } from './pages/WorkshopsPage';
 import { WorkshopDetailsPage } from './pages/WorkshopDetailsPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { UsersPage } from './pages/admin/UsersPage';
 /**
  * Application Routes Configuration
  * Using React Router v6 Data APIs (createBrowserRouter)
@@ -83,7 +84,7 @@ const routes: RouteObject[] = [
       },
       {
         path: 'users',
-        element: <UnderConstructionPage />, // Users - Under Construction
+        element: <UsersPage />, // Users - working
       },
       {
         path: 'statistics',

@@ -27,14 +27,6 @@ const formatValue = (value: string | number | boolean | null | undefined) => {
   return String(value);
 };
 
-const formatDate = (value: string | null | undefined) => {
-  if (!value) return 'Not provided';
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? 'Not provided'
-    : date.toLocaleDateString();
-};
-
 export const ProfilePage = () => {
   const navigate = useNavigate();
   const { data: user, isLoading, error } = useCurrentUser();

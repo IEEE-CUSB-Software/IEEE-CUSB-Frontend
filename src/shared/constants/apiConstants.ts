@@ -27,6 +27,10 @@ export const API_ENDPOINTS = {
     GET_USER: (id: string) => `/users/${id}`,
     UPDATE_USER: (id: string) => `/users/${id}`,
     DELETE_USER: (id: string) => `/users/${id}`,
+    // Admin users endpoints
+    ADMIN_GET_ALL: '/admin/users',
+    ADMIN_GET_ONE: (id: string) => `/admin/users/${id}`,
+    ADMIN_DELETE: (id: string) => `/admin/users/${id}`,
   },
 
   // Roles endpoints
@@ -79,8 +83,10 @@ export const API_ENDPOINTS = {
     CREATE_COMMITTEE_MEMBER: `/admin/committees/members`,
     UPDATE_COMMITTEE_MEMBER: (id: string) => `/admin/committees/members/${id}`,
     DELETE_COMMITTEE_MEMBER: (id: string) => `/admin/committees/members/${id}`,
-    UPLOAD_MEMBER_IMAGE: (id: string) => `/admin/committees/members/${id}/image`,
-    DELETE_MEMBER_IMAGE: (id: string) => `/admin/committees/members/${id}/image`,
+    UPLOAD_MEMBER_IMAGE: (id: string) =>
+      `/admin/committees/members/${id}/image`,
+    DELETE_MEMBER_IMAGE: (id: string) =>
+      `/admin/committees/members/${id}/image`,
   },
 
   COMMITTEE_CATEGORIES: {
@@ -118,8 +124,10 @@ export const API_ENDPOINTS = {
     CREATE_INSTRUCTOR: '/admin/workshops/instructors',
     UPDATE_INSTRUCTOR: (id: string) => `/admin/workshops/instructors/${id}`,
     DELETE_INSTRUCTOR: (id: string) => `/admin/workshops/instructors/${id}`,
-    UPLOAD_INSTRUCTOR_IMAGE: (id: string) => `/admin/workshops/instructors/${id}/image`,
-    DELETE_INSTRUCTOR_IMAGE: (id: string) => `/admin/workshops/instructors/${id}/image`,
+    UPLOAD_INSTRUCTOR_IMAGE: (id: string) =>
+      `/admin/workshops/instructors/${id}/image`,
+    DELETE_INSTRUCTOR_IMAGE: (id: string) =>
+      `/admin/workshops/instructors/${id}/image`,
 
     // Registrations
     REGISTER: (id: string) => `/workshops/${id}/register`,
