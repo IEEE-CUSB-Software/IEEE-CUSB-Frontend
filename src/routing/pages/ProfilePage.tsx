@@ -19,6 +19,7 @@ import {
 } from '@/shared/queries/auth/auth.queries';
 import { motion } from 'framer-motion';
 import { HiArrowLeft } from 'react-icons/hi2';
+import { useGetMyApplications } from '@/shared/queries/recruitment/recruitment.queries';
 
 const formatValue = (value: string | number | boolean | null | undefined) => {
   if (value === null || value === undefined || value === '')
@@ -31,6 +32,8 @@ export const ProfilePage = () => {
   const navigate = useNavigate();
   const { data: user, isLoading, error } = useCurrentUser();
   const updateUserMutation = useUpdateUser();
+  const { data: myApplications, isLoading: isLoadingApplications } =
+    useGetMyApplications();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -240,27 +243,23 @@ export const ProfilePage = () => {
               <dl className="mt-5 space-y-4">
                 <div>
                   <dt className="text-sm font-medium text-foreground">
-                    Events
+                    My Recruitment Applications
                   </dt>
-                  <dd className="mt-1 text-sm text-muted-foreground">
-                    my events
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-foreground">
-                    Workshops
-                  </dt>
-                  <dd className="mt-1 text-sm text-muted-foreground">
-                    my workshops
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-foreground">
-                    IEEE Membership
-                  </dt>
-                  <dd className="mt-1 text-sm text-muted-foreground">
-                    my membership
-                  </dd>
+                  {isLoadingApplications ? (
+                    <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin " />
+                    </div>
+                  ) : (
+                    <div className="mt-2 text-sm text-muted-foreground">
+                      {myApplications?.length ? (
+                        myApplications.map(application => (
+                          <div key={application.id}>{application.position}</div>
+                        ))
+                      ) : (
+                        <div>No applications found.</div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </dl>
             </div>
