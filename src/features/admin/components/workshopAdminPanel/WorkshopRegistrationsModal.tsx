@@ -49,7 +49,6 @@ export const WorkshopRegistrationsModal = ({
 
   const registrations = Array.isArray(data?.data) ? data.data : [];
   const totalPages = data?.totalPages ?? 1;
-
   // Filtered registrations (in-memory filtering for current page)
   const filteredRegistrations = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -150,26 +149,29 @@ export const WorkshopRegistrationsModal = ({
         cell: item => (
           <div className="flex justify-end gap-2">
             {item.status !== WorkshopRegistrationStatus.ACCEPTED && (
-                <Button
-                  buttonText="Accept"
-                  onClick={() =>
-                    handleUpdateStatus(
-                      item.id,
-                      WorkshopRegistrationStatus.ACCEPTED
-                    )
-                  }
-                  disabled={isUpdating}
-                  className="text-xs px-2 py-1"
-                  width="fit"
-                  darkMode={isDark}
-                  type="primary"
-                />
-              )}
+              <Button
+                buttonText="Accept"
+                onClick={() =>
+                  handleUpdateStatus(
+                    item.id,
+                    WorkshopRegistrationStatus.ACCEPTED
+                  )
+                }
+                disabled={isUpdating}
+                className="text-xs px-2 py-1"
+                width="fit"
+                darkMode={isDark}
+                type="primary"
+              />
+            )}
             {item.status !== WorkshopRegistrationStatus.REJECTED && (
               <Button
                 buttonText="Reject"
                 onClick={() =>
-                  handleUpdateStatus(item.id, WorkshopRegistrationStatus.REJECTED)
+                  handleUpdateStatus(
+                    item.id,
+                    WorkshopRegistrationStatus.REJECTED
+                  )
                 }
                 disabled={isUpdating}
                 className="text-xs px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 border-red-200"
@@ -217,7 +219,7 @@ export const WorkshopRegistrationsModal = ({
               placeholder="Search registrations by name or email..."
               isDark={isDark}
             />
-            
+
             {/* Mobile View - Cards */}
             <div className="block md:hidden space-y-3">
               {filteredRegistrations.map(reg => (
@@ -230,7 +232,7 @@ export const WorkshopRegistrationsModal = ({
                 />
               ))}
             </div>
-            
+
             {/* Desktop View - Table */}
             <div className="hidden md:block w-full overflow-x-auto">
               <Table
@@ -240,7 +242,7 @@ export const WorkshopRegistrationsModal = ({
                 emptyMessage="No registrations found"
               />
             </div>
-            
+
             {totalPages > 1 && !search && (
               <Pagination
                 currentPage={page}

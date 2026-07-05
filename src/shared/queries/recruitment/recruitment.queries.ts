@@ -91,7 +91,7 @@ export const useDeleteVacancy = () => {
 export const useGetAllApplications = ({
   vacancyId,
   page = 1,
-  limit = 100,
+  limit = 10,
   startDate,
   endDate,
 }: GetAllApplicationsParams) => {
@@ -114,7 +114,7 @@ export const useGetAllApplications = ({
   });
 };
 
-export const useUpdateApplicationStatus = (applicationId: string) => {
+export const useUpdateApplicationStatus = (vacancyId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -123,8 +123,7 @@ export const useUpdateApplicationStatus = (applicationId: string) => {
     onSuccess: () => {
       toast.success('Application status updated successfully');
       queryClient.invalidateQueries({
-        queryKey:
-          QUERY_KEYS.RECRUITMENT.ADMIN_VACANCY_APPLICATIONS(applicationId),
+        queryKey: QUERY_KEYS.RECRUITMENT.ADMIN_VACANCY_APPLICATIONS(vacancyId),
       });
     },
     onError: (error: any) => {

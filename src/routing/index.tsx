@@ -91,8 +91,7 @@ const routes: RouteObject[] = [
       },
       {
         path: 'recruitment',
-        element: <UnderConstructionPage />,
-        //element: <AdminRecruitmentPage />, // Recruitment - Under Construction
+        element: <AdminRecruitmentPage />, // Recruitment - Under Construction
       },
     ],
   },

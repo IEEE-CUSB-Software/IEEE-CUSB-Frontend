@@ -1,6 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { type ColumnDef } from '@ieee-ui/ui';
 import { FiEdit2, FiTrash2, FiClock, FiUsers } from 'react-icons/fi';
+import { CgWorkAlt } from 'react-icons/cg';
+
 import { useTheme } from '@/shared/hooks/useTheme';
 import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
 import { AdminMobileCard } from '@/shared/components/AdminMobileCard';
@@ -12,114 +14,126 @@ import {
   LoadingBlock,
   EmptyBlock,
 } from '@/features/admin/components/shared/AdminPageComponents';
-import AddEditWorkshopModal from './AddEditWorkshopModal';
-import { WorkshopRegistrationsModal } from './WorkshopRegistrationsModal';
 import {
-  useGetAdminWorkshops,
-  useCreateWorkshop,
-  useUpdateWorkshop,
-  useDeleteWorkshop,
-} from '@/shared/queries/workshops';
-import type {
-  Workshop,
-  CreateWorkshopRequest,
-  UpdateWorkshopRequest,
-} from '@/shared/types/workshops.types';
+  AddVacancy,
+  UpdateVacancy,
+  Vacancy,
+} from '@/shared/types/recruitment.types';
+import {
+  useAddVacancy,
+  useDeleteVacancy,
+  useGetAdminVacancies,
+  useUpdateVacancies,
+} from '@/shared/queries/recruitment';
+import { AddEditVacancyModal } from './AddEditVacancyModal';
+import { VacancyApplicationsModal } from './VacancyApplicationsModal';
+import UserInfo from '../shared/UserInfo';
 
 const VacanciesTab = () => {
   const { isDark } = useTheme();
 
   // Queries & Mutations
-  const { data, isLoading } = useGetAdminWorkshops(1, 100);
-  const workshops = data?.data || [];
-
-  const createMutation = useCreateWorkshop();
-  const updateMutation = useUpdateWorkshop();
-  const deleteMutation = useDeleteWorkshop();
+  const { data, isLoading } = useGetAdminVacancies();
+  const vacancies = data || [];
+  const createMutation = useAddVacancy();
+  const updateMutation = useUpdateVacancies();
+  const deleteMutation = useDeleteVacancy();
 
   // State
   const [isAddEditOpen, setIsAddEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [selectedWorkshop, setSelectedWorkshop] = useState<
-    Workshop | undefined
-  >(undefined);
-  const [isRegistrationsModalOpen, setIsRegistrationsModalOpen] =
-    useState(false);
-  const [
-    selectedWorkshopForRegistrations,
-    setSelectedWorkshopForRegistrations,
-  ] = useState<Workshop | undefined>(undefined);
+  const [selectedVacancy, setSelectedVacancy] = useState<Vacancy | undefined>(
+    undefined
+  );
+  const [isApplicationsModalOpen, setIsApplicationsModalOpen] = useState(false);
+  const [selectedVacancyForApplications, setSelectedVacancyForApplications] =
+    useState<Vacancy | undefined>(undefined);
   const [search, setSearch] = useState('');
 
   // Filtered list
-  const filteredWorkshops = useMemo(() => {
+  const filteredVacancies = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return workshops;
-    return workshops.filter(
-      w =>
-        w.title.toLowerCase().includes(q) ||
-        w.description.toLowerCase().includes(q) ||
-        w.location.toLowerCase().includes(q)
+    if (!q) return vacancies;
+    return vacancies.filter(
+      v =>
+        v.title.toLowerCase().includes(q) ||
+        v.description.toLowerCase().includes(q)
     );
-  }, [workshops, search]);
+  }, [vacancies, search]);
 
   // Handlers
   const handleAdd = () => {
-    setSelectedWorkshop(undefined);
+    setSelectedVacancy(undefined);
     setIsAddEditOpen(true);
   };
 
-  const handleEdit = (workshop: Workshop) => {
-    setSelectedWorkshop(workshop);
+  const handleEdit = (vacancy: Vacancy) => {
+    setSelectedVacancy(vacancy);
     setIsAddEditOpen(true);
   };
 
-  const handleDeleteClick = (workshop: Workshop) => {
-    setSelectedWorkshop(workshop);
+  const handleDeleteClick = (vacancy: Vacancy) => {
+    setSelectedVacancy(vacancy);
     setIsDeleteOpen(true);
   };
 
-  const handleViewRegistrations = (workshop: Workshop) => {
-    setSelectedWorkshopForRegistrations(workshop);
-    setIsRegistrationsModalOpen(true);
+  const handleViewApplications = (vacancy: Vacancy) => {
+    setSelectedVacancyForApplications(vacancy);
+    setIsApplicationsModalOpen(true);
   };
 
-  const handleSave = async (
-    data: CreateWorkshopRequest | UpdateWorkshopRequest,
-    id?: string
-  ) => {
+  const handleSave = async (data: AddVacancy | UpdateVacancy, id?: string) => {
     if (id) {
       await updateMutation.mutateAsync({ id, data });
     } else {
-      await createMutation.mutateAsync(data as CreateWorkshopRequest);
+      await createMutation.mutateAsync({
+        data: data as AddVacancy,
+      });
     }
 
     setIsAddEditOpen(false);
   };
 
   const handleConfirmDelete = async () => {
-    if (selectedWorkshop) {
-      await deleteMutation.mutateAsync(selectedWorkshop.id);
+    if (selectedVacancy) {
+      await deleteMutation.mutateAsync(selectedVacancy.id);
       setIsDeleteOpen(false);
-      setSelectedWorkshop(undefined);
+      setSelectedVacancy(undefined);
     }
   };
 
-  const columns = useMemo<ColumnDef<Workshop>[]>(
+  const columns = useMemo<ColumnDef<Vacancy>[]>(
     () => [
       {
-        header: 'Workshop Title',
+        header: 'Vacancy Title',
         accessorKey: 'title',
         className: `font-medium max-w-[200px] truncate ${isDark ? 'text-white' : 'text-gray-900'}`,
       },
       {
-        header: 'Date & Time',
-        accessorKey: 'start_time',
+        header: 'Created at',
+        accessorKey: 'created_at',
         cell: item => (
           <span
             className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}
           >
-            {new Date(item.start_time).toLocaleString(undefined, {
+            {new Date(item.created_at).toLocaleString(undefined, {
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </span>
+        ),
+      },
+
+      {
+        header: 'Last Updated',
+        accessorKey: 'updated_at',
+        cell: item => (
+          <span
+            className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}
+          >
+            {new Date(item.updated_at).toLocaleString(undefined, {
               month: 'short',
               day: 'numeric',
               hour: '2-digit',
@@ -129,38 +143,19 @@ const VacanciesTab = () => {
         ),
       },
       {
-        header: 'Capacity',
-        accessorKey: 'capacity',
-        cell: item => (
-          <span
-            className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}
-          >
-            {item.capacity - (item.remainingSpots ?? item.capacity)} /{' '}
-            {item.capacity}
-          </span>
-        ),
-      },
-      {
         header: 'Status',
-        accessorKey: 'is_full',
+        accessorKey: 'is_open',
         cell: item => {
-          const isFull = item.is_full;
-          const isPast = new Date(item.end_time) < new Date();
           let statusText = 'Open';
           let statusColor = isDark
             ? 'bg-green-900/30 text-green-300'
             : 'bg-green-50 text-green-600';
 
-          if (isPast) {
-            statusText = 'Completed';
+          if (!item.is_open) {
+            statusText = 'Closed';
             statusColor = isDark
               ? 'bg-gray-800 text-gray-300'
               : 'bg-gray-100 text-gray-600';
-          } else if (isFull) {
-            statusText = 'Full';
-            statusColor = isDark
-              ? 'bg-red-900/30 text-red-300'
-              : 'bg-red-50 text-red-600';
           }
 
           return (
@@ -184,18 +179,18 @@ const VacanciesTab = () => {
                   ? 'text-gray-500 hover:text-primary hover:bg-primary/10'
                   : 'text-gray-400 hover:text-primary hover:bg-primary/5'
               }`}
-              title="Edit Workshop"
+              title="Edit Vacancy"
             >
               <FiEdit2 className="w-4 h-4" />
             </button>
             <button
-              onClick={() => handleViewRegistrations(item)}
+              onClick={() => handleViewApplications(item)}
               className={`p-2 rounded-lg transition-colors ${
                 isDark
                   ? 'text-gray-500 hover:text-blue-400 hover:bg-blue-400/10'
                   : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50'
               }`}
-              title="View Registrations"
+              title="View Applications"
             >
               <FiUsers className="w-4 h-4" />
             </button>
@@ -206,7 +201,7 @@ const VacanciesTab = () => {
                   ? 'text-gray-500 hover:text-red-400 hover:bg-red-400/10'
                   : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
               }`}
-              title="Delete Workshop"
+              title="Delete Vacancy"
             >
               <FiTrash2 className="w-4 h-4" />
             </button>
@@ -216,54 +211,48 @@ const VacanciesTab = () => {
     ],
     [isDark]
   );
-
   return (
     <div className="space-y-6">
       <SectionHeader
-        icon={<FiClock className="w-5 h-5 text-primary" />}
-        title="Workshops Management"
-        subtitle="Manage technical workshops and sessions."
+        icon={<CgWorkAlt className="w-5 h-5 text-primary" />}
+        title="Vacancies Management"
+        subtitle="Manage vacancies, opportunities and applications."
         isDark={isDark}
-        action={<AddButton label="Add Workshop" onClick={handleAdd} />}
+        action={<AddButton label="Add Vacancy" onClick={handleAdd} />}
       />
 
       <SearchBar
         value={search}
         onChange={setSearch}
-        placeholder="Search by title, description, or location..."
+        placeholder="Search by title or description..."
         isDark={isDark}
       />
 
       {isLoading ? (
-        <LoadingBlock isDark={isDark} text="Loading workshops..." />
-      ) : filteredWorkshops.length === 0 ? (
+        <LoadingBlock isDark={isDark} text="Loading vacancies..." />
+      ) : filteredVacancies.length === 0 ? (
         <EmptyBlock
           isDark={isDark}
           message={
             search
-              ? 'No matching workshops'
-              : "No workshops found. Click 'Add Workshop' to create one."
+              ? 'No matching vacancies'
+              : "No vacancies found. Click 'Add Vacancy' to create one."
           }
           onAdd={!search ? handleAdd : undefined}
-          addLabel="Add Workshop"
+          addLabel="Add Vacancy"
         />
       ) : (
         <ResponsiveDataList
-          data={filteredWorkshops}
+          data={filteredVacancies}
           columns={columns}
           isDark={isDark}
-          renderMobileCard={workshop => {
-            const isPast = new Date(workshop.end_time) < new Date();
-            const badgeText = isPast
-              ? 'Completed'
-              : workshop.is_full
-                ? 'Full'
-                : 'Open';
+          renderMobileCard={vacancy => {
+            const badgeText = vacancy.is_open ? 'Open' : 'Closed';
             return (
               <AdminMobileCard
                 isDark={isDark}
-                title={workshop.title}
-                subtitle={`${new Date(workshop.start_time).toLocaleString(
+                title={vacancy.title}
+                subtitle={`${new Date(vacancy.created_at).toLocaleString(
                   undefined,
                   {
                     month: 'short',
@@ -271,25 +260,33 @@ const VacanciesTab = () => {
                     hour: '2-digit',
                     minute: '2-digit',
                   }
-                )} · ${workshop.capacity - (workshop.remainingSpots ?? workshop.capacity)}/${workshop.capacity} capacity`}
+                )} · last updated ${new Date(vacancy.updated_at).toLocaleString(
+                  undefined,
+                  {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  }
+                )}`}
                 badge={badgeText}
-                description={workshop.description}
+                description={vacancy.description}
                 avatar={
                   <div
                     className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? 'bg-primary/20' : 'bg-primary/10'}`}
                   >
-                    <FiClock
+                    <CgWorkAlt
                       className={`w-5 h-5 ${isDark ? 'text-primary-light' : 'text-primary'}`}
                     />
                   </div>
                 }
-                onEdit={() => handleEdit(workshop)}
-                onDelete={() => handleDeleteClick(workshop)}
+                onEdit={() => handleEdit(vacancy)}
+                onDelete={() => handleDeleteClick(vacancy)}
                 extraActions={[
                   {
                     icon: <FiUsers className="w-3.5 h-3.5" />,
-                    label: 'Registrations',
-                    onClick: () => handleViewRegistrations(workshop),
+                    label: 'Applications',
+                    onClick: () => handleViewApplications(vacancy),
                     color: 'info',
                   },
                 ]}
@@ -299,11 +296,11 @@ const VacanciesTab = () => {
         />
       )}
 
-      <AddEditWorkshopModal
+      <AddEditVacancyModal
         isOpen={isAddEditOpen}
         onClose={() => setIsAddEditOpen(false)}
-        workshop={selectedWorkshop}
-        apiWorkshop={selectedWorkshop}
+        vacancy={selectedVacancy}
+        apiVacancy={selectedVacancy}
         onSave={handleSave}
         isPending={createMutation.isPending || updateMutation.isPending}
       />
@@ -312,22 +309,22 @@ const VacanciesTab = () => {
         isOpen={isDeleteOpen}
         onClose={() => setIsDeleteOpen(false)}
         onConfirm={handleConfirmDelete}
-        title="Delete Workshop"
-        itemName={selectedWorkshop?.title || ''}
-        entityLabel="workshop"
+        title="Delete Vacancy"
+        itemName={selectedVacancy?.title || ''}
+        entityLabel="vacancy"
         isDark={isDark}
         isPending={deleteMutation.isPending}
       />
 
-      {isRegistrationsModalOpen && selectedWorkshopForRegistrations && (
-        <WorkshopRegistrationsModal
-          isOpen={isRegistrationsModalOpen}
+      {isApplicationsModalOpen && selectedVacancyForApplications && (
+        <VacancyApplicationsModal
+          isOpen={isApplicationsModalOpen}
           onClose={() => {
-            setIsRegistrationsModalOpen(false);
-            setSelectedWorkshopForRegistrations(undefined);
+            setIsApplicationsModalOpen(false);
+            setSelectedVacancyForApplications(undefined);
           }}
-          workshopId={selectedWorkshopForRegistrations.id}
-          workshopTitle={selectedWorkshopForRegistrations.title}
+          vacancyId={selectedVacancyForApplications.id}
+          vacancyTitle={selectedVacancyForApplications.title}
         />
       )}
     </div>
