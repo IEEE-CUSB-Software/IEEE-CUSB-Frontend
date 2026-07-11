@@ -24,6 +24,7 @@ import { UsersPage as AdminUsersPage } from './pages/admin/UsersPage';
 import { RoleName } from '@/shared/types/auth.types';
 import { WorkshopsPage } from './pages/WorkshopsPage';
 import { WorkshopDetailsPage } from './pages/WorkshopDetailsPage';
+import { ProfilePage } from './pages/ProfilePage';
 /**
  * Application Routes Configuration
  * Using React Router v6 Data APIs (createBrowserRouter)
@@ -129,7 +130,7 @@ const routes: RouteObject[] = [
       },
       {
         path: 'profile',
-        element: <UnderConstructionPage />, // Profile - Under Construction
+        element: <ProfilePage />, // Profile - working
       },
       {
         path: 'settings',

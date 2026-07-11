@@ -75,6 +75,29 @@ export const usersApi = {
     return response.data.data;
   },
 
+  viewMyCv: async (): Promise<void> => {
+    const response = await apiClient.get<Blob>(API_ENDPOINTS.USERS.DOWNLOAD_CV, {
+      responseType: 'blob',
+    });
+    const url = URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+    window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 30_000);
+  },
+
+  downloadMyCv: async (fileName: string): Promise<void> => {
+    const response = await apiClient.get<Blob>(API_ENDPOINTS.USERS.DOWNLOAD_CV, {
+      responseType: 'blob',
+    });
+    const url = URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+
   /**
    * GET /admin/users/:userId/cv/download — admin: view a user's CV in a new tab
    * Streams the PDF binary with proper auth headers.

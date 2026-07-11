@@ -1,4 +1,3 @@
-
 export enum RoleName {
   SUPER_ADMIN = 'Super Admin',
   ADMIN = 'Admin',
@@ -77,6 +76,19 @@ export interface RegisterRequest {
   password: string;
   confirmPassword: string;
   cv?: File;
+}
+
+/**
+ * Update user request payload
+ */
+export interface UpdateUserRequest {
+  name: string;
+  bio?: string | null;
+  phone: string;
+  faculty: string;
+  university: string;
+  academic_year: number;
+  major?: string | null;
 }
 
 /**
