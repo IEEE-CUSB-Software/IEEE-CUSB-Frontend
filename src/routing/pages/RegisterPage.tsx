@@ -37,24 +37,50 @@ export const RegisterPage = () => {
       major: 'General',
       password: '',
       confirmPassword: '',
+      cv: null as any,
     },
   });
 
-  // Watch password fields for live matching
+  // Watch fields
   const password = watch('password');
   const confirmPassword = watch('confirmPassword');
+  const cvFile = watch('cv');
   const passwordsMatch =
     password && confirmPassword && password === confirmPassword;
 
+  // Resolve selected CV file name for display
+  const getSelectedFile = (val: unknown): File | null => {
+    if (!val) return null;
+    if (val instanceof FileList) return val.length > 0 ? val[0] : null;
+    if (val instanceof File) return val;
+    return null;
+  };
+  const selectedCvFile = getSelectedFile(cvFile);
+  const cvFileName = selectedCvFile?.name ?? '';
+
   const onSubmit = (data: any) => {
-    // Send data to backend — Zod coerces academic_year to number
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { major, ...rest } = data;
-    register({
-      ...rest,
-      // Only include major if it's not the default
-      ...(major && major !== 'General' ? { major } : {}),
-    } as any);
+    const { major, cv, ...rest } = data;
+    const formData = new FormData();
+    formData.append('email', rest.email);
+    formData.append('username', rest.username);
+    formData.append('name', rest.name);
+    formData.append('phone', rest.phone);
+    formData.append('faculty', rest.faculty);
+    formData.append('university', rest.university);
+    formData.append('academic_year', String(rest.academic_year));
+    formData.append('password', rest.password);
+    formData.append('confirmPassword', rest.confirmPassword);
+
+    // Only include major when it is not the default
+    formData.append('major', major && major !== 'General' ? major : 'General');
+
+    // CV is optional — only append if a valid PDF file was selected
+    const cvFile = getSelectedFile(cv);
+    if (cvFile) {
+      formData.append('cv', cvFile);
+    }
+
+    register(formData as any);
   };
 
   return (
@@ -320,6 +346,84 @@ export const RegisterPage = () => {
               </div>
             </div>
 
+            {/* CV Upload Field — optional */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label
+                  htmlFor="cv"
+                  className={`text-sm font-medium transition-colors duration-300 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
+                >
+                  Upload CV (PDF)
+                </label>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  isDark ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-500'
+                }`}>
+                  Optional
+                </span>
+              </div>
+              <div
+                className={`relative border-2 border-dashed rounded-lg p-6 transition-all duration-300 cursor-pointer ${
+                  errors.cv
+                    ? 'border-red-500 bg-red-500/5'
+                    : cvFileName
+                      ? 'border-green-500 bg-green-500/5'
+                      : isDark
+                        ? 'border-gray-700 hover:border-blue-500 bg-gray-800/40'
+                        : 'border-gray-300 hover:border-blue-400 bg-gray-50 hover:bg-blue-50/30'
+                }`}
+              >
+                <input
+                  id="cv"
+                  type="file"
+                  accept=".pdf,application/pdf"
+                  disabled={isPending}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                  {...registerField('cv')}
+                />
+                <div className="flex flex-col items-center justify-center space-y-2 text-center pointer-events-none">
+                  {cvFileName ? (
+                    <>
+                      {/* File selected ✓ */}
+                      <div className="p-2 rounded-full bg-green-500/10">
+                        <svg className="w-7 h-7 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <span className={`text-sm font-semibold max-w-xs truncate ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+                        {cvFileName}
+                      </span>
+                      <span className="text-xs text-green-500 font-medium">PDF ready to upload</span>
+                      <span className="text-xs text-gray-400">Click to replace</span>
+                    </>
+                  ) : (
+                    <>
+                      {/* No file selected */}
+                      <div className={`p-2 rounded-full ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                        <svg className="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                      </div>
+                      <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                        Drag & drop or click to select
+                      </span>
+                      <span className="text-xs text-gray-400">PDF only · Max 5 MB</span>
+                      <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                        You can also upload your CV later from your profile
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+              {errors.cv?.message && (
+                <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                  <svg className="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errors.cv.message as string}
+                </p>
+              )}
+            </div>
+
             {/* Password Requirements - Live Validation */}
             <div
               className={`rounded-lg p-4 transition-colors duration-300 ${isDark ? 'bg-blue-900/20' : 'bg-blue-50'}`}
@@ -378,15 +482,15 @@ export const RegisterPage = () => {
                 </li>
                 <li
                   className={
-                    /[@$!%*?&]/.test(password || '')
+                    /[@$!%*?&#]/.test(password || '')
                       ? 'text-green-600'
                       : isDark
                         ? 'text-blue-300'
                         : 'text-blue-600'
                   }
                 >
-                  {/[@$!%*?&]/.test(password || '') ? '✓' : '•'} One special
-                  character (@$!%*?&)
+                  {/[@$!%*?&#]/.test(password || '') ? '✓' : '•'} One special
+                  character (@$!%*?&#)
                 </li>
               </ul>
             </div>

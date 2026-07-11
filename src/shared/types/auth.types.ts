@@ -41,6 +41,8 @@ export interface User {
   github_id: string | null;
   google_id: string | null;
   oauth_provider?: string | null;
+  cv_url?: string | null;
+  cv_public_id?: string | null;
 }
 
 /**
@@ -73,6 +75,7 @@ export interface RegisterRequest {
   academic_year: number;
   password: string;
   confirmPassword: string;
+  cv?: File;
 }
 
 /**

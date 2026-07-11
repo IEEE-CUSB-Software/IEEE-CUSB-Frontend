@@ -138,7 +138,7 @@ export const LoginPage = () => {
             </Button>
           </form>
 
-          {/* Divider */}
+          {/* Divider commented out
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -155,8 +155,9 @@ export const LoginPage = () => {
               </div>
             </div>
           </div>
+          */}
 
-          {/* OAuth Buttons */}
+          {/* OAuth Buttons commented out
           <div className="mt-6 grid grid-cols-2 gap-3">
             <Button
               type="basic"
@@ -204,6 +205,7 @@ export const LoginPage = () => {
               GitHub
             </Button>
           </div>
+          */}
 
           {/* Sign Up Link */}
           <p

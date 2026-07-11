@@ -69,10 +69,28 @@ export const registerSchema = z
       .min(8, 'Password must be at least 8 characters')
       .max(100, 'Password must not exceed 100 characters')
       .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-        'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)'
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/,
+        'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&#)'
       ),
     confirmPassword: z.string().min(1, 'Please confirm your password'),
+    // CV is optional at registration — backend accepts it but does not require it
+    cv: z
+      .any()
+      .optional()
+      .refine(files => {
+        // Allow null / undefined / empty FileList (file not selected)
+        if (!files) return true;
+        if (files instanceof FileList && files.length === 0) return true;
+        // If a file is provided, validate PDF type
+        const file = files instanceof FileList ? files[0] : files;
+        return file && file.type === 'application/pdf';
+      }, 'Only PDF files are allowed')
+      .refine(files => {
+        if (!files) return true;
+        if (files instanceof FileList && files.length === 0) return true;
+        const file = files instanceof FileList ? files[0] : files;
+        return file ? file.size <= 5 * 1024 * 1024 : true;
+      }, 'Max file size is 5MB'),
   })
   .refine(data => data.password === data.confirmPassword, {
     message: "Passwords don't match",
