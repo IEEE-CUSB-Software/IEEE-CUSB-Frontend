@@ -1,9 +1,11 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useTheme } from '@/shared/hooks/useTheme';
-import { FiEye, FiUser, FiMail, FiPhone, FiBookOpen, FiClock, FiFileText, FiDownload, FiLoader } from 'react-icons/fi';
+import { FiEye, FiUser, FiMail, FiPhone, FiBookOpen, FiClock, FiFileText, FiDownload, FiLoader, FiTrash2 } from 'react-icons/fi';
 import { FaFilePdf } from 'react-icons/fa';
 import { Modal } from '@ieee-ui/ui';
 import { type ColumnDef } from '@ieee-ui/ui';
+import { Pagination } from '@/shared/components/ui/Pagination';
+import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
 import {
   SectionHeader,
   ResponsiveDataList,
@@ -11,7 +13,7 @@ import {
   LoadingBlock,
   EmptyBlock,
 } from '@/features/admin/components/shared/AdminPageComponents';
-import { useUsers, usersApi } from '@/shared/queries/users/users.queries';
+import { useUsers, useDeleteUser, usersApi } from '@/shared/queries/users/users.queries';
 import type { User } from '@/shared/types/auth.types';
 import toast from 'react-hot-toast';
 
@@ -188,7 +190,7 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ user, onClose }) => {
           <h4 className={`text-sm font-bold mb-3 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
             Attached Curriculum Vitae (CV)
           </h4>
-          {user.cv_url ? (
+          {user.cv_file_key || user.cv_url ? (
             <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl border border-dashed ${
               isDark ? 'border-gray-700 bg-gray-800/30' : 'border-gray-300 bg-gray-50'
             }`}>
@@ -267,9 +269,16 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ user, onClose }) => {
 // Users Page Component
 export const UsersPage: React.FC = () => {
   const { isDark } = useTheme();
-  const { data: users, isLoading } = useUsers();
+  const [page, setPage] = useState(1);
+  const limit = 10;
+  const { data, isLoading } = useUsers({ page, limit });
+  const deleteUserMutation = useDeleteUser();
+  const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
   const [search, setSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+  const users = useMemo(() => (Array.isArray(data?.data) ? data.data : []), [data]);
+  const totalPages = data?.meta?.totalPages ?? 1;
 
   // Filtered Users List
   const filteredUsers = useMemo(() => {
@@ -286,6 +295,18 @@ export const UsersPage: React.FC = () => {
         u.university.toLowerCase().includes(q)
     );
   }, [users, search]);
+
+  const handleConfirmDelete = useCallback(() => {
+    if (!deleteTarget) return;
+    deleteUserMutation.mutate(deleteTarget.id, {
+      onSuccess: () => setDeleteTarget(null),
+    });
+  }, [deleteUserMutation, deleteTarget]);
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Table Columns Definition
   const columns = useMemo<ColumnDef<User>[]>(
@@ -338,11 +359,11 @@ export const UsersPage: React.FC = () => {
         header: 'CV status',
         cell: (item: User) => (
           <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-            item.cv_url
+            item.cv_file_key || item.cv_url
               ? isDark ? 'bg-green-950/40 text-green-300' : 'bg-green-50 text-green-700'
               : isDark ? 'bg-amber-950/40 text-amber-300' : 'bg-amber-50 text-amber-700'
           }`}>
-            {item.cv_url ? 'Uploaded' : 'No CV'}
+            {item.cv_file_key || item.cv_url ? 'Uploaded' : 'No CV'}
           </span>
         ),
       },
@@ -372,6 +393,17 @@ export const UsersPage: React.FC = () => {
             >
               <FiEye className="w-4 h-4 group-hover:scale-110 transition-transform" />
             </button>
+            <button
+              onClick={() => setDeleteTarget(item)}
+              className={`group p-2 rounded-lg transition-all duration-200 ${
+                isDark
+                  ? 'text-gray-500 hover:text-red-450 hover:bg-red-400/10'
+                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+              }`}
+              title="Delete user"
+            >
+              <FiTrash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            </button>
           </div>
         ),
       },
@@ -398,13 +430,22 @@ export const UsersPage: React.FC = () => {
             </span>
           </div>
         </div>
-        <button
-          onClick={() => setSelectedUser(item)}
-          className="text-primary text-xs font-semibold flex items-center gap-1 hover:underline"
-        >
-          <FiEye className="w-3.5 h-3.5" />
-          Details
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSelectedUser(item)}
+            className="text-primary text-xs font-semibold flex items-center gap-1 hover:underline"
+          >
+            <FiEye className="w-3.5 h-3.5" />
+            Details
+          </button>
+          <button
+            onClick={() => setDeleteTarget(item)}
+            className="text-red-500 hover:text-red-650 text-xs font-semibold flex items-center gap-1 hover:underline"
+          >
+            <FiTrash2 className="w-3.5 h-3.5" />
+            Delete
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-2 text-xs">
@@ -425,11 +466,11 @@ export const UsersPage: React.FC = () => {
         <div>
           <span className={`block font-medium ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>CV Status</span>
           <span className={`inline-block mt-0.5 px-2 py-0.2 rounded-full text-[10px] font-bold ${
-            item.cv_url
+            item.cv_file_key || item.cv_url
               ? isDark ? 'bg-green-950/40 text-green-300' : 'bg-green-50 text-green-700'
               : isDark ? 'bg-amber-950/40 text-amber-300' : 'bg-amber-50 text-amber-700'
           }`}>
-            {item.cv_url ? 'Uploaded' : 'No CV'}
+            {item.cv_file_key || item.cv_url ? 'Uploaded' : 'No CV'}
           </span>
         </div>
       </div>
@@ -471,6 +512,18 @@ export const UsersPage: React.FC = () => {
         />
       )}
 
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center">
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            isLoading={isLoading}
+          />
+        </div>
+      )}
+
       {/* User Details Modal */}
       {selectedUser && (
         <UserDetailModal
@@ -478,6 +531,17 @@ export const UsersPage: React.FC = () => {
           onClose={() => setSelectedUser(null)}
         />
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={!!deleteTarget}
+        itemName={deleteTarget?.name ?? ''}
+        entityLabel="user"
+        isDark={isDark}
+        isPending={deleteUserMutation.isPending}
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeleteTarget(null)}
+      />
     </div>
   );
 };

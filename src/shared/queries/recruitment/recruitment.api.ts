@@ -42,7 +42,7 @@ export const revokeApplication = async (id: string): Promise<void> => {
  * Streams the PDF binary directly to a new browser tab with proper auth headers.
  */
 export const adminViewApplicationCv = async (applicationId: string): Promise<void> => {
-  const response = await apiClient.get(
+  const response = await apiClient.get<any>(
     API_ENDPOINTS.RECRUITMENT.ADMIN_VIEW_APPLICATION_CV(applicationId),
     { responseType: 'blob' }
   );

@@ -24,10 +24,12 @@ export const API_ENDPOINTS = {
 
   // Users endpoints
   USERS: {
-    GET_ALL: '/users',
+    GET_ALL: '/admin/users',
     GET_USER: (id: string) => `/users/${id}`,
+    ADMIN_GET_USER: (id: string) => `/admin/users/${id}`,
     UPDATE_USER: (id: string) => `/users/${id}`,
     DELETE_USER: (id: string) => `/users/${id}`,
+    ADMIN_DELETE_USER: (id: string) => `/admin/users/${id}`,
     // CV endpoints
     UPLOAD_CV: '/users/me/cv/upload',
     DOWNLOAD_CV: '/users/me/cv/download',

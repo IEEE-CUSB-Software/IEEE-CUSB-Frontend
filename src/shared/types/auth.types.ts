@@ -43,6 +43,7 @@ export interface User {
   oauth_provider?: string | null;
   cv_url?: string | null;
   cv_public_id?: string | null;
+  cv_file_key?: string | null;
 }
 
 /**
@@ -155,4 +156,25 @@ export interface ApiError {
   status: number;
   message: string;
   errors?: Record<string, string[]>;
+}
+
+/**
+ * Pagination parameters
+ */
+export interface PaginationParams {
+  page: number;
+  limit: number;
+}
+
+/**
+ * Paginated Users Response
+ */
+export interface PaginatedUsersResponse {
+  data: User[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }
