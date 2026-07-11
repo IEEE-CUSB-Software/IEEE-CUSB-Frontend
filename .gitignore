@@ -34,3 +34,9 @@ dist-ssr
 /.vite/
 public/mockServiceWorker.js
 tsconfig.tsbuildinfo
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
