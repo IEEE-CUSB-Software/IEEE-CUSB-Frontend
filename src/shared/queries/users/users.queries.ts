@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/shared/config/api.config';
 import { API_ENDPOINTS, QUERY_KEYS } from '@/shared/constants/apiConstants';
-import type { User, ApiResponse } from '@/shared/types/auth.types';
+import type { User, ApiResponse, PaginationParams, PaginatedUsersResponse } from '@/shared/types/auth.types';
 import toast from 'react-hot-toast';
 
 // ─── Response Shapes ───────────────────────────────────────────────────────────
@@ -17,30 +17,38 @@ interface CvUploadResponse {
 
 export const usersApi = {
   /**
-   * GET /users — list all users (admin only)
-   * Backend may return { data: User[] } or { data: { users: User[] } }.
+   * GET /admin/users — list all users (admin only)
    */
-  getUsers: async (): Promise<User[]> => {
-    const response = await apiClient.get<ApiResponse<unknown>>(
-      API_ENDPOINTS.USERS.GET_ALL
+  getUsers: async (params: PaginationParams): Promise<PaginatedUsersResponse> => {
+    const response = await apiClient.get<ApiResponse<PaginatedUsersResponse>>(
+      API_ENDPOINTS.USERS.GET_ALL,
+      {
+        params: {
+          page: params.page.toString(),
+          limit: params.limit.toString(),
+        },
+      }
     );
-    const payload = response.data?.data;
-    if (Array.isArray(payload)) return payload;
-    if (payload && typeof payload === 'object') {
-      const nested = (payload as Record<string, unknown>)['users'];
-      if (Array.isArray(nested)) return nested as User[];
-    }
-    return [];
+    return response.data.data;
   },
 
   /**
-   * GET /users/:id — get single user (admin or self)
+   * GET /admin/users/:id — get single user (admin only)
    */
   getUserById: async (id: string): Promise<User> => {
     const response = await apiClient.get<ApiResponse<User>>(
-      API_ENDPOINTS.USERS.GET_USER(id)
+      API_ENDPOINTS.USERS.ADMIN_GET_USER(id)
     );
     return response.data.data;
+  },
+
+  /**
+   * DELETE /admin/users/:id — delete user (admin only)
+   */
+  adminDeleteUser: async (id: string): Promise<void> => {
+    await apiClient.delete(
+      API_ENDPOINTS.USERS.ADMIN_DELETE_USER(id)
+    );
   },
 
   /**
@@ -72,7 +80,7 @@ export const usersApi = {
    * Streams the PDF binary with proper auth headers.
    */
   adminViewCv: async (userId: string): Promise<void> => {
-    const response = await apiClient.get(
+    const response = await apiClient.get<any>(
       API_ENDPOINTS.USERS.ADMIN_DOWNLOAD_CV(userId),
       { responseType: 'blob' }
     );
@@ -88,7 +96,7 @@ export const usersApi = {
    * Streams the PDF binary with proper auth headers.
    */
   adminDownloadCv: async (userId: string, fileName: string): Promise<void> => {
-    const response = await apiClient.get(
+    const response = await apiClient.get<any>(
       API_ENDPOINTS.USERS.ADMIN_DOWNLOAD_CV(userId),
       { responseType: 'blob' }
     );
@@ -107,13 +115,33 @@ export const usersApi = {
 // ─── Query Hooks ───────────────────────────────────────────────────────────────
 
 /**
- * Hook to get ALL users — used in the admin Users page.
+ * Hook to get ALL users with pagination — used in the admin Users page.
  */
-export const useUsers = () => {
+export const useUsers = (params: PaginationParams) => {
   return useQuery({
-    queryKey: QUERY_KEYS.USERS.ALL,
-    queryFn: () => usersApi.getUsers(),
+    queryKey: [...QUERY_KEYS.USERS.ALL, params.page, params.limit],
+    queryFn: () => usersApi.getUsers(params),
     staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+/**
+ * Hook to delete a user (Admin only)
+ */
+export const useDeleteUser = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => usersApi.adminDeleteUser(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USERS.ALL });
+      toast.success('User deleted successfully!');
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || 'Failed to delete user.';
+      toast.error(message);
+    },
   });
 };
 

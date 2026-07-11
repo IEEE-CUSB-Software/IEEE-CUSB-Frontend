@@ -48,10 +48,9 @@ export const RegisterPage = () => {
   const passwordsMatch =
     password && confirmPassword && password === confirmPassword;
 
-  // Resolve selected CV file name for display
   const getSelectedFile = (val: unknown): File | null => {
     if (!val) return null;
-    if (val instanceof FileList) return val.length > 0 ? val[0] : null;
+    if (val instanceof FileList) return val.length > 0 ? (val[0] ?? null) : null;
     if (val instanceof File) return val;
     return null;
   };
