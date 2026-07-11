@@ -144,6 +144,22 @@ export const API_ENDPOINTS = {
   },
   // Recruitment endpoints
   RECRUITMENT: {
+    //admin
+    CREATE: '/admin/recruitment/vacancies',
+    GET_ALL_VACANCIES: '/admin/recruitment/vacancies',
+    UPDATE_VACANCY: (id: string) => `/admin/recruitment/vacancies/${id}`,
+    DELETE_VACANCY: (id: string) => `/admin/recruitment/vacancies/${id}`,
+
+    GET_ALL_APPLICATIONS: (id: string) =>
+      `/admin/recruitment/vacancies/${id}/applications`,
+    UPDATE_APPLICATION_STATUS: (id: string) =>
+      `/admin/recruitment/applications/${id}/status`,
+    EXPORT_APPLICATIONS: (id: string) =>
+      `/admin/recruitment/vacancies/${id}/applications/export/excel`,
+    VIEW_APPLICATION_CV: (id: string) =>
+      `/admin/recruitment/applications/${id}/cv`,
+
+    //user
     GET_VACANCIES: '/recruitment/vacancies',
     APPLY: (id: string) => `/recruitment/vacancies/${id}/apply`,
     GET_MY_APPLICATIONS: '/recruitment/my-applications',
@@ -204,7 +220,14 @@ export const QUERY_KEYS = {
     REGISTRATIONS: (id: string) => ['workshops', id, 'registrations'],
   },
   RECRUITMENT: {
+    ADMIN_VACANCIES: ['recruitment', 'admin', 'vacancies'],
     VACANCIES: ['recruitment', 'vacancies'],
+    ADMIN_VACANCY_APPLICATIONS: (id: string) => [
+      'recruitment',
+      'vacancies',
+      id,
+      'applications',
+    ],
     MY_APPLICATIONS: ['recruitment', 'my-applications'],
   },
 } as const;

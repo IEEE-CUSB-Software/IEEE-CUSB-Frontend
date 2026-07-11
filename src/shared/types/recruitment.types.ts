@@ -1,3 +1,5 @@
+import { User } from './auth.types';
+
 export interface ApiResponse<T> {
   data: T;
   message?: string;
@@ -8,6 +10,12 @@ export interface PaginatedResponse<T> {
   data: T[];
   count: number;
   message?: string;
+}
+
+export enum ApplicationStatus {
+  PENDING = 'PENDING',
+  ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED',
 }
 
 export interface Vacancy {
@@ -33,8 +41,39 @@ export interface Application {
   extra_data: ApplicationExtraData;
   created_at: string;
   updated_at: string;
+  user: User;
 }
 
 export interface ApplyToVacancyRequest {
   extra_data: ApplicationExtraData;
+}
+
+export interface AddVacancy {
+  title: string;
+  description: string;
+  is_open: boolean;
+}
+
+export interface UpdateVacancy {
+  title?: string;
+  description?: string;
+  is_open?: boolean;
+}
+
+export interface UpdateStatus {
+  status?: ApplicationStatus;
+}
+
+export interface GetAllApplicationsParams {
+  vacancyId: string;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface ExportApplicationsParams {
+  vacancyId: string;
+  startDate?: string;
+  endDate?: string;
 }
