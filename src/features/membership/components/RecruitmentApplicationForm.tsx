@@ -206,7 +206,7 @@ export const RecruitmentApplicationForm = () => {
                 loading={applyMutation.isPending}
                 disabled={applyMutation.isPending}
                 darkMode={isDark}
-                onClick={() => {}}
+                onClick={handleSubmit(onSubmit)}
               />
             </form>
           )}
