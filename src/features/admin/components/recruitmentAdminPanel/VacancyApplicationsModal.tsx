@@ -8,7 +8,6 @@ import {
   ErrorScreen,
 } from '@ieee-ui/ui';
 import { Pagination } from '@/shared/components/ui/Pagination';
-import { SearchBar } from '@/features/admin/components/shared/AdminPageComponents';
 import { FaUser } from 'react-icons/fa';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { MobileVacancyApplicationsCard } from './MobileVacancyApplicationsCard';
@@ -22,6 +21,8 @@ import {
 } from '@/shared/queries/recruitment/recruitment.queries';
 import { ApplicationsFilterBar } from './ApplicationsFilterBar';
 import UserInfo from '../shared/UserInfo';
+
+type ApplicationFilter = 'ALL' | ApplicationStatus;
 
 interface VacancyApplicationsModalProps {
   isOpen: boolean;
@@ -41,9 +42,7 @@ export const VacancyApplicationsModal = ({
   const limit = 10;
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [activeApps, setActiveApps] = useState<ApplicationStatus | 'ALL'>(
-    'ALL'
-  );
+  const [activeApps, setActiveApps] = useState<ApplicationFilter>('ALL');
   const [menuOpen, setMenuOpen] = useState(false);
 
   const { data, isLoading, isError } = useGetAllApplications({
@@ -57,14 +56,14 @@ export const VacancyApplicationsModal = ({
 
   const { mutateAsync: updateStatus, isPending: isUpdating } =
     useUpdateApplicationStatus(vacancyId);
-  const applications = Array.isArray(data?.data) ? data?.data : [];
-  const totalPages = data?.totalPages ?? 1;
+  const applications = Array.isArray(data) ? data : [];
+  const totalPages = 1;
 
   // Filtered applications (in-memory filtering for current page)
   const dateFilteredApplications = useMemo(() => {
     return !startDate && !endDate
       ? applications
-      : applications.filter(app => {
+        : applications.filter((app: Application) => {
           // Date filter
           const applicationDate = new Date(app.created_at);
 
@@ -80,7 +79,7 @@ export const VacancyApplicationsModal = ({
   // Transform and filter applications based on the active filter
   const getFilteredApplications = () => {
     if (activeApps === 'ALL') return dateFilteredApplications;
-    return dateFilteredApplications.filter(app => app.status === activeApps);
+    return dateFilteredApplications.filter((app: Application) => app.status === activeApps);
   };
 
   const filteredApplications = getFilteredApplications();
@@ -248,7 +247,7 @@ export const VacancyApplicationsModal = ({
             <div className="flex flex-col sm:flex-row items-start justify-between w-full gap-4 mb-6">
               <ApplicationsFilterBar
                 activeFilter={activeApps}
-                onFilterChange={setActiveApps}
+                onFilterChange={filter => setActiveApps(filter as ApplicationFilter)}
                 darkMode={isDark}
               />
               <div className="flex flex-row items-end gap-4 mb-6">
@@ -299,7 +298,7 @@ export const VacancyApplicationsModal = ({
 
             {/* Mobile View - Cards */}
             <div className="block md:hidden space-y-3">
-              {filteredApplications.map(app => (
+              {filteredApplications.map((app: Application) => (
                 <MobileVacancyApplicationsCard
                   key={app.id}
                   application={app}

@@ -21,6 +21,7 @@ import { CommitteesPage as AdminCommittees } from './pages/admin/CommitteesPage'
 import { AwardsPage as AdminAwardsPage } from './pages/admin/AwardsPage';
 import { AdminWorkshopsPage } from './pages/admin/WorkshopsPage';
 import { RecruitmentPage as AdminRecruitmentPage } from './pages/admin/RecruitmentPage';
+import { UsersPage as AdminUsersPage } from './pages/admin/UsersPage';
 import { RoleName } from '@/shared/types/auth.types';
 import { WorkshopsPage } from './pages/WorkshopsPage';
 import { WorkshopDetailsPage } from './pages/WorkshopDetailsPage';
@@ -83,7 +84,7 @@ const routes: RouteObject[] = [
       },
       {
         path: 'users',
-        element: <UnderConstructionPage />, // Users - Under Construction
+        element: <AdminUsersPage />, // Users - Working
       },
       {
         path: 'statistics',

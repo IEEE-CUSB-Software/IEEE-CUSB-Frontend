@@ -82,7 +82,7 @@ export const exportApplications = async ({
   startDate,
   endDate,
 }: ExportApplicationsParams): Promise<Blob> => {
-  const response = await apiClient.get(
+  const response = await apiClient.get<Blob>(
     API_ENDPOINTS.RECRUITMENT.EXPORT_APPLICATIONS(vacancyId),
     {
       params: {
@@ -99,7 +99,7 @@ export const exportApplications = async ({
 export const viewApplicationCV = async (
   applicationId: string
 ): Promise<Blob> => {
-  const response = await apiClient.get(
+  const response = await apiClient.get<Blob>(
     API_ENDPOINTS.RECRUITMENT.VIEW_APPLICATION_CV(applicationId),
     {
       responseType: 'blob',
@@ -136,4 +136,19 @@ export const getMyApplications = async (): Promise<Application[]> => {
 
 export const revokeApplication = async (id: string): Promise<void> => {
   await apiClient.delete(API_ENDPOINTS.RECRUITMENT.REVOKE_APPLICATION(id));
+};
+
+/**
+ * GET /admin/recruitment/applications/:id/cv — admin: view an applicant's CV
+ * Streams the PDF binary directly to a new browser tab with proper auth headers.
+ */
+export const adminViewApplicationCv = async (applicationId: string): Promise<void> => {
+  const response = await apiClient.get<any>(
+    API_ENDPOINTS.RECRUITMENT.ADMIN_VIEW_APPLICATION_CV(applicationId),
+    { responseType: 'blob' }
+  );
+  const blob = new Blob([response.data], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+  setTimeout(() => URL.revokeObjectURL(url), 30_000);
 };

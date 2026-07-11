@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { type ColumnDef } from '@ieee-ui/ui';
-import { FiEdit2, FiTrash2, FiClock, FiUsers } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiUsers } from 'react-icons/fi';
 import { CgWorkAlt } from 'react-icons/cg';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
@@ -26,7 +26,6 @@ import {
 } from '@/shared/queries/recruitment';
 import { AddEditVacancyModal } from './AddEditVacancyModal';
 import { VacancyApplicationsModal } from './VacancyApplicationsModal';
-import UserInfo from '../shared/UserInfo';
 
 const VacanciesTab = () => {
   const { isDark } = useTheme();
