@@ -3,7 +3,6 @@ import { adminUsersApi } from './users.api';
 import { QUERY_KEYS } from '@/shared/constants/apiConstants';
 import toast from 'react-hot-toast';
 import { authApi } from '../auth';
-import { useNavigate } from 'react-router-dom';
 
 /**
  * Hook to get all users with pagination

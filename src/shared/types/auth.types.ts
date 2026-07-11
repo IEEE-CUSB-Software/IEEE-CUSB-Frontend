@@ -40,6 +40,9 @@ export interface User {
   github_id: string | null;
   google_id: string | null;
   oauth_provider?: string | null;
+  cv_url?: string | null;
+  cv_public_id?: string | null;
+  cv_file_key?: string | null;
 }
 
 /**
@@ -72,6 +75,7 @@ export interface RegisterRequest {
   academic_year: number;
   password: string;
   confirmPassword: string;
+  cv?: File;
 }
 
 /**
@@ -164,4 +168,25 @@ export interface ApiError {
   status: number;
   message: string;
   errors?: Record<string, string[]>;
+}
+
+/**
+ * Pagination parameters
+ */
+export interface PaginationParams {
+  page: number;
+  limit: number;
+}
+
+/**
+ * Paginated Users Response
+ */
+export interface PaginatedUsersResponse {
+  data: User[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }

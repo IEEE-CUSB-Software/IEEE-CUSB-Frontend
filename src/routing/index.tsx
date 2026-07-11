@@ -20,11 +20,11 @@ import { EventsPage as AdminEventsPage } from './pages/admin/EventsPage';
 import { CommitteesPage as AdminCommittees } from './pages/admin/CommitteesPage';
 import { AwardsPage as AdminAwardsPage } from './pages/admin/AwardsPage';
 import { AdminWorkshopsPage } from './pages/admin/WorkshopsPage';
+import { UsersPage as AdminUsersPage } from './pages/admin/UsersPage';
 import { RoleName } from '@/shared/types/auth.types';
 import { WorkshopsPage } from './pages/WorkshopsPage';
 import { WorkshopDetailsPage } from './pages/WorkshopDetailsPage';
 import { ProfilePage } from './pages/ProfilePage';
-import { UsersPage } from './pages/admin/UsersPage';
 /**
  * Application Routes Configuration
  * Using React Router v6 Data APIs (createBrowserRouter)
@@ -84,7 +84,7 @@ const routes: RouteObject[] = [
       },
       {
         path: 'users',
-        element: <UsersPage />, // Users - working
+        element: <AdminUsersPage />, // Users - Working
       },
       {
         path: 'statistics',

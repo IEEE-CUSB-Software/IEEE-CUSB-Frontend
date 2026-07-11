@@ -24,7 +24,7 @@ export const adminUsersApi = {
     limit: number = 10
   ): Promise<UsersListResponse> => {
     const response = await apiClient.get<ApiResponse<UsersListResponse>>(
-      `${API_ENDPOINTS.USERS.ADMIN_GET_ALL}?page=${page}&limit=${limit}`
+      `${API_ENDPOINTS.USERS.GET_ALL}?page=${page}&limit=${limit}`
     );
     return response.data.data;
   },
@@ -34,7 +34,7 @@ export const adminUsersApi = {
    */
   getUser: async (id: string): Promise<User> => {
     const response = await apiClient.get<ApiResponse<User>>(
-      API_ENDPOINTS.USERS.ADMIN_GET_ONE(id)
+      API_ENDPOINTS.USERS.ADMIN_GET_USER(id)
     );
     return response.data.data;
   },
@@ -44,7 +44,7 @@ export const adminUsersApi = {
    */
   deleteUser: async (id: string): Promise<{ success: boolean }> => {
     const response = await apiClient.delete<ApiResponse<{ success: boolean }>>(
-      API_ENDPOINTS.USERS.ADMIN_DELETE(id)
+      API_ENDPOINTS.USERS.ADMIN_DELETE_USER(id)
     );
     return response.data.data;
   },

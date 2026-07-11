@@ -1,10 +1,21 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { useTheme } from '@/shared/hooks/useTheme';
-import { FiUsers, FiTrash2, FiMail, FiPhone, FiAward } from 'react-icons/fi';
+import {
+  FiAward,
+  FiDownload,
+  FiEye,
+  FiFileText,
+  FiLoader,
+  FiMail,
+  FiPhone,
+  FiTrash2,
+  FiUser,
+  FiUsers,
+} from 'react-icons/fi';
+import { Modal, type ColumnDef } from '@ieee-ui/ui';
+import { Pagination } from '@/shared/components/ui/Pagination';
 import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
 import { AdminMobileCard } from '@/shared/components/AdminMobileCard';
-import { type ColumnDef } from '@ieee-ui/ui';
-import { Pagination } from '@/shared/components/ui/Pagination';
 import {
   SectionHeader,
   ResponsiveDataList,
@@ -13,237 +24,270 @@ import {
   EmptyBlock,
   AddButton,
 } from '@/features/admin/components/shared/AdminPageComponents';
-import {
-  useAdminUsers,
-  useDeleteAdminUser,
-} from '@/shared/queries/admin/users.queries';
-import type { User } from '@/shared/types/auth.types';
 import AddUserModal from '@/features/admin/components/usersAdminPanel/AddUserModal';
+import { useUsers, useDeleteUser, usersApi } from '@/shared/queries/users/users.queries';
+import type { User } from '@/shared/types/auth.types';
+import toast from 'react-hot-toast';
 
-/**
- * UsersPage - Admin panel for user management
- *
- * Features:
- * - View all users with pagination
- * - Search users by name, email, username, or role
- * - Delete users with confirmation
- * - Responsive table and mobile card views
- * - User details including role, faculty, university, and contact info
- *
- * Note: Create user and update role features require POST and PATCH endpoints
- */
+const value = (input: string | number | null | undefined) =>
+  input === null || input === undefined || input === '' ? 'Not provided' : String(input);
+
+const hasCv = (user: User) => Boolean(user.cv_file_key || user.cv_url);
+
+const UserDetailModal = ({ user, onClose }: { user: User | null; onClose: () => void }) => {
+  const { isDark } = useTheme();
+  const [cvLoading, setCvLoading] = useState<'view' | 'download' | null>(null);
+
+  if (!user) return null;
+
+  const initials =
+    user.name
+      ?.split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(part => part[0])
+      .join('')
+      .toUpperCase() || 'U';
+
+  const details = [
+    { label: 'Email', value: user.email, icon: FiMail },
+    { label: 'Phone', value: user.phone, icon: FiPhone },
+    { label: 'Faculty', value: user.faculty, icon: FiAward },
+    { label: 'University', value: user.university, icon: FiAward },
+    { label: 'Academic year', value: user.academic_year, icon: FiUsers },
+    { label: 'Major', value: user.major, icon: FiAward },
+  ];
+
+  const handleCv = async (action: 'view' | 'download') => {
+    if (!hasCv(user)) return;
+
+    setCvLoading(action);
+    try {
+      if (action === 'view') {
+        await usersApi.adminViewCv(user.id);
+      } else {
+        await usersApi.adminDownloadCv(user.id, `${user.name.replace(/\s+/g, '_')}_CV.pdf`);
+      }
+    } catch {
+      toast.error(`Failed to ${action} CV. Please try again.`);
+    } finally {
+      setCvLoading(null);
+    }
+  };
+
+  return (
+    <Modal isOpen={!!user} onClose={onClose} size="4xl" darkMode={isDark}>
+      <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-background px-6 py-8">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-5">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary text-2xl font-semibold text-primary-foreground">
+                {initials}
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold text-foreground">{user.name}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">@{user.username}</p>
+              </div>
+            </div>
+            <span className="w-fit rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold text-foreground">
+              {user.role?.name || 'Visitor'}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid gap-6 p-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-border bg-background/70 p-5">
+              <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
+                <FiUser className="h-5 w-5 text-primary" />
+                About
+              </div>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                {user.bio || 'No bio added yet.'}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-background/70 p-5">
+              <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
+                <FiAward className="h-5 w-5 text-primary" />
+                Account details
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {details.map(({ label, value: detailValue, icon: Icon }) => (
+                  <div key={label} className="rounded-xl border border-border bg-background px-3 py-3">
+                    <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                      <Icon className="h-4 w-4 text-primary" />
+                      {label}
+                    </div>
+                    <p className="mt-2 text-sm text-muted-foreground">{value(detailValue)}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-background/70 p-5">
+            <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
+              <FiFileText className="h-5 w-5 text-primary" />
+              CV
+            </div>
+            {hasCv(user) ? (
+              <div className="mt-5 rounded-xl border border-dashed border-border bg-background p-4">
+                <p className="text-sm font-semibold text-foreground">
+                  {user.name.replace(/\s+/g, '_')}_CV.pdf
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">PDF document</p>
+                <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                  <button
+                    type="button"
+                    onClick={() => handleCv('view')}
+                    disabled={cvLoading !== null}
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition disabled:opacity-60"
+                  >
+                    {cvLoading === 'view' ? <FiLoader className="h-4 w-4 animate-spin" /> : <FiEye className="h-4 w-4" />}
+                    View CV
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleCv('download')}
+                    disabled={cvLoading !== null}
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-muted disabled:opacity-60"
+                  >
+                    {cvLoading === 'download' ? <FiLoader className="h-4 w-4 animate-spin" /> : <FiDownload className="h-4 w-4" />}
+                    Download
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-5 rounded-xl border border-dashed border-border bg-background p-6 text-center text-sm text-muted-foreground">
+                No CV uploaded for this user.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+};
+
 export const UsersPage = () => {
   const { isDark } = useTheme();
-
-  /* API hooks */
   const [page, setPage] = useState(1);
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [search, setSearch] = useState('');
   const limit = 10;
-  const { data, isLoading } = useAdminUsers(page, limit);
-  const deleteUserMutation = useDeleteAdminUser();
+  const { data, isLoading } = useUsers({ page, limit });
+  const deleteUserMutation = useDeleteUser();
 
-  const users = useMemo(
-    () => (Array.isArray(data?.data) ? data.data : []),
-    [data]
-  );
+  const users = useMemo(() => (Array.isArray(data?.data) ? data.data : []), [data]);
   const totalPages = data?.meta?.totalPages ?? 1;
 
-  /* Modal state */
-  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
-  const [deleteUserTarget, setDeleteUserTarget] = useState<User | null>(null);
-  const [search, setSearch] = useState('');
-
-  /* Filtered list */
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return users;
-    return users.filter(
-      u =>
-        u.name.toLowerCase().includes(q) ||
-        u.email.toLowerCase().includes(q) ||
-        u.username.toLowerCase().includes(q) ||
-        u.role?.name.toLowerCase().includes(q)
+
+    return users.filter(user =>
+      [user.name, user.username, user.email, user.phone, user.faculty, user.university, user.role?.name]
+        .filter(Boolean)
+        .some(field => field!.toLowerCase().includes(q))
     );
   }, [users, search]);
 
-  /* Handlers */
-  const handleAdd = useCallback(() => {
-    setIsAddUserModalOpen(true);
-  }, []);
-
-  const handleClose = useCallback(() => {
-    setIsAddUserModalOpen(false);
-  }, []);
-
-  const handleDelete = useCallback((user: User) => {
-    setDeleteUserTarget(user);
-  }, []);
-
   const handleConfirmDelete = useCallback(() => {
-    if (!deleteUserTarget) return;
-    deleteUserMutation.mutate(deleteUserTarget.id, {
-      onSuccess: () => setDeleteUserTarget(null),
+    if (!deleteTarget) return;
+
+    deleteUserMutation.mutate(deleteTarget.id, {
+      onSuccess: () => setDeleteTarget(null),
     });
-  }, [deleteUserMutation, deleteUserTarget]);
+  }, [deleteUserMutation, deleteTarget]);
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  /* Table columns */
   const columns = useMemo<ColumnDef<User>[]>(
     () => [
       {
         header: 'User',
-        cell: (item: User) => (
-          <div className="flex items-center gap-3 min-w-0">
-            <div
-              className={`flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-semibold ${
-                isDark ? 'bg-primary/30' : 'bg-primary/20'
-              }`}
-            >
+        cell: item => (
+          <button
+            type="button"
+            onClick={() => setSelectedUser(item)}
+            className="flex min-w-0 items-center gap-3 text-left"
+          >
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
               {item.name.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <p
-                className={`font-semibold text-sm truncate ${
-                  isDark ? 'text-white' : 'text-gray-900'
-                }`}
-              >
+              <p className={`truncate text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 {item.name}
               </p>
-              <p
-                className={`text-xs truncate ${
-                  isDark ? 'text-gray-500' : 'text-gray-400'
-                }`}
-              >
+              <p className={`truncate text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                 @{item.username}
               </p>
             </div>
-          </div>
+          </button>
         ),
       },
       {
         header: 'Role',
-        cell: (item: User) => {
-          const roleColors: Record<string, string> = {
-            'Super Admin': isDark
-              ? 'bg-red-900/30 text-red-300'
-              : 'bg-red-50 text-red-700',
-            Admin: isDark
-              ? 'bg-orange-900/30 text-orange-300'
-              : 'bg-orange-50 text-orange-700',
-            'Faculty Member': isDark
-              ? 'bg-blue-900/30 text-blue-300'
-              : 'bg-blue-50 text-blue-700',
-            Visitor: isDark
-              ? 'bg-gray-800 text-gray-400'
-              : 'bg-gray-50 text-gray-700',
-          };
-          const color =
-            roleColors[item.role?.name || 'Visitor'] ||
-            (isDark ? 'bg-gray-800 text-gray-400' : 'bg-gray-50 text-gray-700');
-          return (
-            <span
-              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${color}`}
-            >
-              {item.role?.name || 'Visitor'}
-            </span>
-          );
-        },
-      },
-      {
-        header: 'Email',
-        cell: (item: User) => (
-          <div className="flex items-center gap-2 min-w-0">
-            <FiMail
-              className={`flex-shrink-0 w-4 h-4 ${
-                isDark ? 'text-gray-500' : 'text-gray-400'
-              }`}
-            />
-            <span
-              className={`text-sm truncate ${
-                isDark ? 'text-gray-300' : 'text-gray-700'
-              }`}
-            >
-              {item.email}
-            </span>
-          </div>
+        cell: item => (
+          <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${isDark ? 'bg-primary/20 text-primary-light' : 'bg-primary/10 text-primary'}`}>
+            {item.role?.name || 'Visitor'}
+          </span>
         ),
       },
       {
         header: 'Contact',
-        cell: (item: User) => (
-          <div className="flex items-center gap-2 min-w-0">
-            {item.phone ? (
-              <>
-                <FiPhone
-                  className={`flex-shrink-0 w-4 h-4 ${
-                    isDark ? 'text-gray-500' : 'text-gray-400'
-                  }`}
-                />
-                <span
-                  className={`text-sm truncate ${
-                    isDark ? 'text-gray-300' : 'text-gray-700'
-                  }`}
-                >
-                  {item.phone}
-                </span>
-              </>
-            ) : (
-              <span
-                className={`text-sm ${isDark ? 'text-gray-600' : 'text-gray-400'}`}
-              >
-                —
-              </span>
-            )}
+        cell: item => (
+          <div className="min-w-0 space-y-1">
+            <p className={`truncate text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{item.email}</p>
+            <p className={`truncate text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{value(item.phone)}</p>
           </div>
         ),
       },
       {
         header: 'Academic Info',
-        cell: (item: User) => (
-          <div className="flex items-center gap-2 min-w-0">
-            {item.academic_year ? (
-              <>
-                <FiAward
-                  className={`flex-shrink-0 w-4 h-4 ${
-                    isDark ? 'text-gray-500' : 'text-gray-400'
-                  }`}
-                />
-                <span
-                  className={`text-sm truncate ${
-                    isDark ? 'text-gray-300' : 'text-gray-700'
-                  }`}
-                >
-                  Year {item.academic_year}
-                </span>
-              </>
-            ) : (
-              <span
-                className={`text-sm ${isDark ? 'text-gray-600' : 'text-gray-400'}`}
-              >
-                —
-              </span>
-            )}
+        cell: item => (
+          <div className="min-w-0 space-y-1">
+            <p className={`truncate text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{value(item.university)}</p>
+            <p className={`truncate text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+              {value(item.faculty)}{item.academic_year ? ` · Year ${item.academic_year}` : ''}
+            </p>
           </div>
+        ),
+      },
+      {
+        header: 'CV',
+        cell: item => (
+          <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${hasCv(item) ? (isDark ? 'bg-green-950/40 text-green-300' : 'bg-green-50 text-green-700') : (isDark ? 'bg-amber-950/40 text-amber-300' : 'bg-amber-50 text-amber-700')}`}>
+            {hasCv(item) ? 'Uploaded' : 'No CV'}
+          </span>
         ),
       },
       {
         header: 'Actions',
         className: 'text-right',
-        cell: (item: User) => (
+        cell: item => (
           <div className="flex items-center justify-end gap-1">
             <button
-              onClick={() => handleDelete(item)}
-              className={`group p-2 rounded-lg transition-all duration-200 ${
-                isDark
-                  ? 'text-gray-500 hover:text-red-400 hover:bg-red-400/10'
-                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
-              }`}
+              type="button"
+              onClick={() => setSelectedUser(item)}
+              className={`group rounded-lg p-2 transition-all duration-200 ${isDark ? 'text-gray-500 hover:bg-primary/10 hover:text-primary' : 'text-gray-400 hover:bg-primary/5 hover:text-primary'}`}
+              title="View user details"
+            >
+              <FiEye className="h-4 w-4 transition-transform group-hover:scale-110" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setDeleteTarget(item)}
+              className={`group rounded-lg p-2 transition-all duration-200 ${isDark ? 'text-gray-500 hover:bg-red-400/10 hover:text-red-400' : 'text-gray-400 hover:bg-red-50 hover:text-red-500'}`}
               title="Delete user"
             >
-              <FiTrash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+              <FiTrash2 className="h-4 w-4 transition-transform group-hover:scale-110" />
             </button>
           </div>
         ),
@@ -254,31 +298,25 @@ export const UsersPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* ── Page header ─────────────────────────────────────── */}
       <SectionHeader
-        icon={<FiUsers className="w-5 h-5 text-primary" />}
+        icon={<FiUsers className="h-5 w-5 text-primary" />}
         title="User Management"
-        subtitle="View and manage all users"
+        subtitle="View and manage student branch users and their CVs"
         isDark={isDark}
-        action={<AddButton label="Add User" onClick={handleAdd} />}
+        action={<AddButton label="Add User" onClick={() => setIsAddUserModalOpen(true)} />}
       />
 
-      {/* ── Search bar ──────────────────────────────────────── */}
       <SearchBar
         value={search}
         onChange={setSearch}
-        placeholder="Search by name, email, username, or role…"
+        placeholder="Search by name, email, username, phone, university, or role..."
         isDark={isDark}
       />
 
-      {/* ── Content ─────────────────────────────────────────── */}
       {isLoading ? (
-        <LoadingBlock isDark={isDark} text="Loading users…" />
+        <LoadingBlock isDark={isDark} text="Loading users..." />
       ) : filtered.length === 0 ? (
-        <EmptyBlock
-          isDark={isDark}
-          message={search ? 'No matching users' : 'No users yet'}
-        />
+        <EmptyBlock isDark={isDark} message={search ? 'No matching users found.' : 'No users yet.'} />
       ) : (
         <>
           <ResponsiveDataList
@@ -290,36 +328,27 @@ export const UsersPage = () => {
                 isDark={isDark}
                 title={user.name}
                 subtitle={`@${user.username} · ${user.role?.name || 'Visitor'}`}
-                badge={user.role?.name || 'Visitor'}
+                badge={hasCv(user) ? 'CV uploaded' : 'No CV'}
                 description={`${user.email}${user.phone ? ` · ${user.phone}` : ''}`}
                 avatar={
-                  <div
-                    className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-semibold ${
-                      isDark ? 'bg-primary/30' : 'bg-primary/20'
-                    }`}
-                  >
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                 }
-                onDelete={() => handleDelete(user)}
+                onView={() => setSelectedUser(user)}
+                onDelete={() => setDeleteTarget(user)}
               />
             )}
           />
 
-          {/* Result count */}
           {search && (
-            <p
-              className={`text-xs text-center ${
-                isDark ? 'text-gray-600' : 'text-gray-400'
-              }`}
-            >
+            <p className={`text-center text-xs ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
               Showing {filtered.length} of {users.length} users
             </p>
           )}
         </>
       )}
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center">
           <Pagination
@@ -331,27 +360,24 @@ export const UsersPage = () => {
         </div>
       )}
 
-      {/* Add new user Modal */}
-
       {isAddUserModalOpen && (
         <AddUserModal
-          onClose={handleClose}
           isOpen={isAddUserModalOpen}
-          onCreateUser={() => {
-            setIsAddUserModalOpen(false);
-          }}
+          onClose={() => setIsAddUserModalOpen(false)}
+          onCreateUser={() => setIsAddUserModalOpen(false)}
         />
       )}
 
-      {/* Delete Confirmation Modal */}
+      <UserDetailModal user={selectedUser} onClose={() => setSelectedUser(null)} />
+
       <ConfirmDeleteModal
-        isOpen={!!deleteUserTarget}
-        itemName={deleteUserTarget?.name ?? ''}
+        isOpen={!!deleteTarget}
+        itemName={deleteTarget?.name ?? ''}
         entityLabel="user"
         isDark={isDark}
         isPending={deleteUserMutation.isPending}
         onConfirm={handleConfirmDelete}
-        onClose={() => setDeleteUserTarget(null)}
+        onClose={() => setDeleteTarget(null)}
       />
     </div>
   );

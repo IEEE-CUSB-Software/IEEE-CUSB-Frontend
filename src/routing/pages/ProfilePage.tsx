@@ -4,11 +4,15 @@ import {
   AlertCircle,
   BadgeCheck,
   Building2,
+  Download,
+  FileText,
   GraduationCap,
   Loader2,
   Mail,
   Pencil,
   Phone,
+  Trash2,
+  Upload,
   UserCircle2,
   Users,
   X,
@@ -20,6 +24,8 @@ import {
 import { motion } from 'framer-motion';
 import { HiArrowLeft } from 'react-icons/hi2';
 import { useGetMyApplications } from '@/shared/queries/recruitment/recruitment.queries';
+import { usersApi, useDeleteCv, useUploadCv } from '@/shared/queries/users/users.queries';
+import toast from 'react-hot-toast';
 
 const formatValue = (value: string | number | boolean | null | undefined) => {
   if (value === null || value === undefined || value === '')
@@ -32,9 +38,12 @@ export const ProfilePage = () => {
   const navigate = useNavigate();
   const { data: user, isLoading, error } = useCurrentUser();
   const updateUserMutation = useUpdateUser();
+  const uploadCvMutation = useUploadCv();
+  const deleteCvMutation = useDeleteCv();
   const { data: myApplications, isLoading: isLoadingApplications } =
     useGetMyApplications();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [cvLoading, setCvLoading] = useState<'view' | 'download' | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     bio: '',
@@ -82,6 +91,33 @@ export const ProfilePage = () => {
       },
     });
     setIsEditModalOpen(false);
+  };
+
+  const hasCv = Boolean(user?.cv_file_key || user?.cv_url);
+
+  const handleCvDownload = async (action: 'view' | 'download') => {
+    if (!user || !hasCv) return;
+
+    setCvLoading(action);
+    try {
+      if (action === 'view') {
+        await usersApi.viewMyCv();
+      } else {
+        await usersApi.downloadMyCv(`${user.name.replace(/\s+/g, '_')}_CV.pdf`);
+      }
+    } catch {
+      toast.error(`Failed to ${action} CV. Please try again.`);
+    } finally {
+      setCvLoading(null);
+    }
+  };
+
+  const handleCvUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    uploadCvMutation.mutate(file);
   };
 
   if (isLoading) {
@@ -237,7 +273,44 @@ export const ProfilePage = () => {
             </div>
 
             <div className="rounded-2xl border border-border bg-background/70 p-5">
-              <h2 className="text-lg font-semibold text-foreground">
+              <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
+                <FileText className="h-5 w-5 text-primary" />
+                CV
+              </div>
+              {hasCv ? (
+                <div className="mt-5 rounded-xl border border-dashed border-border bg-background p-4">
+                  <p className="text-sm font-semibold text-foreground">
+                    {user.name.replace(/\s+/g, '_')}_CV.pdf
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">PDF document</p>
+                  <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                    <button
+                      type="button"
+                      onClick={() => handleCvDownload('view')}
+                      disabled={cvLoading !== null}
+                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition disabled:opacity-70"
+                    >
+                      {cvLoading === 'view' ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+                      View CV
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleCvDownload('download')}
+                      disabled={cvLoading !== null}
+                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-muted disabled:opacity-70"
+                    >
+                      {cvLoading === 'download' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                      Download
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-5 rounded-xl border border-dashed border-border bg-background p-6 text-center text-sm text-muted-foreground">
+                  No CV uploaded yet.
+                </div>
+              )}
+
+              <h2 className="mt-6 text-lg font-semibold text-foreground">
                 My Applications
               </h2>
               <dl className="mt-5 space-y-4">
@@ -253,7 +326,7 @@ export const ProfilePage = () => {
                     <div className="mt-2 text-sm text-muted-foreground">
                       {myApplications?.length ? (
                         myApplications.map(application => (
-                          <div key={application.id}>{application.position}</div>
+                          <div key={application.id}>{application.vacancy_id}</div>
                         ))
                       ) : (
                         <div>No applications found.</div>
@@ -369,6 +442,44 @@ export const ProfilePage = () => {
                   className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none ring-0"
                 />
               </label>
+
+              <div className="rounded-2xl border border-border bg-background/70 p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                      <FileText className="h-4 w-4 text-primary" />
+                      CV
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {hasCv ? `${user.name.replace(/\s+/g, '_')}_CV.pdf` : 'Upload your CV as a PDF.'}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition disabled:opacity-70">
+                      {uploadCvMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                      {hasCv ? 'Replace CV' : 'Upload CV'}
+                      <input
+                        type="file"
+                        accept="application/pdf,.pdf"
+                        onChange={handleCvUpload}
+                        disabled={uploadCvMutation.isPending}
+                        className="sr-only"
+                      />
+                    </label>
+                    {hasCv && (
+                      <button
+                        type="button"
+                        onClick={() => deleteCvMutation.mutate()}
+                        disabled={deleteCvMutation.isPending}
+                        className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-70"
+                      >
+                        {deleteCvMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                        Delete CV
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
 
               <div className="flex justify-end gap-3 pt-2">
                 <button

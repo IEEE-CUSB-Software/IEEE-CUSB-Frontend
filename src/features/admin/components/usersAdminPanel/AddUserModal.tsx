@@ -1,14 +1,12 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema } from '@/features/auth/schemas';
-import { useRegister } from '@/shared/queries/auth';
 import { Button, InputField, Modal, Select } from '@ieee-ui/ui';
 import UniversityList from '@/constants/universityList';
 import FacultyList from '@/constants/facultyList';
 import DepartmentList from '@/constants/departmentList';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { useCreateUser } from '@/shared/queries/admin/index';
-import { toast } from 'react-hot-toast';
 
 const AddUserModal = ({
   isOpen,
