@@ -36,6 +36,8 @@ export const API_ENDPOINTS = {
     DELETE_CV: '/users/me/cv',
     // Admin CV endpoints
     ADMIN_DOWNLOAD_CV: (userId: string) => `/admin/users/${userId}/cv/download`,
+    // Admin Role endpoint
+    ADMIN_UPDATE_USER_ROLE: (id: string) => `/admin/users/${id}/role`,
   },
 
   // Roles endpoints

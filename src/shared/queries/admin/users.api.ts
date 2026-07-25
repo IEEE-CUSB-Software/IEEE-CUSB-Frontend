@@ -48,4 +48,15 @@ export const adminUsersApi = {
     );
     return response.data.data;
   },
+
+  /**
+   * Update user role (Super Admin only)
+   */
+  updateUserRole: async (id: string, roleId: string): Promise<User> => {
+    const response = await apiClient.patch<ApiResponse<User>>(
+      API_ENDPOINTS.USERS.ADMIN_UPDATE_USER_ROLE(id),
+      { roleId }
+    );
+    return response.data.data;
+  },
 };

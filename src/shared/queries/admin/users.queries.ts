@@ -48,6 +48,27 @@ export const useDeleteAdminUser = () => {
 };
 
 /**
+ * Hook to update user role
+ */
+export const useUpdateUserRole = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, roleId }: { id: string; roleId: string }) =>
+      adminUsersApi.updateUserRole(id, roleId),
+    onSuccess: () => {
+      toast.success('User role updated successfully');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS.ALL] });
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message || 'Failed to update user role';
+      toast.error(errorMessage);
+    },
+  });
+};
+
+/**
  * Hook to create a user
  */
 export const useCreateUser = () => {

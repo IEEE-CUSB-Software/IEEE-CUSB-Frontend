@@ -170,7 +170,7 @@ const AddUserModal = ({
             <Select
               id="university"
               {...registerField('university')}
-              options={UniversityList.map(u => ({ value: u, label: u }))}
+              options={UniversityList.map((u) => ({ value: u, label: u }))}
               error={errors.university?.message}
               disabled={isPending}
               darkMode={isDark}
@@ -189,7 +189,7 @@ const AddUserModal = ({
             <Select
               id="faculty"
               {...registerField('faculty')}
-              options={FacultyList.map(f => ({ value: f, label: f }))}
+              options={FacultyList.map((f) => ({ value: f, label: f }))}
               error={errors.faculty?.message}
               disabled={isPending}
               darkMode={isDark}
@@ -232,7 +232,7 @@ const AddUserModal = ({
             <Select
               id="major"
               {...registerField('major')}
-              options={DepartmentList.map(d => ({ value: d, label: d }))}
+              options={DepartmentList.map((d) => ({ value: d, label: d }))}
               error={errors.major?.message}
               disabled={isPending}
               darkMode={isDark}
