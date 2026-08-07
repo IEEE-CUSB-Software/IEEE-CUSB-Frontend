@@ -86,7 +86,7 @@ export const CommitteeDetailModal = ({
                   The {committee.name} committee is part of the{' '}
                   {committee.category?.name || 'Section'} section. Our team works together to
                   push boundaries, share knowledge, and grow as professionals in
-                  the field of {committee.name.toLowerCase()}.
+                  the field of {committee?.name?.toLowerCase() || ''}.
                 </p>
               </div>
               <div className="hidden sm:flex shrink-0 w-32 h-32 rounded-2xl bg-primary/5 items-center justify-center">

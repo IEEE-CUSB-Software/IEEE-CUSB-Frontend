@@ -30,7 +30,12 @@ const transformWorkshop = (workshop: Workshop) => ({
   remainingSpots: workshop.remainingSpots ?? workshop.capacity,
   is_full: workshop.is_full ?? false,
   about: workshop.description,
-  content: workshop.content,
+  content: typeof workshop.content === 'string' 
+    ? (() => {
+        try { return JSON.parse(workshop.content); } 
+        catch { return workshop.content; }
+      })() 
+    : workshop.content,
   learningPoints: (workshop as any).learningPoints || [],
   prerequisites: (workshop as any).prerequisites || [],
   instructors: workshop.instructors?.map(inst => ({

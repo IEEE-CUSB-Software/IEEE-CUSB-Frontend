@@ -25,6 +25,13 @@ export const boardApi = {
     return response.data.data;
   },
 
+  getOfficers: async (): Promise<{ board: BoardMember[]; leaders: any[] }> => {
+    const response = await apiClient.get<{ data: { board: BoardMember[]; leaders: any[] } }>(
+      API_ENDPOINTS.BOARD.GET_OFFICERS
+    );
+    return response.data.data;
+  },
+
   createBoardMember: async (
     data: CreateBoardMember
   ): Promise<BoardMember> => {

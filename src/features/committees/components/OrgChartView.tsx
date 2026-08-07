@@ -74,41 +74,47 @@ export const OrgChartView = ({
     const pr = safeBoardMember(4, 'PR & FR');
     const oc = safeBoardMember(5, 'OC');
 
+    const hasBoardMembers = boardMembers && boardMembers.length > 0;
+
     return (
         <div className="max-w-6xl mx-auto px-6 py-16">
-            {/* ═══════════════ Level 1: Chair & Vice Chair ═══════════════ */}
-            <motion.div className="flex justify-center" {...inView(0)}>
-                <OrgNode
-                    label="Chair & Vice Chair"
-                    subtitle={`${chair.subtitle} & ${viceChair.subtitle}`}
-                    avatar={chair.avatar}
-                    highlighted
-                    size="lg"
-                />
-            </motion.div>
+            {hasBoardMembers && (
+                <>
+                    {/* ═══════════════ Level 1: Chair & Vice Chair ═══════════════ */}
+                    <motion.div className="flex justify-center" {...inView(0)}>
+                        <OrgNode
+                            label="Chair & Vice Chair"
+                            subtitle={`${chair.subtitle} & ${viceChair.subtitle}`}
+                            avatar={chair.avatar}
+                            highlighted
+                            size="lg"
+                        />
+                    </motion.div>
 
-            {/* ↓ connector */}
-            <Connector />
+                    {/* ↓ connector */}
+                    <Connector />
 
-            {/* ═══════════════ Level 2: Secretary & Treasurer ═══════════════ */}
-            <TwoNodeRow
-                left={{ label: 'Secretary', subtitle: secretary.subtitle, avatar: secretary.avatar }}
-                right={{ label: 'Treasurer', subtitle: treasurer.subtitle, avatar: treasurer.avatar }}
-                delay={0.15}
-            />
+                    {/* ═══════════════ Level 2: Secretary & Treasurer ═══════════════ */}
+                    <TwoNodeRow
+                        left={{ label: 'Secretary', subtitle: secretary.subtitle, avatar: secretary.avatar }}
+                        right={{ label: 'Treasurer', subtitle: treasurer.subtitle, avatar: treasurer.avatar }}
+                        delay={0.15}
+                    />
 
-            {/* ↓ connector */}
-            <Connector />
+                    {/* ↓ connector */}
+                    <Connector />
 
-            {/* ═══════════════ Level 3: PR&FR and OC ═══════════════ */}
-            <TwoNodeRow
-                left={{ label: 'PR & FR', subtitle: pr.subtitle, avatar: pr.avatar }}
-                right={{ label: 'OC', subtitle: oc.subtitle, avatar: oc.avatar }}
-                delay={0.15}
-            />
+                    {/* ═══════════════ Level 3: PR&FR and OC ═══════════════ */}
+                    <TwoNodeRow
+                        left={{ label: 'PR & FR', subtitle: pr.subtitle, avatar: pr.avatar }}
+                        right={{ label: 'OC', subtitle: oc.subtitle, avatar: oc.avatar }}
+                        delay={0.15}
+                    />
 
-            {/* ↓ connector */}
-            <Connector height="h-12" />
+                    {/* ↓ connector */}
+                    <Connector height="h-12" />
+                </>
+            )}
 
             {/* ═══════════════ Level 4: Section Buttons ═══════════════ */}
             <div className="relative">

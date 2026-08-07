@@ -106,6 +106,7 @@ export const API_ENDPOINTS = {
   // Board endpoints
   BOARD: {
     GET_ALL: '/board',
+    GET_OFFICERS: '/board/officers',
     CREATE: '/admin/board',
     UPDATE: (id: string) => `/admin/board/${id}`,
     DELETE: (id: string) => `/admin/board/${id}`,

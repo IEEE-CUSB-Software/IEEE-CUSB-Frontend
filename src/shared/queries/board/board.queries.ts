@@ -17,6 +17,14 @@ export const useBoard = (params?: PaginationParams) => {
   });
 };
 
+export const useOfficers = () => {
+  return useQuery({
+    queryKey: [...QUERY_KEYS.BOARD.ALL, 'officers'],
+    queryFn: () => boardApi.getOfficers(),
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
 export const useCreateBoardMember = () => {
   const queryClient = useQueryClient();
   return useMutation({
