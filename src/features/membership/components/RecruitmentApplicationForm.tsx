@@ -46,8 +46,9 @@ export const RecruitmentApplicationForm = () => {
     user?.role?.name === RoleName.ADMIN ||
     user?.role?.name === RoleName.SUPER_ADMIN;
 
-  const { data: vacancies = [], isLoading: isLoadingVacancies } =
+  const { data: vacanciesData, isLoading: isLoadingVacancies } =
     useGetVacancies();
+  const vacancies = vacanciesData?.vacancies || [];
   const { data: myApplications = [], isLoading: isLoadingMyApps } =
     useGetMyApplications();
   const applyMutation = useApplyToVacancy();

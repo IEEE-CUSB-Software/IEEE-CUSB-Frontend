@@ -5,14 +5,8 @@ import { FiEdit2, FiTrash2, FiUsers, FiGrid } from 'react-icons/fi';
 import { type ColumnDef } from '@ieee-ui/ui';
 import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
 import { AdminMobileCard } from '@/shared/components/AdminMobileCard';
-import {
-  SectionHeader,
-  AddButton,
-  ResponsiveDataList,
-  SearchBar,
-  LoadingBlock,
-  EmptyBlock,
-} from '@/features/admin/components/shared/AdminPageComponents';
+import { AdminDataTable } from '@/features/admin/components/shared/AdminDataTable';
+import { useDebounce } from '@/shared/hooks/useDebounce';
 
 // ── Queries ─────────────────────────────────────────────────
 import {
@@ -180,7 +174,10 @@ const HomeView = ({
 
 /* ── Board Section ───────────────────────────────────────── */
 const BoardSection = ({ isDark }: { isDark: boolean }) => {
-  const { data: board, isLoading } = useBoard();
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+
+  const { data: board, isLoading } = useBoard({ search: debouncedSearch });
   const createMutation = useCreateBoardMember();
   const updateMutation = useUpdateBoardMember();
   const deleteMutation = useDeleteBoardMember();
@@ -188,19 +185,8 @@ const BoardSection = ({ isDark }: { isDark: boolean }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<BoardMember | undefined>();
   const [deleteTarget, setDeleteTarget] = useState<BoardMember | null>(null);
-  const [search, setSearch] = useState('');
 
-  const members = useMemo(() => board ?? [], [board]);
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return members;
-    return members.filter(
-      m =>
-        m.name.toLowerCase().includes(q) ||
-        m.role.toLowerCase().includes(q) ||
-        m.email.toLowerCase().includes(q)
-    );
-  }, [members, search]);
+  const members = useMemo(() => board?.members ?? [], [board]);
 
   const handleSave = useCallback(
     (data: CreateBoardMember | UpdateBoardMember, id?: string) => {
@@ -299,48 +285,41 @@ const BoardSection = ({ isDark }: { isDark: boolean }) => {
 
   return (
     <div className="space-y-5">
-      <SectionHeader
-        icon={<FiUsers className="w-5 h-5 text-primary" />}
+      <AdminDataTable
         title="High Board"
         subtitle="Manage executive board members"
+        icon={<FiUsers className="w-5 h-5 text-primary" />}
+        addLabel="Add Member"
+        onAdd={() => { setEditTarget(undefined); setModalOpen(true); }}
+        data={members}
+        columns={columns}
+        isLoading={isLoading}
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search board members…"
+        emptyMessage="No board members yet"
         isDark={isDark}
-        action={
-          <AddButton label="Add Member" onClick={() => { setEditTarget(undefined); setModalOpen(true); }} />
-        }
+        renderMobileCard={item => (
+          <AdminMobileCard
+            isDark={isDark}
+            title={item.name}
+            subtitle={item.email}
+            badge={`#${item.display_order}`}
+            description={item.role}
+            avatar={
+              item.image_url ? (
+                <img src={item.image_url} alt={item.name} className="flex-shrink-0 w-10 h-10 rounded-full object-cover" />
+              ) : (
+                <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${isDark ? 'bg-primary/20 text-primary' : 'bg-primary/10 text-primary'}`}>
+                  {item.name.charAt(0)}
+                </div>
+              )
+            }
+            onEdit={() => { setEditTarget(item); setModalOpen(true); }}
+            onDelete={() => setDeleteTarget(item)}
+          />
+        )}
       />
-      <SearchBar value={search} onChange={setSearch} placeholder="Search board members…" isDark={isDark} />
-
-      {isLoading ? (
-        <LoadingBlock isDark={isDark} text="Loading board…" />
-      ) : filtered.length === 0 ? (
-        <EmptyBlock isDark={isDark} message={search ? 'No matching board members' : 'No board members yet'} onAdd={!search ? () => { setEditTarget(undefined); setModalOpen(true); } : undefined} addLabel="Add Board Member" />
-      ) : (
-        <ResponsiveDataList
-          data={filtered}
-          columns={columns}
-          isDark={isDark}
-          renderMobileCard={item => (
-            <AdminMobileCard
-              isDark={isDark}
-              title={item.name}
-              subtitle={item.email}
-              badge={`#${item.display_order}`}
-              description={item.role}
-              avatar={
-                item.image_url ? (
-                  <img src={item.image_url} alt={item.name} className="flex-shrink-0 w-10 h-10 rounded-full object-cover" />
-                ) : (
-                  <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${isDark ? 'bg-primary/20 text-primary' : 'bg-primary/10 text-primary'}`}>
-                    {item.name.charAt(0)}
-                  </div>
-                )
-              }
-              onEdit={() => { setEditTarget(item); setModalOpen(true); }}
-              onDelete={() => setDeleteTarget(item)}
-            />
-          )}
-        />
-      )}
 
       {modalOpen && (
         <AddEditBoardMemberModal
@@ -374,7 +353,10 @@ const CategoriesSection = ({
   isDark: boolean;
   onNavigate: (v: View) => void;
 }) => {
-  const { data: cats, isLoading } = useCategories();
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+
+  const { data: cats, isLoading } = useCategories({ search: debouncedSearch });
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
   const deleteMutation = useDeleteCategory();
@@ -382,18 +364,8 @@ const CategoriesSection = ({
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<CommitteeCategory | undefined>();
   const [deleteTarget, setDeleteTarget] = useState<CommitteeCategory | null>(null);
-  const [search, setSearch] = useState('');
 
-  const categories = useMemo(() => cats ?? [], [cats]);
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return categories;
-    return categories.filter(
-      c =>
-        c.name.toLowerCase().includes(q) ||
-        c.description.toLowerCase().includes(q)
-    );
-  }, [categories, search]);
+  const categories = useMemo(() => cats?.categories ?? [], [cats]);
 
   const handleSave = useCallback(
     (data: CreateCategory | UpdateCategory, id?: string) => {
@@ -489,51 +461,44 @@ const CategoriesSection = ({
 
   return (
     <div className="space-y-5">
-      <SectionHeader
-        icon={<FiGrid className="w-5 h-5 text-primary" />}
+      <AdminDataTable
         title="Categories"
         subtitle="Manage available committee categories"
+        icon={<FiGrid className="w-5 h-5 text-primary" />}
+        addLabel="Add Category"
+        onAdd={() => { setEditTarget(undefined); setModalOpen(true); }}
+        data={categories}
+        columns={columns}
+        isLoading={isLoading}
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search categories…"
+        emptyMessage="No categories yet"
         isDark={isDark}
-        action={
-          <AddButton label="Add Category" onClick={() => { setEditTarget(undefined); setModalOpen(true); }} />
-        }
+        renderMobileCard={cat => (
+          <AdminMobileCard
+            isDark={isDark}
+            title={cat.name}
+            description={cat.description}
+            onClick={() => onNavigate({ kind: 'committees', category: cat })}
+            avatar={
+              <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold ${isDark ? 'bg-purple-900/30 text-purple-400' : 'bg-purple-50 text-purple-600'}`}>
+                {cat.name.charAt(0)}
+              </div>
+            }
+            onEdit={() => { setEditTarget(cat); setModalOpen(true); }}
+            onDelete={() => setDeleteTarget(cat)}
+            extraActions={[
+              {
+                icon: <FiUsers className="w-3.5 h-3.5" />,
+                label: 'Committees',
+                onClick: () => onNavigate({ kind: 'committees', category: cat }),
+                color: 'info',
+              },
+            ]}
+          />
+        )}
       />
-      <SearchBar value={search} onChange={setSearch} placeholder="Search categories…" isDark={isDark} />
-
-      {isLoading ? (
-        <LoadingBlock isDark={isDark} text="Loading categories…" />
-      ) : filtered.length === 0 ? (
-        <EmptyBlock isDark={isDark} message={search ? 'No matching categories' : 'No categories yet'} onAdd={!search ? () => { setEditTarget(undefined); setModalOpen(true); } : undefined} addLabel="Add Category" />
-      ) : (
-        <ResponsiveDataList
-          data={filtered}
-          columns={columns}
-          isDark={isDark}
-          renderMobileCard={cat => (
-            <AdminMobileCard
-              isDark={isDark}
-              title={cat.name}
-              description={cat.description}
-              onClick={() => onNavigate({ kind: 'committees', category: cat })}
-              avatar={
-                <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold ${isDark ? 'bg-purple-900/30 text-purple-400' : 'bg-purple-50 text-purple-600'}`}>
-                  {cat.name.charAt(0)}
-                </div>
-              }
-              onEdit={() => { setEditTarget(cat); setModalOpen(true); }}
-              onDelete={() => setDeleteTarget(cat)}
-              extraActions={[
-                {
-                  icon: <FiUsers className="w-3.5 h-3.5" />,
-                  label: 'Committees',
-                  onClick: () => onNavigate({ kind: 'committees', category: cat }),
-                  color: 'info',
-                },
-              ]}
-            />
-          )}
-        />
-      )}
 
       {modalOpen && (
         <AddEditCategoryModal
@@ -571,8 +536,11 @@ const CommitteesView = ({
   category: CommitteeCategory;
   onNavigate: (v: View) => void;
 }) => {
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+
   const { data: allCategories } = useCategories();
-  const { data: comms, isLoading } = useCommitteesByCategory(category.id);
+  const { data: comms, isLoading } = useCommitteesByCategory(category.id, { search: debouncedSearch });
   const createMutation = useCreateCommittee();
   const updateMutation = useUpdateCommittee();
   const deleteMutation = useDeleteCommittee();
@@ -580,16 +548,8 @@ const CommitteesView = ({
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Committee | undefined>();
   const [deleteTarget, setDeleteTarget] = useState<Committee | null>(null);
-  const [search, setSearch] = useState('');
 
-  const committees = useMemo(() => comms ?? [], [comms]);
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return committees;
-    return committees.filter(
-      c => c.name.toLowerCase().includes(q) || c.about.toLowerCase().includes(q)
-    );
-  }, [committees, search]);
+  const committees = useMemo(() => comms?.committees ?? [], [comms]);
 
   const handleSave = useCallback(
     (data: CreateCommittee | UpdateCommittee, id?: string) => {
@@ -685,56 +645,49 @@ const CommitteesView = ({
 
   return (
     <div className="space-y-5">
-      <SectionHeader
-        icon={<FiGrid className="w-5 h-5 text-primary" />}
+      <AdminDataTable
         title="Committees"
         subtitle={`Manage committees in ${category.name}`}
+        icon={<FiGrid className="w-5 h-5 text-primary" />}
+        addLabel="Add Committee"
+        onAdd={() => { setEditTarget(undefined); setModalOpen(true); }}
+        data={committees}
+        columns={columns}
+        isLoading={isLoading}
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search committees…"
+        emptyMessage="No committees yet"
         isDark={isDark}
-        action={
-          <AddButton label="Add Committee" onClick={() => { setEditTarget(undefined); setModalOpen(true); }} />
-        }
+        renderMobileCard={item => (
+          <AdminMobileCard
+            isDark={isDark}
+            title={item.name}
+            description={item.about}
+            onClick={() => onNavigate({ kind: 'members', category, committee: item })}
+            avatar={
+              <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold ${isDark ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-50 text-blue-600'}`}>
+                {item.name.charAt(0)}
+              </div>
+            }
+            onEdit={() => { setEditTarget(item); setModalOpen(true); }}
+            onDelete={() => setDeleteTarget(item)}
+            extraActions={[
+              {
+                icon: <FiUsers className="w-3.5 h-3.5" />,
+                label: 'Members',
+                onClick: () => onNavigate({ kind: 'members', category, committee: item }),
+                color: 'info',
+              },
+            ]}
+          />
+        )}
       />
-      <SearchBar value={search} onChange={setSearch} placeholder="Search committees…" isDark={isDark} />
-
-      {isLoading ? (
-        <LoadingBlock isDark={isDark} text="Loading committees…" />
-      ) : filtered.length === 0 ? (
-        <EmptyBlock isDark={isDark} message={search ? 'No matching committees' : 'No committees yet'} onAdd={!search ? () => { setEditTarget(undefined); setModalOpen(true); } : undefined} addLabel="Add Committee" />
-      ) : (
-        <ResponsiveDataList
-          data={filtered}
-          columns={columns}
-          isDark={isDark}
-          renderMobileCard={item => (
-            <AdminMobileCard
-              isDark={isDark}
-              title={item.name}
-              description={item.about}
-              onClick={() => onNavigate({ kind: 'members', category, committee: item })}
-              avatar={
-                <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold ${isDark ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-50 text-blue-600'}`}>
-                  {item.name.charAt(0)}
-                </div>
-              }
-              onEdit={() => { setEditTarget(item); setModalOpen(true); }}
-              onDelete={() => setDeleteTarget(item)}
-              extraActions={[
-                {
-                  icon: <FiUsers className="w-3.5 h-3.5" />,
-                  label: 'Members',
-                  onClick: () => onNavigate({ kind: 'members', category, committee: item }),
-                  color: 'info',
-                },
-              ]}
-            />
-          )}
-        />
-      )}
 
       {modalOpen && (
         <AddEditCommitteeModal
           committee={editTarget}
-          categories={allCategories ?? []}
+          categories={allCategories?.categories ?? []}
           defaultCategoryId={category.id}
           isOpen={modalOpen}
           onClose={() => { setModalOpen(false); setEditTarget(undefined); }}
@@ -767,7 +720,10 @@ const MembersView = ({
   isDark: boolean;
   committee: Committee;
 }) => {
-  const { data: mems, isLoading } = useCommitteeMembers(committee.id);
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+
+  const { data: mems, isLoading } = useCommitteeMembers(committee.id, { search: debouncedSearch });
   const createMutation = useCreateCommitteeMember();
   const updateMutation = useUpdateCommitteeMember();
   const deleteMutation = useDeleteCommitteeMember();
@@ -775,19 +731,8 @@ const MembersView = ({
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<CommitteeMember | undefined>();
   const [deleteTarget, setDeleteTarget] = useState<CommitteeMember | null>(null);
-  const [search, setSearch] = useState('');
 
-  const members = useMemo(() => mems ?? [], [mems]);
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return members;
-    return members.filter(
-      m =>
-        m.name.toLowerCase().includes(q) ||
-        m.email.toLowerCase().includes(q) ||
-        m.role.toLowerCase().includes(q)
-    );
-  }, [members, search]);
+  const members = useMemo(() => mems?.members ?? [], [mems]);
 
   const handleSave = useCallback(
     (data: AddCommitteeMember | UpdateCommitteeMember, id?: string) => {
@@ -870,47 +815,40 @@ const MembersView = ({
 
   return (
     <div className="space-y-5">
-      <SectionHeader
-        icon={<FiUsers className="w-5 h-5 text-primary" />}
+      <AdminDataTable
         title="Members"
         subtitle={`Manage members of ${committee.name}`}
+        icon={<FiUsers className="w-5 h-5 text-primary" />}
+        addLabel="Add Member"
+        onAdd={() => { setEditTarget(undefined); setModalOpen(true); }}
+        data={members}
+        columns={columns}
+        isLoading={isLoading}
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search members…"
+        emptyMessage="No members yet"
         isDark={isDark}
-        action={
-          <AddButton label="Add Member" onClick={() => { setEditTarget(undefined); setModalOpen(true); }} />
-        }
+        renderMobileCard={item => (
+          <AdminMobileCard
+            isDark={isDark}
+            title={item.name}
+            subtitle={item.email}
+            badge={MEMBER_ROLE_LABELS[item.role] ?? item.role}
+            avatar={
+              item.image_url ? (
+                <img src={item.image_url} alt={item.name} className="flex-shrink-0 w-10 h-10 rounded-full object-cover" />
+              ) : (
+                <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${isDark ? 'bg-green-900/30 text-green-400' : 'bg-green-50 text-green-600'}`}>
+                  {item.name.charAt(0)}
+                </div>
+              )
+            }
+            onEdit={() => { setEditTarget(item); setModalOpen(true); }}
+            onDelete={() => setDeleteTarget(item)}
+          />
+        )}
       />
-      <SearchBar value={search} onChange={setSearch} placeholder="Search members…" isDark={isDark} />
-
-      {isLoading ? (
-        <LoadingBlock isDark={isDark} text="Loading members…" />
-      ) : filtered.length === 0 ? (
-        <EmptyBlock isDark={isDark} message={search ? 'No matching members' : 'No members yet'} onAdd={!search ? () => { setEditTarget(undefined); setModalOpen(true); } : undefined} addLabel="Add Member" />
-      ) : (
-        <ResponsiveDataList
-          data={filtered}
-          columns={columns}
-          isDark={isDark}
-          renderMobileCard={item => (
-            <AdminMobileCard
-              isDark={isDark}
-              title={item.name}
-              subtitle={item.email}
-              badge={MEMBER_ROLE_LABELS[item.role] ?? item.role}
-              avatar={
-                item.image_url ? (
-                  <img src={item.image_url} alt={item.name} className="flex-shrink-0 w-10 h-10 rounded-full object-cover" />
-                ) : (
-                  <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${isDark ? 'bg-green-900/30 text-green-400' : 'bg-green-50 text-green-600'}`}>
-                    {item.name.charAt(0)}
-                  </div>
-                )
-              }
-              onEdit={() => { setEditTarget(item); setModalOpen(true); }}
-              onDelete={() => setDeleteTarget(item)}
-            />
-          )}
-        />
-      )}
 
       {modalOpen && (
         <AddEditMemberModal

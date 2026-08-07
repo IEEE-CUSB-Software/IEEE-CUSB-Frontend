@@ -16,9 +16,14 @@ export const CommitteesPage = () => {
   );
   const lenisRef = useRef<Lenis | null>(null);
 
-  const { data: boardMembers = [], isLoading: isLoadingBoard } = useBoard();
-  const { data: categories = [], isLoading: isLoadingCategories } = useCategories();
-  const { data: committees = [], isLoading: isLoadingCommittees } = useCommittees();
+  const { data: boardData, isLoading: isLoadingBoard } = useBoard();
+  const boardMembers = boardData?.members || [];
+  
+  const { data: categoriesData, isLoading: isLoadingCategories } = useCategories();
+  const categories = categoriesData?.categories || [];
+  
+  const { data: committeesData, isLoading: isLoadingCommittees } = useCommittees();
+  const committees = committeesData?.committees || [];
 
   const isLoading = isLoadingBoard || isLoadingCategories || isLoadingCommittees;
 

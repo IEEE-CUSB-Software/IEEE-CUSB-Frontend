@@ -1,28 +1,27 @@
 import { useState, useMemo } from 'react';
 import { useTheme } from '@/shared/hooks/useTheme';
-import { MdAdd } from 'react-icons/md';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
-import { Table, type ColumnDef } from '@ieee-ui/ui';
+import { type ColumnDef } from '@ieee-ui/ui';
+import { AdminDataTable } from '@/features/admin/components/shared/AdminDataTable';
 import AddEditPostModal from '../../../features/admin/components/posts/AddEditPostModal';
-
 // Mock Data
 const posts = [
   {
-    id: 1,
+    id: '1',
     title: 'Recap: Annual Welcome Party',
     author: 'Sarah Ahmed',
     date: 'Oct 21, 2025',
     status: 'Published',
   },
   {
-    id: 2,
+    id: '2',
     title: 'Upcoming Workshop: React JS',
     author: 'Ahmed Fathy',
     date: 'Oct 10, 2025',
     status: 'Draft',
   },
   {
-    id: 3,
+    id: '3',
     title: 'IEEE CUSB Achievements 2024',
     author: 'Board Member',
     date: 'Jan 15, 2025',
@@ -100,36 +99,65 @@ export const PostsPage = () => {
     [isDark]
   );
 
+  const [search, setSearch] = useState('');
+  
+  const filteredPosts = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return posts;
+    return posts.filter(
+      p =>
+        p.title.toLowerCase().includes(q) ||
+        p.author.toLowerCase().includes(q)
+    );
+  }, [search]);
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1
-            className={`text-2xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-900'} sm:text-center`}
-          >
-            Blog Posts
-          </h1>
-          <p
-            className={`transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-500'} sm:text-center`}
-          >
-            Manage blog posts and articles
-          </p>
-        </div>
-
-        <button
-          onClick={() => setIsPostModalOpen(true)}
-          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
-        >
-          <MdAdd className="text-xl" />
-          <span>Create Post</span>
-        </button>
-      </div>
-
-      <Table
-        data={posts}
+      <AdminDataTable
+        title="Blog Posts"
+        subtitle="Manage blog posts and articles"
+        icon={<FiEdit2 className="w-5 h-5 text-primary" />}
+        addLabel="Create Post"
+        onAdd={() => setIsPostModalOpen(true)}
+        data={filteredPosts}
         columns={columns}
+        isLoading={false}
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search posts..."
         emptyMessage="No posts found"
-        darkMode={isDark}
+        isDark={isDark}
+        renderMobileCard={post => (
+          <div className={`p-4 rounded-xl border ${isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'} space-y-4`}>
+            <div className="flex justify-between items-start gap-4">
+              <div>
+                <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{post.title}</h3>
+                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{post.author} • {post.date}</p>
+              </div>
+              <span
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  post.status === 'Published'
+                    ? isDark
+                      ? 'bg-green-900/30 text-green-300'
+                      : 'bg-green-50 text-green-700'
+                    : isDark
+                      ? 'bg-yellow-900/30 text-yellow-300'
+                      : 'bg-yellow-50 text-yellow-700'
+                }`}
+              >
+                {post.status}
+              </span>
+            </div>
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+              <button className={`p-2 rounded-lg transition-colors ${isDark ? 'text-gray-500 hover:text-primary hover:bg-primary/10' : 'text-gray-400 hover:text-primary hover:bg-primary/5'}`}>
+                <FiEdit2 className="w-4 h-4" />
+              </button>
+              <button className={`p-2 rounded-lg transition-colors ${isDark ? 'text-gray-500 hover:text-red-400 hover:bg-red-400/10' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'}`}>
+                <FiTrash2 className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
       />
 
       {isPostModalOpen && (

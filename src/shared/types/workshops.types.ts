@@ -143,6 +143,8 @@ export interface UpdateRegistrationStatusRequest {
 export interface PaginationParams {
   page: number;
   limit: number;
+  search?: string;
+  [key: string]: any;
 }
 
 /**

@@ -10,6 +10,7 @@ import type {
   UpdateStatus,
   UpdateVacancy,
 } from '@/shared/types/recruitment.types';
+import { PaginationParams } from '@/shared/types/auth.types';
 
 export const useAddVacancy = () => {
   const queryClient = useQueryClient();
@@ -37,10 +38,10 @@ export const useAddVacancy = () => {
   });
 };
 
-export const useGetAdminVacancies = () => {
+export const useGetAdminVacancies = (params?: PaginationParams) => {
   return useQuery({
-    queryKey: QUERY_KEYS.RECRUITMENT.ADMIN_VACANCIES,
-    queryFn: api.getAdminVacancies,
+    queryKey: [...QUERY_KEYS.RECRUITMENT.ADMIN_VACANCIES, params],
+    queryFn: () => api.getAdminVacancies(params),
   });
 };
 
@@ -157,10 +158,10 @@ export const useViewApplicationCV = () => {
   });
 };
 
-export const useGetVacancies = () => {
+export const useGetVacancies = (params?: PaginationParams) => {
   return useQuery({
-    queryKey: QUERY_KEYS.RECRUITMENT.VACANCIES,
-    queryFn: api.getVacancies,
+    queryKey: [...QUERY_KEYS.RECRUITMENT.VACANCIES, params],
+    queryFn: () => api.getVacancies(params),
   });
 };
 

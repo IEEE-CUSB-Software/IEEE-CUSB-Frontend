@@ -12,6 +12,7 @@ import type {
   UpdateStatus,
   ExportApplicationsParams,
 } from '@/shared/types/recruitment.types';
+import { PaginationParams, BackendPaginatedResponse, PaginatedPayload } from '@/shared/types/auth.types';
 
 export const addVacancy = async (data: AddVacancy): Promise<Vacancy> => {
   const response = await apiClient.post<ApiResponse<Vacancy>>(
@@ -21,9 +22,18 @@ export const addVacancy = async (data: AddVacancy): Promise<Vacancy> => {
   return response.data.data;
 };
 
-export const getAdminVacancies = async (): Promise<Vacancy[]> => {
-  const response = await apiClient.get<PaginatedResponse<Vacancy>>(
-    API_ENDPOINTS.RECRUITMENT.GET_ALL_VACANCIES
+export const getAdminVacancies = async (params?: PaginationParams): Promise<PaginatedPayload<Vacancy, 'vacancies'>> => {
+  const filteredParams = params
+    ? Object.fromEntries(
+        Object.entries(params)
+          .filter(([_, v]) => v !== undefined && v !== '')
+          .map(([k, v]) => [k, String(v)])
+      )
+    : undefined;
+
+  const response = await apiClient.get<BackendPaginatedResponse<Vacancy, 'vacancies'>>(
+    API_ENDPOINTS.RECRUITMENT.GET_ALL_VACANCIES,
+    { params: filteredParams }
   );
   return response.data.data;
 };
@@ -51,8 +61,8 @@ export const getAllApplications = async ({
   endDate,
   page = 1,
   limit = 100,
-}: GetAllApplicationsParams): Promise<Application[]> => {
-  const response = await apiClient.get<PaginatedResponse<Application>>(
+}: GetAllApplicationsParams): Promise<PaginatedPayload<Application, 'data'>> => {
+  const response = await apiClient.get<BackendPaginatedResponse<Application, 'data'>>(
     API_ENDPOINTS.RECRUITMENT.GET_ALL_APPLICATIONS(vacancyId),
     {
       params: {
@@ -109,9 +119,18 @@ export const viewApplicationCV = async (
   return response.data;
 };
 
-export const getVacancies = async (): Promise<Vacancy[]> => {
-  const response = await apiClient.get<PaginatedResponse<Vacancy>>(
-    API_ENDPOINTS.RECRUITMENT.GET_VACANCIES
+export const getVacancies = async (params?: PaginationParams): Promise<PaginatedPayload<Vacancy, 'vacancies'>> => {
+  const filteredParams = params
+    ? Object.fromEntries(
+        Object.entries(params)
+          .filter(([_, v]) => v !== undefined && v !== '')
+          .map(([k, v]) => [k, String(v)])
+      )
+    : undefined;
+
+  const response = await apiClient.get<BackendPaginatedResponse<Vacancy, 'vacancies'>>(
+    API_ENDPOINTS.RECRUITMENT.GET_VACANCIES,
+    { params: filteredParams }
   );
   return response.data.data;
 };

@@ -76,10 +76,10 @@ export const WorkshopsListSection = () => {
   const [page, setPage] = useState(1);
   const limit = 12;
 
-  const { data, isLoading, isError, error, isFetching } = useWorkshops(
+  const { data, isLoading, isError, error, isFetching } = useWorkshops({
     page,
     limit
-  );
+  });
 
   // Safely extract workshops array - handle different response structures
   const workshops = Array.isArray(data?.data) ? data.data : [];

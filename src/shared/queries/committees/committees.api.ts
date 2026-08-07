@@ -13,29 +13,24 @@ import type {
   UpdateCommitteeMember,
 } from '@/shared/types/committees.types';
 
-interface CategoriesListResponse {
-  categories: CommitteeCategory[];
-  count: number;
-}
-
-interface CommitteesListResponse {
-  committees: Committee[];
-  count: number;
-}
-
-interface MembersListResponse {
-  members: CommitteeMember[];
-  count: number;
-}
+import { PaginationParams, BackendPaginatedResponse, PaginatedPayload } from '@/shared/types/auth.types';
 
 export const committeeApi = {
   // ── Categories ──────────────────────────────────────────
 
-  getCategories: async (): Promise<CommitteeCategory[]> => {
+  getCategories: async (params?: PaginationParams): Promise<PaginatedPayload<CommitteeCategory, 'categories'>> => {
+    const filteredParams = params
+      ? Object.fromEntries(
+          Object.entries(params)
+            .filter(([_, v]) => v !== undefined && v !== '')
+            .map(([k, v]) => [k, String(v)])
+        )
+      : undefined;
+
     const response = await apiClient.get<
-      CommitteeApiResponse<CategoriesListResponse>
-    >(API_ENDPOINTS.COMMITTEE_CATEGORIES.GET_ALL);
-    return response.data.data.categories;
+      BackendPaginatedResponse<CommitteeCategory, 'categories'>
+    >(API_ENDPOINTS.COMMITTEE_CATEGORIES.GET_ALL, { params: filteredParams });
+    return response.data.data;
   },
 
   createCategory: async (data: CreateCategory): Promise<CommitteeCategory> => {
@@ -61,22 +56,39 @@ export const committeeApi = {
 
   // ── Committees ──────────────────────────────────────────
 
-  getCommittees: async (): Promise<Committee[]> => {
+  getCommittees: async (params?: PaginationParams): Promise<PaginatedPayload<Committee, 'committees'>> => {
+    const filteredParams = params
+      ? Object.fromEntries(
+          Object.entries(params)
+            .filter(([_, v]) => v !== undefined && v !== '')
+            .map(([k, v]) => [k, String(v)])
+        )
+      : undefined;
+
     const response = await apiClient.get<
-      CommitteeApiResponse<CommitteesListResponse>
-    >(API_ENDPOINTS.COMMITTEES.GET_ALL);
-    return response.data.data.committees;
+      BackendPaginatedResponse<Committee, 'committees'>
+    >(API_ENDPOINTS.COMMITTEES.GET_ALL, { params: filteredParams });
+    return response.data.data;
   },
 
   getCommitteesByCategory: async (
-    categoryId: string
-  ): Promise<Committee[]> => {
+    categoryId: string,
+    params?: PaginationParams
+  ): Promise<PaginatedPayload<Committee, 'committees'>> => {
+    const filteredParams = params
+      ? Object.fromEntries(
+          Object.entries(params)
+            .filter(([_, v]) => v !== undefined && v !== '')
+            .map(([k, v]) => [k, String(v)])
+        )
+      : {};
+
     const response = await apiClient.get<
-      CommitteeApiResponse<CommitteesListResponse>
+      BackendPaginatedResponse<Committee, 'committees'>
     >(API_ENDPOINTS.COMMITTEES.GET_ALL, {
-      params: { category_id: categoryId },
+      params: { category_id: categoryId, ...filteredParams },
     });
-    return response.data.data.committees;
+    return response.data.data;
   },
 
   getCommitteeById: async (id: string): Promise<Committee> => {
@@ -112,12 +124,21 @@ export const committeeApi = {
   // ── Committee Members ───────────────────────────────────
 
   getCommitteeMembers: async (
-    committeeId: string
-  ): Promise<CommitteeMember[]> => {
+    committeeId: string,
+    params?: PaginationParams
+  ): Promise<PaginatedPayload<CommitteeMember, 'members'>> => {
+    const filteredParams = params
+      ? Object.fromEntries(
+          Object.entries(params)
+            .filter(([_, v]) => v !== undefined && v !== '')
+            .map(([k, v]) => [k, String(v)])
+        )
+      : undefined;
+
     const response = await apiClient.get<
-      CommitteeApiResponse<MembersListResponse>
-    >(API_ENDPOINTS.COMMITTEES.GET_MEMBERS(committeeId));
-    return response.data.data.members;
+      BackendPaginatedResponse<CommitteeMember, 'members'>
+    >(API_ENDPOINTS.COMMITTEES.GET_MEMBERS(committeeId), { params: filteredParams });
+    return response.data.data;
   },
 
   createCommitteeMember: async (

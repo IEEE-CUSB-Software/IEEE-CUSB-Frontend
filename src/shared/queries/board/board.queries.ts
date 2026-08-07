@@ -7,10 +7,12 @@ import type {
 } from '@/shared/types/committees.types';
 import { boardApi } from './board.api';
 
-export const useBoard = () => {
+import { PaginationParams } from '@/shared/types/auth.types';
+
+export const useBoard = (params?: PaginationParams) => {
   return useQuery({
-    queryKey: QUERY_KEYS.BOARD.ALL,
-    queryFn: () => boardApi.getBoard(),
+    queryKey: [...QUERY_KEYS.BOARD.ALL, params],
+    queryFn: () => boardApi.getBoard(params),
     staleTime: 5 * 60 * 1000,
   });
 };

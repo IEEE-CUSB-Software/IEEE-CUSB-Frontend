@@ -20,14 +20,16 @@ export const usersApi = {
    * GET /admin/users — list all users (admin only)
    */
   getUsers: async (params: PaginationParams): Promise<PaginatedUsersResponse> => {
+    // Filter out undefined or empty string values from params
+    const filteredParams = Object.fromEntries(
+      Object.entries(params)
+        .filter(([_, v]) => v !== undefined && v !== '')
+        .map(([k, v]) => [k, String(v)])
+    );
+
     const response = await apiClient.get<ApiResponse<PaginatedUsersResponse>>(
       API_ENDPOINTS.USERS.GET_ALL,
-      {
-        params: {
-          page: params.page.toString(),
-          limit: params.limit.toString(),
-        },
-      }
+      { params: filteredParams }
     );
     return response.data.data;
   },

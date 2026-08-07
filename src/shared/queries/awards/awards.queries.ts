@@ -7,13 +7,15 @@ import type {
   UpdateAwardRequest,
 } from '@/shared/types/award.types';
 
+import { PaginationParams } from '@/shared/types/auth.types';
+
 /**
  * Hook to get all awards
  */
-export const useAwards = () => {
+export const useAwards = (params?: PaginationParams) => {
   return useQuery({
-    queryKey: QUERY_KEYS.AWARDS.ALL,
-    queryFn: () => awardsApi.getAwards(),
+    queryKey: [...QUERY_KEYS.AWARDS.ALL, params],
+    queryFn: () => awardsApi.getAwards(params),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };

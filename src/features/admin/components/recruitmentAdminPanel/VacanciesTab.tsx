@@ -1,18 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { type ColumnDef } from '@ieee-ui/ui';
 import { FiEdit2, FiTrash2, FiUsers } from 'react-icons/fi';
 import { CgWorkAlt } from 'react-icons/cg';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
 import { AdminMobileCard } from '@/shared/components/AdminMobileCard';
-import {
-  SectionHeader,
-  AddButton,
-  SearchBar,
-  ResponsiveDataList,
-  LoadingBlock,
-  EmptyBlock,
-} from '@/features/admin/components/shared/AdminPageComponents';
+import { AdminDataTable } from '@/features/admin/components/shared/AdminDataTable';
+import { useDebounce } from '@/shared/hooks/useDebounce';
 import {
   AddVacancy,
   UpdateVacancy,
@@ -30,9 +24,20 @@ import { VacancyApplicationsModal } from './VacancyApplicationsModal';
 const VacanciesTab = () => {
   const { isDark } = useTheme();
 
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
+  // Reset page when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
+
   // Queries & Mutations
-  const { data, isLoading } = useGetAdminVacancies();
-  const vacancies = data || [];
+  const { data, isLoading } = useGetAdminVacancies({ page, limit, search: debouncedSearch });
+  const vacancies = data?.vacancies || [];
+  
   const createMutation = useAddVacancy();
   const updateMutation = useUpdateVacancies();
   const deleteMutation = useDeleteVacancy();
@@ -46,18 +51,6 @@ const VacanciesTab = () => {
   const [isApplicationsModalOpen, setIsApplicationsModalOpen] = useState(false);
   const [selectedVacancyForApplications, setSelectedVacancyForApplications] =
     useState<Vacancy | undefined>(undefined);
-  const [search, setSearch] = useState('');
-
-  // Filtered list
-  const filteredVacancies = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return vacancies;
-    return vacancies.filter(
-      v =>
-        v.title.toLowerCase().includes(q) ||
-        v.description.toLowerCase().includes(q)
-    );
-  }, [vacancies, search]);
 
   // Handlers
   const handleAdd = () => {
@@ -211,88 +204,72 @@ const VacanciesTab = () => {
   );
   return (
     <div className="space-y-6">
-      <SectionHeader
-        icon={<CgWorkAlt className="w-5 h-5 text-primary" />}
+      <AdminDataTable
         title="Vacancies Management"
         subtitle="Manage vacancies, opportunities and applications."
+        icon={<CgWorkAlt className="w-5 h-5 text-primary" />}
+        addLabel="Add Vacancy"
+        onAdd={handleAdd}
+        data={vacancies}
+        columns={columns}
+        isLoading={isLoading}
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search by title or description..."
+        emptyMessage="No vacancies found. Click 'Add Vacancy' to create one."
         isDark={isDark}
-        action={<AddButton label="Add Vacancy" onClick={handleAdd} />}
-      />
-
-      <SearchBar
-        value={search}
-        onChange={setSearch}
-        placeholder="Search by title or description..."
-        isDark={isDark}
-      />
-
-      {isLoading ? (
-        <LoadingBlock isDark={isDark} text="Loading vacancies..." />
-      ) : filteredVacancies.length === 0 ? (
-        <EmptyBlock
-          isDark={isDark}
-          message={
-            search
-              ? 'No matching vacancies'
-              : "No vacancies found. Click 'Add Vacancy' to create one."
-          }
-          onAdd={!search ? handleAdd : undefined}
-          addLabel="Add Vacancy"
-        />
-      ) : (
-        <ResponsiveDataList
-          data={filteredVacancies}
-          columns={columns}
-          isDark={isDark}
-          renderMobileCard={vacancy => {
-            const badgeText = vacancy.is_open ? 'Open' : 'Closed';
-            return (
-              <AdminMobileCard
-                isDark={isDark}
-                title={vacancy.title}
-                subtitle={`${new Date(vacancy.created_at).toLocaleString(
-                  undefined,
-                  {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  }
-                )} · last updated ${new Date(vacancy.updated_at).toLocaleString(
-                  undefined,
-                  {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  }
-                )}`}
-                badge={badgeText}
-                description={vacancy.description}
-                avatar={
-                  <div
-                    className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? 'bg-primary/20' : 'bg-primary/10'}`}
-                  >
-                    <CgWorkAlt
-                      className={`w-5 h-5 ${isDark ? 'text-primary-light' : 'text-primary'}`}
-                    />
-                  </div>
+        page={page}
+        totalPages={data?.totalPages}
+        totalCount={data?.count}
+        onPageChange={setPage}
+        renderMobileCard={vacancy => {
+          const badgeText = vacancy.is_open ? 'Open' : 'Closed';
+          return (
+            <AdminMobileCard
+              isDark={isDark}
+              title={vacancy.title}
+              subtitle={`${new Date(vacancy.created_at).toLocaleString(
+                undefined,
+                {
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
                 }
-                onEdit={() => handleEdit(vacancy)}
-                onDelete={() => handleDeleteClick(vacancy)}
-                extraActions={[
-                  {
-                    icon: <FiUsers className="w-3.5 h-3.5" />,
-                    label: 'Applications',
-                    onClick: () => handleViewApplications(vacancy),
-                    color: 'info',
-                  },
-                ]}
-              />
-            );
-          }}
-        />
-      )}
+              )} · last updated ${new Date(vacancy.updated_at).toLocaleString(
+                undefined,
+                {
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                }
+              )}`}
+              badge={badgeText}
+              description={vacancy.description}
+              avatar={
+                <div
+                  className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? 'bg-primary/20' : 'bg-primary/10'}`}
+                >
+                  <CgWorkAlt
+                    className={`w-5 h-5 ${isDark ? 'text-primary-light' : 'text-primary'}`}
+                  />
+                </div>
+              }
+              onEdit={() => handleEdit(vacancy)}
+              onDelete={() => handleDeleteClick(vacancy)}
+              extraActions={[
+                {
+                  icon: <FiUsers className="w-3.5 h-3.5" />,
+                  label: 'Applications',
+                  onClick: () => handleViewApplications(vacancy),
+                  color: 'info',
+                },
+              ]}
+            />
+          );
+        }}
+      />
 
       <AddEditVacancyModal
         isOpen={isAddEditOpen}

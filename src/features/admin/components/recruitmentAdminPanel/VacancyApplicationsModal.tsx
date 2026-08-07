@@ -56,8 +56,8 @@ export const VacancyApplicationsModal = ({
 
   const { mutateAsync: updateStatus, isPending: isUpdating } =
     useUpdateApplicationStatus(vacancyId);
-  const applications = Array.isArray(data) ? data : [];
-  const totalPages = 1;
+  const applications = data?.data || [];
+  const totalPages = data?.totalPages || 1;
 
   // Filtered applications (in-memory filtering for current page)
   const dateFilteredApplications = useMemo(() => {

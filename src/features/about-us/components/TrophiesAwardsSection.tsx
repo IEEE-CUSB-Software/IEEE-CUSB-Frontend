@@ -15,7 +15,8 @@ interface TrophiesAwardsSectionProps {
 export const TrophiesAwardsSection = ({
   darkMode,
 }: TrophiesAwardsSectionProps) => {
-  const { data: awards, isLoading, isError } = useAwards();
+  const { data: awardsData, isLoading, isError } = useAwards();
+  const awards = awardsData?.awards || [];
 
   return (
     <section

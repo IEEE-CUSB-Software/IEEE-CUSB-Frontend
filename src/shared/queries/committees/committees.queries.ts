@@ -13,10 +13,10 @@ import { committeeApi } from './committees.api';
 
 // ── Categories ──────────────────────────────────────────────
 
-export const useCategories = () => {
+export const useCategories = (params?: PaginationParams) => {
   return useQuery({
-    queryKey: QUERY_KEYS.COMMITTEE_CATEGORIES.ALL,
-    queryFn: () => committeeApi.getCategories(),
+    queryKey: [...QUERY_KEYS.COMMITTEE_CATEGORIES.ALL, params],
+    queryFn: () => committeeApi.getCategories(params),
     staleTime: 5 * 60 * 1000,
   });
 };
@@ -78,10 +78,12 @@ export const useDeleteCategory = () => {
 
 // ── Committees ──────────────────────────────────────────────
 
-export const useCommittees = () => {
+import { PaginationParams } from '@/shared/types/auth.types';
+
+export const useCommittees = (params?: PaginationParams) => {
   return useQuery({
-    queryKey: QUERY_KEYS.COMMITTEES.ALL,
-    queryFn: () => committeeApi.getCommittees(),
+    queryKey: [...QUERY_KEYS.COMMITTEES.ALL, params],
+    queryFn: () => committeeApi.getCommittees(params),
     staleTime: 5 * 60 * 1000,
   });
 };
@@ -100,11 +102,12 @@ export const useCommittee = (id: string, enabled: boolean = true) => {
 
 export const useCommitteesByCategory = (
   categoryId: string,
+  params?: PaginationParams,
   enabled: boolean = true
 ) => {
   return useQuery({
-    queryKey: [...QUERY_KEYS.COMMITTEES.ALL, 'category', categoryId],
-    queryFn: () => committeeApi.getCommitteesByCategory(categoryId),
+    queryKey: [...QUERY_KEYS.COMMITTEES.ALL, 'category', categoryId, params],
+    queryFn: () => committeeApi.getCommitteesByCategory(categoryId, params),
     enabled: enabled && !!categoryId,
     staleTime: 5 * 60 * 1000,
   });
@@ -172,11 +175,12 @@ export const useDeleteCommittee = () => {
 
 export const useCommitteeMembers = (
   committeeId: string,
+  params?: PaginationParams,
   enabled: boolean = true
 ) => {
   return useQuery({
-    queryKey: QUERY_KEYS.COMMITTEES.MEMBERS(committeeId),
-    queryFn: () => committeeApi.getCommitteeMembers(committeeId),
+    queryKey: [...QUERY_KEYS.COMMITTEES.MEMBERS(committeeId), params],
+    queryFn: () => committeeApi.getCommitteeMembers(committeeId, params),
     enabled: enabled && !!committeeId,
     staleTime: 5 * 60 * 1000,
   });

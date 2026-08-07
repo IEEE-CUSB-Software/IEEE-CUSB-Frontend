@@ -174,8 +174,10 @@ export interface ApiError {
  * Pagination parameters
  */
 export interface PaginationParams {
-  page: number;
-  limit: number;
+  page?: number;
+  limit?: number;
+  search?: string;
+  [key: string]: any;
 }
 
 /**
@@ -189,4 +191,22 @@ export interface PaginatedUsersResponse {
     limit: number;
     totalPages: number;
   };
+}
+
+export interface BackendPaginatedData {
+  count?: number;
+  total?: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export type PaginatedPayload<T, K extends string> = BackendPaginatedData & {
+  [key in K]: T[];
+};
+
+export interface BackendPaginatedResponse<T, K extends string> {
+  data: PaginatedPayload<T, K>;
+  count?: number;
+  message?: string;
 }

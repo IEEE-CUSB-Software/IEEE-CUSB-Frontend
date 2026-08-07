@@ -13,6 +13,7 @@ import type {
   PaginatedWorkshopsResponse,
   PaginatedRegistrationsResponse,
 } from '@/shared/types/workshops.types';
+import { PaginationParams } from '@/shared/types/auth.types';
 
 // ==========================================
 // INSTRUCTORS
@@ -68,9 +69,18 @@ export const deleteInstructorImage = async (
   return response.data.data;
 };
 
-export const getInstructors = async (): Promise<Instructor[]> => {
+export const getInstructors = async (params?: PaginationParams): Promise<Instructor[]> => {
+  const filteredParams = params
+    ? Object.fromEntries(
+        Object.entries(params)
+          .filter(([_, v]) => v !== undefined && v !== '')
+          .map(([k, v]) => [k, String(v)])
+      )
+    : undefined;
+
   const response = await api.get<{ data: Instructor[] }>(
-    API_ENDPOINTS.WORKSHOPS.GET_INSTRUCTORS
+    API_ENDPOINTS.WORKSHOPS.GET_INSTRUCTORS,
+    { params: filteredParams }
   );
   return response.data.data;
 };
@@ -146,13 +156,20 @@ export const deleteWorkshopGalleryImage = async (
 };
 
 export const getWorkshops = async (
-  page = 1,
-  limit = 10
+  params?: PaginationParams
 ): Promise<PaginatedWorkshopsResponse> => {
+  const filteredParams = params
+    ? Object.fromEntries(
+        Object.entries(params)
+          .filter(([_, v]) => v !== undefined && v !== '')
+          .map(([k, v]) => [k, String(v)])
+      )
+    : undefined;
+
   const response = await api.get<{ data: PaginatedWorkshopsResponse }>(
     API_ENDPOINTS.WORKSHOPS.GET_ALL,
     {
-      params: { page, limit },
+      params: filteredParams,
     }
   );
   return response.data.data;
@@ -171,13 +188,20 @@ export const getWorkshop = async (id: string): Promise<Workshop> => {
 
 export const getWorkshopRegistrations = async (
   id: string,
-  page = 1,
-  limit = 10
+  params?: PaginationParams
 ): Promise<PaginatedRegistrationsResponse> => {
+  const filteredParams = params
+    ? Object.fromEntries(
+        Object.entries(params)
+          .filter(([_, v]) => v !== undefined && v !== '')
+          .map(([k, v]) => [k, String(v)])
+      )
+    : undefined;
+
   const response = await api.get<{ data: PaginatedRegistrationsResponse }>(
     API_ENDPOINTS.WORKSHOPS.GET_REGISTRATIONS(id),
     {
-      params: { page, limit },
+      params: filteredParams,
     }
   );
   return response.data.data;

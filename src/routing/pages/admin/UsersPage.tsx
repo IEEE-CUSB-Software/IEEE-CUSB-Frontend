@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import { useTheme } from '@/shared/hooks/useTheme';
 import {
   FiEye,
@@ -6,22 +6,15 @@ import {
   FiUsers,
 } from 'react-icons/fi';
 import { type ColumnDef } from '@ieee-ui/ui';
-import { Pagination } from '@/shared/components/ui/Pagination';
 import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
 import { AdminMobileCard } from '@/shared/components/AdminMobileCard';
-import {
-  SectionHeader,
-  ResponsiveDataList,
-  SearchBar,
-  LoadingBlock,
-  EmptyBlock,
-  AddButton,
-} from '@/features/admin/components/shared/AdminPageComponents';
+import { AdminDataTable } from '@/features/admin/components/shared/AdminDataTable';
 import AddUserModal from '@/features/admin/components/usersAdminPanel/AddUserModal';
 import UserDetailModal from '@/features/admin/components/usersAdminPanel/UserDetailModal';
 import ChangeUserRoleModal from '@/features/admin/components/usersAdminPanel/ChangeUserRoleModal';
 import { useUsers, useDeleteUser } from '@/shared/queries/users/users.queries';
 import type { User } from '@/shared/types/auth.types';
+import { useDebounce } from '@/shared/hooks/useDebounce';
 
 const value = (input: string | number | null | undefined) =>
   input === null || input === undefined || input === '' ? 'Not provided' : String(input);
@@ -35,24 +28,23 @@ export const UsersPage = () => {
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
   const [roleTarget, setRoleTarget] = useState<User | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+  
   const limit = 10;
-  const { data, isLoading } = useUsers({ page, limit });
+  // Passing debouncedSearch directly to the backend hook
+  const { data, isLoading } = useUsers({ page, limit, search: debouncedSearch });
   const deleteUserMutation = useDeleteUser();
+
+  // Reset page to 1 when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
 
   const users = useMemo(() => (Array.isArray(data?.data) ? data.data : []), [data]);
   const totalPages = data?.meta?.totalPages ?? 1;
-
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return users;
-
-    return users.filter((user) =>
-      [user.name, user.username, user.email, user.phone, user.faculty, user.university, user.role?.name]
-        .filter(Boolean)
-        .some((field) => field!.toLowerCase().includes(q))
-    );
-  }, [users, search]);
+  const totalCount = data?.meta?.total ?? 0;
 
   const handleConfirmDelete = useCallback(() => {
     if (!deleteTarget) return;
@@ -157,67 +149,41 @@ export const UsersPage = () => {
 
   return (
     <div className="space-y-6">
-      <SectionHeader
-        icon={<FiUsers className="h-5 w-5 text-primary" />}
+      <AdminDataTable
         title="User Management"
         subtitle="View and manage student branch users and their CVs"
+        icon={<FiUsers className="h-5 w-5 text-primary" />}
+        addLabel="Add User"
+        onAdd={() => setIsAddUserModalOpen(true)}
+        data={users}
+        columns={columns}
+        isLoading={isLoading}
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search by name, email, username, phone, university..."
+        page={page}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        onPageChange={handlePageChange}
+        emptyMessage="No users yet."
         isDark={isDark}
-        action={<AddButton label="Add User" onClick={() => setIsAddUserModalOpen(true)} />}
-      />
-
-      <SearchBar
-        value={search}
-        onChange={setSearch}
-        placeholder="Search by name, email, username, phone, university, or role..."
-        isDark={isDark}
-      />
-
-      {isLoading ? (
-        <LoadingBlock isDark={isDark} text="Loading users..." />
-      ) : filtered.length === 0 ? (
-        <EmptyBlock isDark={isDark} message={search ? 'No matching users found.' : 'No users yet.'} />
-      ) : (
-        <>
-          <ResponsiveDataList
-            data={filtered}
-            columns={columns}
+        renderMobileCard={(user) => (
+          <AdminMobileCard
             isDark={isDark}
-            renderMobileCard={(user) => (
-              <AdminMobileCard
-                isDark={isDark}
-                title={user.name}
-                subtitle={`@${user.username} · ${user.role?.name || 'Visitor'}`}
-                badge={hasCv(user) ? 'CV uploaded' : 'No CV'}
-                description={`${user.email}${user.phone ? ` · ${user.phone}` : ''}`}
-                avatar={
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                    {user.name.charAt(0).toUpperCase()}
-                  </div>
-                }
-                onView={() => setSelectedUser(user)}
-                onDelete={() => setDeleteTarget(user)}
-              />
-            )}
+            title={user.name}
+            subtitle={`@${user.username} · ${user.role?.name || 'Visitor'}`}
+            badge={hasCv(user) ? 'CV uploaded' : 'No CV'}
+            description={`${user.email}${user.phone ? ` · ${user.phone}` : ''}`}
+            avatar={
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+            }
+            onView={() => setSelectedUser(user)}
+            onDelete={() => setDeleteTarget(user)}
           />
-
-          {search && (
-            <p className={`text-center text-xs ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
-              Showing {filtered.length} of {users.length} users
-            </p>
-          )}
-        </>
-      )}
-
-      {totalPages > 1 && (
-        <div className="flex justify-center">
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-            isLoading={isLoading}
-          />
-        </div>
-      )}
+        )}
+      />
 
       {isAddUserModalOpen && (
         <AddUserModal

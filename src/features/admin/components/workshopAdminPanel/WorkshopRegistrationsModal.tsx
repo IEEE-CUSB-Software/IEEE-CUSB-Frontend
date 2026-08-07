@@ -40,8 +40,7 @@ export const WorkshopRegistrationsModal = ({
 
   const { data, isLoading, isError } = useGetWorkshopRegistrations(
     workshopId,
-    page,
-    limit
+    { page, limit }
   );
 
   const { mutate: updateStatus, isPending: isUpdating } =

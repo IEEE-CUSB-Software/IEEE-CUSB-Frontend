@@ -6,7 +6,8 @@ import { AwardSparkles } from '../../features/awards/components/AwardSparkles';
 
 export const AwardsPage = () => {
   const { isDark } = useTheme();
-  const { data: awards, isLoading, isError } = useAwards();
+  const { data: awardsData, isLoading, isError } = useAwards();
+  const awards = awardsData?.awards || [];
 
   return (
     <>

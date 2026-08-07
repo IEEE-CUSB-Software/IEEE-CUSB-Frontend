@@ -9,15 +9,16 @@ import type {
   UpdateWorkshopRequest,
   UpdateRegistrationStatusRequest
 } from '@/shared/types/workshops.types';
+import { PaginationParams } from '@/shared/types/auth.types';
 
 // ==========================================
 // INSTRUCTORS
 // ==========================================
 
-export const useGetInstructors = () => {
+export const useGetInstructors = (params?: PaginationParams) => {
   return useQuery({
-    queryKey: QUERY_KEYS.WORKSHOPS.INSTRUCTORS,
-    queryFn: api.getInstructors,
+    queryKey: [...QUERY_KEYS.WORKSHOPS.INSTRUCTORS, params],
+    queryFn: () => api.getInstructors(params),
     // Add fallback in case the endpoint doesn't exist yet
     retry: false
   });
@@ -99,17 +100,17 @@ export const useDeleteInstructorImage = () => {
 // WORKSHOPS
 // ==========================================
 
-export const useWorkshops = (page = 1, limit = 10) => {
+export const useWorkshops = (params?: PaginationParams) => {
   return useQuery({
-    queryKey: [...QUERY_KEYS.WORKSHOPS.ALL, { page, limit }],
-    queryFn: () => api.getWorkshops(page, limit),
+    queryKey: [...QUERY_KEYS.WORKSHOPS.ALL, params],
+    queryFn: () => api.getWorkshops(params),
   });
 };
 
-export const useGetAdminWorkshops = (page = 1, limit = 10) => {
+export const useGetAdminWorkshops = (params?: PaginationParams) => {
   return useQuery({
-    queryKey: [...QUERY_KEYS.WORKSHOPS.ALL, 'admin', { page, limit }],
-    queryFn: () => api.getWorkshops(page, limit),
+    queryKey: [...QUERY_KEYS.WORKSHOPS.ALL, 'admin', params],
+    queryFn: () => api.getWorkshops(params),
   });
 };
 
@@ -223,10 +224,10 @@ export const useDeleteWorkshopGalleryImage = () => {
 // REGISTRATIONS
 // ==========================================
 
-export const useGetWorkshopRegistrations = (id: string, page = 1, limit = 10) => {
+export const useGetWorkshopRegistrations = (id: string, params?: PaginationParams) => {
   return useQuery({
-    queryKey: [...QUERY_KEYS.WORKSHOPS.REGISTRATIONS(id), { page, limit }],
-    queryFn: () => api.getWorkshopRegistrations(id, page, limit),
+    queryKey: [...QUERY_KEYS.WORKSHOPS.REGISTRATIONS(id), params],
+    queryFn: () => api.getWorkshopRegistrations(id, params),
     enabled: !!id,
   });
 };

@@ -35,14 +35,14 @@ export const eventsApi = {
   getEvents: async (
     params: PaginationParams
   ): Promise<PaginatedEventsResponse> => {
+    const filteredParams = Object.fromEntries(
+      Object.entries(params)
+        .filter(([_, v]) => v !== undefined && v !== '')
+        .map(([k, v]) => [k, String(v)])
+    );
     const response = await apiClient.get<{ data: PaginatedEventsResponse }>(
       API_ENDPOINTS.EVENTS.GET_ALL,
-      {
-        params: {
-          page: params.page.toString(),
-          limit: params.limit.toString(),
-        },
-      }
+      { params: filteredParams }
     );
     // Unwrap the nested data structure
     return response.data.data;
@@ -149,13 +149,15 @@ export const eventsApi = {
     eventId: string,
     params: PaginationParams
   ): Promise<PaginatedRegistrationsResponse> => {
+    const filteredParams = Object.fromEntries(
+      Object.entries(params)
+        .filter(([_, v]) => v !== undefined && v !== '')
+        .map(([k, v]) => [k, String(v)])
+    );
     const response = await apiClient.get<{
       data: PaginatedRegistrationsResponse;
     }>(API_ENDPOINTS.EVENTS.GET_REGISTRATIONS(eventId), {
-      params: {
-        page: params.page.toString(),
-        limit: params.limit.toString(),
-      },
+      params: filteredParams,
     });
     return response.data.data;
   },

@@ -4,7 +4,8 @@ import { FiEdit2, FiTrash2, FiUser } from 'react-icons/fi';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
 import { AdminMobileCard } from '@/shared/components/AdminMobileCard';
-import { SectionHeader, AddButton, SearchBar, ResponsiveDataList, LoadingBlock, EmptyBlock } from '@/features/admin/components/shared/AdminPageComponents';
+import { AdminDataTable } from '@/features/admin/components/shared/AdminDataTable';
+import { useDebounce } from '@/shared/hooks/useDebounce';
 import AddEditInstructorModal from './AddEditInstructorModal';
 import {
   useGetInstructors,
@@ -18,8 +19,11 @@ import type { Instructor, CreateInstructorRequest, UpdateInstructorRequest } fro
 const InstructorsTab: React.FC = () => {
   const { isDark } = useTheme();
   
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+
   // Queries & Mutations
-  const { data: instructors = [], isLoading } = useGetInstructors();
+  const { data: instructors = [], isLoading } = useGetInstructors({ search: debouncedSearch });
   const createMutation = useCreateInstructor();
   const updateMutation = useUpdateInstructor();
   const deleteMutation = useDeleteInstructor();
@@ -29,18 +33,6 @@ const InstructorsTab: React.FC = () => {
   const [isAddEditOpen, setIsAddEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedInstructor, setSelectedInstructor] = useState<Instructor | undefined>(undefined);
-  const [search, setSearch] = useState('');
-
-  // Filtered list
-  const filteredInstructors = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return instructors;
-    return instructors.filter(
-      i =>
-        i.name.toLowerCase().includes(q) ||
-        i.bio.toLowerCase().includes(q)
-    );
-  }, [instructors, search]);
 
   // Handlers
   const handleAdd = () => {
@@ -150,56 +142,40 @@ const InstructorsTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <SectionHeader
-        icon={<FiUser className="w-5 h-5 text-primary" />}
+      <AdminDataTable
         title="Instructors Directory"
         subtitle="Manage instructors for workshops."
+        icon={<FiUser className="w-5 h-5 text-primary" />}
+        addLabel="Add Instructor"
+        onAdd={handleAdd}
+        data={instructors}
+        columns={columns}
+        isLoading={isLoading}
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search by name or bio..."
+        emptyMessage="No instructors found. Click 'Add Instructor' to create one."
         isDark={isDark}
-        action={<AddButton label="Add Instructor" onClick={handleAdd} />}
+        renderMobileCard={(instructor) => (
+          <AdminMobileCard
+            isDark={isDark}
+            title={instructor.name}
+            subtitle={`Joined ${new Date(instructor.created_at).toLocaleDateString()}`}
+            description={instructor.bio}
+            avatar={
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex items-center justify-center shrink-0">
+                {instructor.image_url ? (
+                  <img src={instructor.image_url} alt={instructor.name} className="w-full h-full object-cover" />
+                ) : (
+                  <FiUser className="w-5 h-5 text-gray-400" />
+                )}
+              </div>
+            }
+            onEdit={() => handleEdit(instructor)}
+            onDelete={() => handleDeleteClick(instructor)}
+          />
+        )}
       />
-
-      <SearchBar
-        value={search}
-        onChange={setSearch}
-        placeholder="Search by name or bio..."
-        isDark={isDark}
-      />
-
-      {isLoading ? (
-        <LoadingBlock isDark={isDark} text="Loading instructors..." />
-      ) : filteredInstructors.length === 0 ? (
-        <EmptyBlock
-          isDark={isDark}
-          message={search ? 'No matching instructors' : 'No instructors found. Click \'Add Instructor\' to create one.'}
-          onAdd={!search ? handleAdd : undefined}
-          addLabel="Add Instructor"
-        />
-      ) : (
-        <ResponsiveDataList
-          data={filteredInstructors}
-          columns={columns}
-          isDark={isDark}
-          renderMobileCard={(instructor) => (
-            <AdminMobileCard
-              isDark={isDark}
-              title={instructor.name}
-              subtitle={`Joined ${new Date(instructor.created_at).toLocaleDateString()}`}
-              description={instructor.bio}
-              avatar={
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex items-center justify-center shrink-0">
-                  {instructor.image_url ? (
-                    <img src={instructor.image_url} alt={instructor.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <FiUser className="w-5 h-5 text-gray-400" />
-                  )}
-                </div>
-              }
-              onEdit={() => handleEdit(instructor)}
-              onDelete={() => handleDeleteClick(instructor)}
-            />
-          )}
-        />
-      )}
 
       <AddEditInstructorModal
         isOpen={isAddEditOpen}

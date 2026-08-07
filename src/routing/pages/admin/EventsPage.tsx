@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { FiEdit2, FiTrash2, FiUsers, FiCalendar } from 'react-icons/fi';
 import AddEditEventModal from '@/features/admin/components/eventAdminPanel/AddEditEventModal';
@@ -7,15 +7,7 @@ import { EventRegistrationsModal } from '@/features/admin/components/eventAdminP
 import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
 import { AdminMobileCard } from '@/shared/components/AdminMobileCard';
 import { type ColumnDef } from '@ieee-ui/ui';
-import { Pagination } from '@/shared/components/ui/Pagination';
-import {
-  SectionHeader,
-  AddButton,
-  ResponsiveDataList,
-  SearchBar,
-  LoadingBlock,
-  EmptyBlock,
-} from '@/features/admin/components/shared/AdminPageComponents';
+import { AdminDataTable } from '@/features/admin/components/shared/AdminDataTable';
 import {
   useEvents,
   useCreateEvent,
@@ -31,6 +23,7 @@ import {
   type AdminEvent,
 } from '@/features/admin/utils/eventConversion';
 import toast from 'react-hot-toast';
+import { useDebounce } from '@/shared/hooks/useDebounce';
 
 // Helper function to format date
 const formatDate = (dateString: string): string => {
@@ -56,19 +49,29 @@ const getEventStatus = (event: Event): 'Upcoming' | 'Ongoing' | 'Completed' => {
 export const EventsPage = () => {
   const { isDark } = useTheme();
 
-  /* API hooks */
   const [page, setPage] = useState(1);
   const limit = 10;
-  const { data, isLoading } = useEvents({ page, limit });
+  
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+  
+  /* API hooks */
+  const { data, isLoading } = useEvents({ page, limit, search: debouncedSearch });
   const createEventMutation = useCreateEvent();
   const updateEventMutation = useUpdateEvent();
   const deleteEventMutation = useDeleteEvent();
+
+  // Reset page to 1 when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
 
   const events = useMemo(
     () => (Array.isArray(data?.data) ? data.data : []),
     [data]
   );
   const totalPages = data?.totalPages ?? 1;
+  const totalCount = data?.total ?? 0;
 
   /* Modal state */
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
@@ -79,19 +82,6 @@ export const EventsPage = () => {
   const [isRegistrationsModalOpen, setIsRegistrationsModalOpen] = useState(false);
   const [selectedEventForRegistrations, setSelectedEventForRegistrations] =
     useState<Event | undefined>(undefined);
-  const [search, setSearch] = useState('');
-
-  /* Filtered list */
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return events;
-    return events.filter(
-      e =>
-        e.title.toLowerCase().includes(q) ||
-        e.description.toLowerCase().includes(q) ||
-        e.location.toLowerCase().includes(q)
-    );
-  }, [events, search]);
 
   /* Handlers */
   const handleAdd = useCallback(() => {
@@ -322,86 +312,48 @@ export const EventsPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* ── Page header ─────────────────────────────────────── */}
-      <SectionHeader
-        icon={<FiCalendar className="w-5 h-5 text-primary" />}
+      <AdminDataTable
         title="Event Management"
         subtitle="Create and manage upcoming events"
+        icon={<FiCalendar className="w-5 h-5 text-primary" />}
+        addLabel="Add Event"
+        onAdd={handleAdd}
+        data={events}
+        columns={columns}
+        isLoading={isLoading}
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search by title, description, or location…"
+        page={page}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        onPageChange={handlePageChange}
+        emptyMessage="No events yet"
         isDark={isDark}
-        action={<AddButton label="Add Event" onClick={handleAdd} />}
-      />
-
-      {/* ── Search bar ──────────────────────────────────────── */}
-      <SearchBar
-        value={search}
-        onChange={setSearch}
-        placeholder="Search by title, description, or location…"
-        isDark={isDark}
-      />
-
-      {/* ── Content ─────────────────────────────────────────── */}
-      {isLoading ? (
-        <LoadingBlock isDark={isDark} text="Loading events…" />
-      ) : filtered.length === 0 ? (
-        <EmptyBlock
-          isDark={isDark}
-          message={search ? 'No matching events' : 'No events yet'}
-          onAdd={!search ? handleAdd : undefined}
-          addLabel="Add Event"
-        />
-      ) : (
-        <>
-          <ResponsiveDataList
-            data={filtered}
-            columns={columns}
+        renderMobileCard={(event) => (
+          <AdminMobileCard
             isDark={isDark}
-            renderMobileCard={(event) => (
-              <AdminMobileCard
-                isDark={isDark}
-                title={event.title}
-                subtitle={`${formatDate(event.start_time)} · ${event.location}`}
-                badge={getEventStatus(event)}
-                description={event.description}
-                avatar={
-                  <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? 'bg-primary/20' : 'bg-primary/10'}`}>
-                    <FiCalendar className={`w-5 h-5 ${isDark ? 'text-primary-light' : 'text-primary'}`} />
-                  </div>
-                }
-                onEdit={() => handleEdit(event)}
-                onDelete={() => handleDelete(event)}
-                onView={() => handleView(event)}
-                extraActions={[{
-                  icon: <FiUsers className="w-3.5 h-3.5" />,
-                  label: 'Registrations',
-                  onClick: () => handleViewRegistrations(event),
-                  color: 'info'
-                }]}
-              />
-            )}
+            title={event.title}
+            subtitle={`${formatDate(event.start_time)} · ${event.location}`}
+            badge={getEventStatus(event)}
+            description={event.description}
+            avatar={
+              <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? 'bg-primary/20' : 'bg-primary/10'}`}>
+                <FiCalendar className={`w-5 h-5 ${isDark ? 'text-primary-light' : 'text-primary'}`} />
+              </div>
+            }
+            onEdit={() => handleEdit(event)}
+            onDelete={() => handleDelete(event)}
+            onView={() => handleView(event)}
+            extraActions={[{
+              icon: <FiUsers className="w-3.5 h-3.5" />,
+              label: 'Registrations',
+              onClick: () => handleViewRegistrations(event),
+              color: 'info'
+            }]}
           />
-
-          {/* Result count */}
-          {search && (
-            <p
-              className={`text-xs text-center ${isDark ? 'text-gray-600' : 'text-gray-400'}`}
-            >
-              Showing {filtered.length} of {events.length} events
-            </p>
-          )}
-        </>
-      )}
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center">
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-            isLoading={isLoading}
-          />
-        </div>
-      )}
+        )}
+      />
 
       {/* Edit / Add Modal */}
       {isEventModalOpen && (

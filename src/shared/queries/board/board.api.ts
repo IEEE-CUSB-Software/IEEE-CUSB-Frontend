@@ -7,17 +7,22 @@ import type {
   UpdateBoardMember,
 } from '@/shared/types/committees.types';
 
-interface BoardListResponse {
-  members: BoardMember[];
-  count: number;
-}
+import { PaginationParams, BackendPaginatedResponse, PaginatedPayload } from '@/shared/types/auth.types';
 
 export const boardApi = {
-  getBoard: async (): Promise<BoardMember[]> => {
+  getBoard: async (params?: PaginationParams): Promise<PaginatedPayload<BoardMember, 'members'>> => {
+    const filteredParams = params
+      ? Object.fromEntries(
+          Object.entries(params)
+            .filter(([_, v]) => v !== undefined && v !== '')
+            .map(([k, v]) => [k, String(v)])
+        )
+      : undefined;
+
     const response = await apiClient.get<
-      CommitteeApiResponse<BoardListResponse>
-    >(API_ENDPOINTS.BOARD.GET_ALL);
-    return response.data.data.members;
+      BackendPaginatedResponse<BoardMember, 'members'>
+    >(API_ENDPOINTS.BOARD.GET_ALL, { params: filteredParams });
+    return response.data.data;
   },
 
   createBoardMember: async (

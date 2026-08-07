@@ -6,10 +6,7 @@ import type {
   UpdateAwardRequest,
 } from '@/shared/types/award.types';
 
-interface AwardsListResponse {
-  awards: Award[];
-  count: number;
-}
+import { PaginationParams, BackendPaginatedResponse, PaginatedPayload } from '@/shared/types/auth.types';
 
 interface AwardApiResponse<T> {
   data: T;
@@ -24,11 +21,20 @@ export const awardsApi = {
   /**
    * Get all awards ordered by title (ascending)
    */
-  getAwards: async (): Promise<Award[]> => {
-    const response = await apiClient.get<AwardApiResponse<AwardsListResponse>>(
-      API_ENDPOINTS.AWARDS.GET_ALL
+  getAwards: async (params?: PaginationParams): Promise<PaginatedPayload<Award, 'awards'>> => {
+    const filteredParams = params
+      ? Object.fromEntries(
+          Object.entries(params)
+            .filter(([_, v]) => v !== undefined && v !== '')
+            .map(([k, v]) => [k, String(v)])
+        )
+      : undefined;
+
+    const response = await apiClient.get<BackendPaginatedResponse<Award, 'awards'>>(
+      API_ENDPOINTS.AWARDS.GET_ALL,
+      { params: filteredParams }
     );
-    return response.data.data.awards;
+    return response.data.data;
   },
 
   /**

@@ -4,7 +4,8 @@ import { FiEdit2, FiTrash2, FiClock, FiUsers } from 'react-icons/fi';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
 import { AdminMobileCard } from '@/shared/components/AdminMobileCard';
-import { SectionHeader, AddButton, SearchBar, ResponsiveDataList, LoadingBlock, EmptyBlock } from '@/features/admin/components/shared/AdminPageComponents';
+import { AdminDataTable } from '@/features/admin/components/shared/AdminDataTable';
+import { useDebounce } from '@/shared/hooks/useDebounce';
 import AddEditWorkshopModal from './AddEditWorkshopModal';
 import { WorkshopRegistrationsModal } from './WorkshopRegistrationsModal';
 import {
@@ -18,8 +19,18 @@ import type { Workshop, CreateWorkshopRequest, UpdateWorkshopRequest } from '@/s
 const WorkshopsTab: React.FC = () => {
   const { isDark } = useTheme();
   
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
+  // Reset page when search changes
+  React.useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
+
   // Queries & Mutations
-  const { data, isLoading } = useGetAdminWorkshops(1, 100);
+  const { data, isLoading } = useGetAdminWorkshops({ page, limit, search: debouncedSearch });
   const workshops = data?.data || [];
   
   const createMutation = useCreateWorkshop();
@@ -32,19 +43,6 @@ const WorkshopsTab: React.FC = () => {
   const [selectedWorkshop, setSelectedWorkshop] = useState<Workshop | undefined>(undefined);
   const [isRegistrationsModalOpen, setIsRegistrationsModalOpen] = useState(false);
   const [selectedWorkshopForRegistrations, setSelectedWorkshopForRegistrations] = useState<Workshop | undefined>(undefined);
-  const [search, setSearch] = useState('');
-
-  // Filtered list
-  const filteredWorkshops = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return workshops;
-    return workshops.filter(
-      w =>
-        w.title.toLowerCase().includes(q) ||
-        w.description.toLowerCase().includes(q) ||
-        w.location.toLowerCase().includes(q)
-    );
-  }, [workshops, search]);
 
   // Handlers
   const handleAdd = () => {
@@ -189,68 +187,56 @@ const WorkshopsTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <SectionHeader
-        icon={<FiClock className="w-5 h-5 text-primary" />}
+      <AdminDataTable
         title="Workshops Management"
         subtitle="Manage technical workshops and sessions."
+        icon={<FiClock className="w-5 h-5 text-primary" />}
+        addLabel="Add Workshop"
+        onAdd={handleAdd}
+        data={workshops}
+        columns={columns}
+        isLoading={isLoading}
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search by title, description, or location..."
+        emptyMessage="No workshops found. Click 'Add Workshop' to create one."
         isDark={isDark}
-        action={<AddButton label="Add Workshop" onClick={handleAdd} />}
+        page={page}
+        totalPages={data?.totalPages || 1}
+        totalCount={data?.total || 0}
+        onPageChange={setPage}
+        renderMobileCard={(workshop) => {
+          const isPast = new Date(workshop.end_time) < new Date();
+          const badgeText = isPast ? 'Completed' : workshop.is_full ? 'Full' : 'Open';
+          return (
+            <AdminMobileCard
+              isDark={isDark}
+              title={workshop.title}
+              subtitle={`${new Date(workshop.start_time).toLocaleString(undefined, {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })} · ${workshop.capacity - (workshop.remainingSpots ?? workshop.capacity)}/${workshop.capacity} capacity`}
+              badge={badgeText}
+              description={workshop.description}
+              avatar={
+                <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? 'bg-primary/20' : 'bg-primary/10'}`}>
+                  <FiClock className={`w-5 h-5 ${isDark ? 'text-primary-light' : 'text-primary'}`} />
+                </div>
+              }
+              onEdit={() => handleEdit(workshop)}
+              onDelete={() => handleDeleteClick(workshop)}
+              extraActions={[{
+                icon: <FiUsers className="w-3.5 h-3.5" />,
+                label: 'Registrations',
+                onClick: () => handleViewRegistrations(workshop),
+                color: 'info'
+              }]}
+            />
+          );
+        }}
       />
-
-      <SearchBar
-        value={search}
-        onChange={setSearch}
-        placeholder="Search by title, description, or location..."
-        isDark={isDark}
-      />
-
-      {isLoading ? (
-        <LoadingBlock isDark={isDark} text="Loading workshops..." />
-      ) : filteredWorkshops.length === 0 ? (
-        <EmptyBlock
-          isDark={isDark}
-          message={search ? 'No matching workshops' : 'No workshops found. Click \'Add Workshop\' to create one.'}
-          onAdd={!search ? handleAdd : undefined}
-          addLabel="Add Workshop"
-        />
-      ) : (
-        <ResponsiveDataList
-          data={filteredWorkshops}
-          columns={columns}
-          isDark={isDark}
-          renderMobileCard={(workshop) => {
-            const isPast = new Date(workshop.end_time) < new Date();
-            const badgeText = isPast ? 'Completed' : workshop.is_full ? 'Full' : 'Open';
-            return (
-              <AdminMobileCard
-                isDark={isDark}
-                title={workshop.title}
-                subtitle={`${new Date(workshop.start_time).toLocaleString(undefined, {
-                  month: 'short',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })} · ${workshop.capacity - (workshop.remainingSpots ?? workshop.capacity)}/${workshop.capacity} capacity`}
-                badge={badgeText}
-                description={workshop.description}
-                avatar={
-                  <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? 'bg-primary/20' : 'bg-primary/10'}`}>
-                    <FiClock className={`w-5 h-5 ${isDark ? 'text-primary-light' : 'text-primary'}`} />
-                  </div>
-                }
-                onEdit={() => handleEdit(workshop)}
-                onDelete={() => handleDeleteClick(workshop)}
-                extraActions={[{
-                  icon: <FiUsers className="w-3.5 h-3.5" />,
-                  label: 'Registrations',
-                  onClick: () => handleViewRegistrations(workshop),
-                  color: 'info'
-                }]}
-              />
-            );
-          }}
-        />
-      )}
 
       <AddEditWorkshopModal
         isOpen={isAddEditOpen}
