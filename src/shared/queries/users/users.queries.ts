@@ -168,7 +168,7 @@ export const usersApi = {
  */
 export const useUsers = (params: PaginationParams) => {
   return useQuery({
-    queryKey: [...QUERY_KEYS.USERS.ALL, params.page, params.limit],
+    queryKey: [...QUERY_KEYS.USERS.ALL, params],
     queryFn: () => usersApi.getUsers(params),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });

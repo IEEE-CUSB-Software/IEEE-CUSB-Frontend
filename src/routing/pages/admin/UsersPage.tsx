@@ -12,9 +12,10 @@ import { DataTable } from '@ieee-ui/ui';
 import AddUserModal from '@/features/admin/components/usersAdminPanel/AddUserModal';
 import UserDetailModal from '@/features/admin/components/usersAdminPanel/UserDetailModal';
 import ChangeUserRoleModal from '@/features/admin/components/usersAdminPanel/ChangeUserRoleModal';
-import { useUsers, useDeleteUser } from '@/shared/queries/users/users.queries';
+import { useUsers, useDeleteUser, useRoles } from '@/shared/queries/users/users.queries';
 import type { User } from '@/shared/types/auth.types';
 import { useDebounce } from '@/shared/hooks/useDebounce';
+import UniversityList from '@/constants/universityList';
 
 const value = (input: string | number | null | undefined) =>
   input === null || input === undefined || input === '' ? 'Not provided' : String(input);
@@ -31,16 +32,29 @@ export const UsersPage = () => {
   
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 300);
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
   
   const limit = 10;
-  // Passing debouncedSearch directly to the backend hook
-  const { data, isLoading } = useUsers({ page, limit, search: debouncedSearch });
-  const deleteUserMutation = useDeleteUser();
+  
+  const searchType = filterValues.searchBy || 'name';
 
-  // Reset page to 1 when search changes
+  // Pass debouncedSearch to the correct API param based on searchType
+  const { data, isLoading } = useUsers({ 
+    page, 
+    limit, 
+    search: searchType === 'name' ? debouncedSearch : undefined,
+    username: searchType === 'username' ? debouncedSearch : undefined,
+    email: searchType === 'email' ? debouncedSearch : undefined,
+    roleId: filterValues.roleId,
+    university: filterValues.university
+  });
+  const deleteUserMutation = useDeleteUser();
+  const { data: roles } = useRoles();
+
+  // Reset page to 1 when search or filters change
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch]);
+  }, [debouncedSearch, filterValues]);
 
   const users = useMemo(() => (Array.isArray(data?.data) ? data.data : []), [data]);
   const totalPages = data?.meta?.totalPages ?? 1;
@@ -85,11 +99,14 @@ export const UsersPage = () => {
       },
       {
         header: 'Role',
-        cell: (item) => (
-          <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${isDark ? 'bg-primary/20 text-primary-light' : 'bg-primary/10 text-primary'}`}>
-            {item.role?.name || 'Visitor'}
-          </span>
-        ),
+        cell: (item) => {
+          const userRole = item.role?.name || roles?.find(r => r.id === item.role_id)?.name || 'Visitor';
+          return (
+            <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${isDark ? 'bg-primary/20 text-primary-light' : 'bg-primary/10 text-primary'}`}>
+              {userRole}
+            </span>
+          );
+        },
       },
       {
         header: 'Contact',
@@ -170,7 +187,43 @@ export const UsersPage = () => {
         isLoading={isLoading}
         search={search}
         onSearchChange={setSearch}
-        searchPlaceholder="Search by name, email, username, phone, university..."
+        searchPlaceholder={`Search by ${filterValues.searchBy || 'name'}...`}
+        filters={[
+          {
+            key: 'searchBy',
+            label: 'Search Field',
+            placeholder: 'Name',
+            options: [
+              { label: 'Name', value: 'name' },
+              { label: 'Username', value: 'username' },
+              { label: 'Email', value: 'email' },
+            ]
+          },
+          {
+            key: 'roleId',
+            label: 'Role',
+            placeholder: 'All Roles',
+            options: (roles || []).map(role => ({
+              label: role.name,
+              value: role.id,
+            })),
+          },
+          {
+            key: 'university',
+            label: 'University',
+            placeholder: 'All Universities',
+            options: UniversityList.map(u => ({
+              label: u,
+              value: u,
+            })),
+          }
+        ]}
+        filterValues={filterValues}
+        onFilterChange={(key, value) => setFilterValues(prev => ({ ...prev, [key]: value }))}
+        onClearFilters={() => {
+          setFilterValues({});
+          setSearch('');
+        }}
         page={page}
         totalPages={totalPages}
         totalCount={totalCount}
@@ -181,7 +234,7 @@ export const UsersPage = () => {
           <AdminMobileCard
             isDark={isDark}
             title={user.name}
-            subtitle={`@${user.username} · ${user.role?.name || 'Visitor'}`}
+            subtitle={`@${user.username} · ${user.role?.name || roles?.find(r => r.id === user.role_id)?.name || 'Visitor'}`}
             badge={hasCv(user) ? 'CV uploaded' : 'No CV'}
             description={`${user.email}${user.phone ? ` · ${user.phone}` : ''}`}
             avatar={

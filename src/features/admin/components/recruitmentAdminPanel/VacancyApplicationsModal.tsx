@@ -1,13 +1,13 @@
 import { useState, useMemo } from 'react';
 import {
   Modal,
-  Table,
   type ColumnDef,
   Button,
-  Loader,
   ErrorScreen,
+  DataTable,
+  DatePicker,
 } from '@ieee-ui/ui';
-import { Pagination } from '@/shared/components/ui/Pagination';
+
 import { FaUser } from 'react-icons/fa';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { MobileVacancyApplicationsCard } from './MobileVacancyApplicationsCard';
@@ -15,11 +15,9 @@ import {
   Application,
   ApplicationStatus,
 } from '@/shared/types/recruitment.types';
-import {
-  useGetAllApplications,
-  useUpdateApplicationStatus,
-} from '@/shared/queries/recruitment/recruitment.queries';
-import { ApplicationsFilterBar } from './ApplicationsFilterBar';
+import { useGetAllApplications, useUpdateApplicationStatus } from '@/shared/queries/recruitment/recruitment.queries';
+import { useDebounce } from '@/shared/hooks/useDebounce';
+
 import UserInfo from '../shared/UserInfo';
 
 type ApplicationFilter = 'ALL' | ApplicationStatus;
@@ -44,6 +42,8 @@ export const VacancyApplicationsModal = ({
   const [endDate, setEndDate] = useState('');
   const [activeApps, setActiveApps] = useState<ApplicationFilter>('ALL');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
 
   const { data, isLoading, isError } = useGetAllApplications({
     vacancyId,
@@ -72,9 +72,15 @@ export const VacancyApplicationsModal = ({
 
           const matchesEnd = !endDate || applicationDate <= new Date(endDate);
 
-          return matchesStart && matchesEnd;
+          const searchLower = debouncedSearch.toLowerCase();
+          const matchesSearch = !searchLower || 
+            (app.user?.name?.toLowerCase().includes(searchLower)) ||
+            (app.user?.email?.toLowerCase().includes(searchLower)) ||
+            (app.user_id.toLowerCase().includes(searchLower));
+
+          return matchesStart && matchesEnd && matchesSearch;
         });
-  }, [applications, startDate, endDate]);
+  }, [applications, startDate, endDate, debouncedSearch]);
 
   // Transform and filter applications based on the active filter
   const getFilteredApplications = () => {
@@ -227,68 +233,15 @@ export const VacancyApplicationsModal = ({
       darkMode={isDark}
     >
       <div className="space-y-4">
-        {isLoading ? (
-          <div className="flex h-64 items-center justify-center">
-            <Loader text="Loading applications..." />
-          </div>
-        ) : isError ? (
+        {isError ? (
           <ErrorScreen
             title="Failed to load applications"
             message="Please try again later."
             className="h-64"
             darkMode={isDark}
           />
-        ) : applications.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            No applications found for this vacancy.
-          </div>
         ) : (
           <>
-            <div className="flex flex-col sm:flex-row items-start justify-between w-full gap-4 mb-6">
-              <ApplicationsFilterBar
-                activeFilter={activeApps}
-                onFilterChange={filter => setActiveApps(filter as ApplicationFilter)}
-                darkMode={isDark}
-              />
-              <div className="flex flex-row items-end gap-4 mb-6">
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="startDate" className="text-sm font-medium">
-                    Start Date
-                  </label>
-                  <input
-                    id="startDate"
-                    type="date"
-                    value={startDate}
-                    onChange={e => setStartDate(e.target.value)}
-                    className="rounded-lg border px-3 py-2"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="endDate" className="text-sm font-medium">
-                    End Date
-                  </label>
-                  <input
-                    id="endDate"
-                    type="date"
-                    value={endDate}
-                    onChange={e => setEndDate(e.target.value)}
-                    className="rounded-lg border px-3 py-2"
-                  />
-                </div>
-
-                <button
-                  onClick={() => {
-                    setStartDate('');
-                    setEndDate('');
-                  }}
-                  className="h-[42px] rounded-lg border border-gray-300 px-4 text-sm font-medium hover:bg-gray-100"
-                >
-                  Clear
-                </button>
-              </div>
-            </div>
-
             <UserInfo
               isOpen={menuOpen}
               onClose={() => setMenuOpen(false)}
@@ -296,36 +249,71 @@ export const VacancyApplicationsModal = ({
               extraDetails={selectedApplication.extra_data}
             />
 
-            {/* Mobile View - Cards */}
-            <div className="block md:hidden space-y-3">
-              {filteredApplications.map((app: Application) => (
+            <DataTable
+              data={filteredApplications}
+              columns={columns}
+              darkMode={isDark}
+              emptyMessage="No applications found"
+              isLoading={isLoading}
+              filters={[
+                {
+                  key: 'status',
+                  label: 'Status',
+                  placeholder: 'All Statuses',
+                  options: [
+                    { label: 'Pending', value: 'PENDING' },
+                    { label: 'Accepted', value: 'ACCEPTED' },
+                    { label: 'Rejected', value: 'REJECTED' },
+                  ],
+                },
+              ]}
+              filterValues={{ status: activeApps === 'ALL' ? '' : activeApps }}
+              onFilterChange={(key, value) => {
+                if (key === 'status') {
+                  setActiveApps((value as ApplicationFilter) || 'ALL');
+                }
+              }}
+              onClearFilters={() => {
+                setActiveApps('ALL');
+                setStartDate('');
+                setEndDate('');
+                setSearch('');
+              }}
+              search={search}
+              onSearchChange={setSearch}
+              searchPlaceholder="Search applicants by name or email..."
+              customFilters={
+                <>
+                  <div className="w-[140px]">
+                    <DatePicker
+                      id="startDate"
+                      value={startDate}
+                      onChange={setStartDate}
+                      darkMode={isDark}
+                    />
+                  </div>
+                  <div className="w-[140px]">
+                    <DatePicker
+                      id="endDate"
+                      value={endDate}
+                      onChange={setEndDate}
+                      darkMode={isDark}
+                    />
+                  </div>
+                </>
+              }
+              renderMobileCard={app => (
                 <MobileVacancyApplicationsCard
-                  key={app.id}
                   application={app}
                   isDark={isDark}
                   isUpdating={isUpdating}
                   onUpdateStatus={handleUpdateStatus}
                 />
-              ))}
-            </div>
-
-            {/* Desktop View - Table */}
-            <div className="hidden md:block w-full overflow-x-auto">
-              <Table
-                data={filteredApplications}
-                columns={columns}
-                darkMode={isDark}
-                emptyMessage="No applications found"
-              />
-            </div>
-
-            {totalPages > 1 && !startDate && !endDate && (
-              <Pagination
-                currentPage={page}
-                totalPages={totalPages}
-                onPageChange={setPage}
-              />
-            )}
+              )}
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
           </>
         )}
       </div>

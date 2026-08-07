@@ -54,17 +54,18 @@ export const EventsPage = () => {
   
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 300);
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
   
   /* API hooks */
-  const { data, isLoading } = useEvents({ page, limit, search: debouncedSearch });
+  const { data, isLoading } = useEvents({ page, limit, search: debouncedSearch, category: filterValues.category });
   const createEventMutation = useCreateEvent();
   const updateEventMutation = useUpdateEvent();
   const deleteEventMutation = useDeleteEvent();
 
-  // Reset page to 1 when search changes
+  // Reset page to 1 when search or filters change
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch]);
+  }, [debouncedSearch, filterValues]);
 
   const events = useMemo(
     () => (Array.isArray(data?.data) ? data.data : []),
@@ -334,6 +335,24 @@ export const EventsPage = () => {
         search={search}
         onSearchChange={setSearch}
         searchPlaceholder="Search by title, description, or location…"
+        filters={[
+          {
+            key: 'category',
+            label: 'Category',
+            placeholder: 'All Categories',
+            options: [
+              { label: 'Technical', value: 'Technical' },
+              { label: 'Non-Technical', value: 'Non-Technical' },
+              { label: 'Social', value: 'Social' },
+            ],
+          },
+        ]}
+        filterValues={filterValues}
+        onFilterChange={(key, value) => setFilterValues(prev => ({ ...prev, [key]: value }))}
+        onClearFilters={() => {
+          setFilterValues({});
+          setSearch('');
+        }}
         page={page}
         totalPages={totalPages}
         totalCount={totalCount}

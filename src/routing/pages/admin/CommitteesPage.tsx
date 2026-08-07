@@ -752,8 +752,9 @@ const MembersView = ({
 }) => {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 300);
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
 
-  const { data: mems, isLoading } = useCommitteeMembers(committee.id, { search: debouncedSearch });
+  const { data: mems, isLoading } = useCommitteeMembers(committee.id, { search: debouncedSearch, role: filterValues.role });
   const createMutation = useCreateCommitteeMember();
   const updateMutation = useUpdateCommitteeMember();
   const deleteMutation = useDeleteCommitteeMember();
@@ -867,6 +868,23 @@ const MembersView = ({
         search={search}
         onSearchChange={setSearch}
         searchPlaceholder="Search members…"
+        filters={[
+          {
+            key: 'role',
+            label: 'Role',
+            placeholder: 'All Roles',
+            options: Object.entries(MEMBER_ROLE_LABELS).map(([value, label]) => ({
+              label,
+              value,
+            })),
+          },
+        ]}
+        filterValues={filterValues}
+        onFilterChange={(key, value) => setFilterValues(prev => ({ ...prev, [key]: value }))}
+        onClearFilters={() => {
+          setFilterValues({});
+          setSearch('');
+        }}
         emptyMessage="No members yet"
         darkMode={isDark}
         renderMobileCard={item => (

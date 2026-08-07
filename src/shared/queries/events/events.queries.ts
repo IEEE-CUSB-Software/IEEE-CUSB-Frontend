@@ -19,7 +19,7 @@ import type {
  */
 export const useEvents = (params: PaginationParams) => {
   return useQuery({
-    queryKey: [...QUERY_KEYS.EVENTS.ALL, params.page, params.limit],
+    queryKey: [...QUERY_KEYS.EVENTS.ALL, params],
     queryFn: () => eventsApi.getEvents(params),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });

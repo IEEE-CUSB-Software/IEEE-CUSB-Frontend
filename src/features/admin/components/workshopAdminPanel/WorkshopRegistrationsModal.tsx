@@ -1,14 +1,12 @@
 import { useState, useMemo } from 'react';
 import {
   Modal,
-  Table,
   type ColumnDef,
   Button,
-  Loader,
   ErrorScreen,
+  DataTable,
 } from '@ieee-ui/ui';
-import { Pagination } from '@/shared/components/ui/Pagination';
-import { SearchBar } from '@/features/admin/components/shared/AdminPageComponents';
+
 import {
   useGetWorkshopRegistrations,
   useUpdateRegistrationStatus,
@@ -195,61 +193,35 @@ export const WorkshopRegistrationsModal = ({
       darkMode={isDark}
     >
       <div className="space-y-4">
-        {isLoading ? (
-          <div className="flex h-64 items-center justify-center">
-            <Loader text="Loading registrations..." />
-          </div>
-        ) : isError ? (
+        {isError ? (
           <ErrorScreen
             title="Failed to load registrations"
             message="Please try again later."
             className="h-64"
             darkMode={isDark}
           />
-        ) : registrations.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            No registrations found for this workshop.
-          </div>
         ) : (
-          <>
-            <SearchBar
-              value={search}
-              onChange={setSearch}
-              placeholder="Search registrations by name or email..."
-              isDark={isDark}
-            />
-
-            {/* Mobile View - Cards */}
-            <div className="block md:hidden space-y-3">
-              {filteredRegistrations.map(reg => (
-                <MobileWorkshopRegistrationCard
-                  key={reg.id}
-                  registration={reg}
-                  isDark={isDark}
-                  isUpdating={isUpdating}
-                  onUpdateStatus={handleUpdateStatus}
-                />
-              ))}
-            </div>
-
-            {/* Desktop View - Table */}
-            <div className="hidden md:block w-full overflow-x-auto">
-              <Table
-                data={filteredRegistrations}
-                columns={columns}
-                darkMode={isDark}
-                emptyMessage="No registrations found"
-              />
-            </div>
-
-            {totalPages > 1 && !search && (
-              <Pagination
-                currentPage={page}
-                totalPages={totalPages}
-                onPageChange={setPage}
+          <DataTable
+            data={filteredRegistrations}
+            columns={columns}
+            darkMode={isDark}
+            emptyMessage="No registrations found for this workshop."
+            isLoading={isLoading}
+            search={search}
+            onSearchChange={setSearch}
+            searchPlaceholder="Search registrations by name or email..."
+            renderMobileCard={reg => (
+              <MobileWorkshopRegistrationCard
+                registration={reg}
+                isDark={isDark}
+                isUpdating={isUpdating}
+                onUpdateStatus={handleUpdateStatus}
               />
             )}
-          </>
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         )}
       </div>
     </Modal>

@@ -13,7 +13,7 @@ import {
   FiUsers,
 } from 'react-icons/fi';
 import { Modal } from '@ieee-ui/ui';
-import { usersApi } from '@/shared/queries/users/users.queries';
+import { usersApi, useRoles } from '@/shared/queries/users/users.queries';
 import type { User } from '@/shared/types/auth.types';
 import toast from 'react-hot-toast';
 
@@ -40,6 +40,7 @@ export const UserDetailModal = ({
   const { user: currentUser } = useAppSelector((state) => state.auth);
   const isSuperAdmin = currentUser?.role?.name === RoleName.SUPER_ADMIN;
   const [cvLoading, setCvLoading] = useState<'view' | 'download' | null>(null);
+  const { data: roles } = useRoles();
 
   if (!user) return null;
 
@@ -94,7 +95,7 @@ export const UserDetailModal = ({
             </div>
             <div className="flex items-center gap-2">
               <span className="w-fit rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold text-foreground">
-                {user.role?.name || 'Visitor'}
+                {user.role?.name || roles?.find(r => r.id === user.role_id)?.name || 'Visitor'}
               </span>
               {isSuperAdmin && (
                 <button
