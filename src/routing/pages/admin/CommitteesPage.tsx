@@ -5,7 +5,7 @@ import { FiEdit2, FiTrash2, FiUsers, FiGrid } from 'react-icons/fi';
 import { type ColumnDef } from '@ieee-ui/ui';
 import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
 import { AdminMobileCard } from '@/shared/components/AdminMobileCard';
-import { AdminDataTable } from '@/features/admin/components/shared/AdminDataTable';
+import { DataTable } from '@ieee-ui/ui';
 import { useDebounce } from '@/shared/hooks/useDebounce';
 
 // ── Queries ─────────────────────────────────────────────────
@@ -285,12 +285,22 @@ const BoardSection = ({ isDark }: { isDark: boolean }) => {
 
   return (
     <div className="space-y-5">
-      <AdminDataTable
+      <DataTable
         title="High Board"
         subtitle="Manage executive board members"
-        icon={<FiUsers className="w-5 h-5 text-primary" />}
-        addLabel="Add Member"
-        onAdd={() => { setEditTarget(undefined); setModalOpen(true); }}
+        headerIcon={<FiUsers className="w-5 h-5 text-primary" />}
+        headerAction={
+          <button
+            onClick={() => { setEditTarget(undefined); setModalOpen(true); }}
+            className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary/90 active:scale-95 transition-all duration-200 shadow-md shadow-primary/20 flex-shrink-0"
+          >
+            <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" className="text-xl" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+              <path fill="none" d="M0 0h24v24H0V0z" />
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+            </svg>
+            Add Member
+          </button>
+        }
         data={members}
         columns={columns}
         isLoading={isLoading}
@@ -298,7 +308,7 @@ const BoardSection = ({ isDark }: { isDark: boolean }) => {
         onSearchChange={setSearch}
         searchPlaceholder="Search board members…"
         emptyMessage="No board members yet"
-        isDark={isDark}
+        darkMode={isDark}
         renderMobileCard={item => (
           <AdminMobileCard
             isDark={isDark}
@@ -461,12 +471,22 @@ const CategoriesSection = ({
 
   return (
     <div className="space-y-5">
-      <AdminDataTable
+      <DataTable
         title="Categories"
         subtitle="Manage available committee categories"
-        icon={<FiGrid className="w-5 h-5 text-primary" />}
-        addLabel="Add Category"
-        onAdd={() => { setEditTarget(undefined); setModalOpen(true); }}
+        headerIcon={<FiGrid className="w-5 h-5 text-primary" />}
+        headerAction={
+          <button
+            onClick={() => { setEditTarget(undefined); setModalOpen(true); }}
+            className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary/90 active:scale-95 transition-all duration-200 shadow-md shadow-primary/20 flex-shrink-0"
+          >
+            <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" className="text-xl" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+              <path fill="none" d="M0 0h24v24H0V0z" />
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+            </svg>
+            Add Category
+          </button>
+        }
         data={categories}
         columns={columns}
         isLoading={isLoading}
@@ -474,7 +494,7 @@ const CategoriesSection = ({
         onSearchChange={setSearch}
         searchPlaceholder="Search categories…"
         emptyMessage="No categories yet"
-        isDark={isDark}
+        darkMode={isDark}
         renderMobileCard={cat => (
           <AdminMobileCard
             isDark={isDark}
@@ -645,12 +665,22 @@ const CommitteesView = ({
 
   return (
     <div className="space-y-5">
-      <AdminDataTable
+      <DataTable
         title="Committees"
         subtitle={`Manage committees in ${category.name}`}
-        icon={<FiGrid className="w-5 h-5 text-primary" />}
-        addLabel="Add Committee"
-        onAdd={() => { setEditTarget(undefined); setModalOpen(true); }}
+        headerIcon={<FiGrid className="w-5 h-5 text-primary" />}
+        headerAction={
+          <button
+            onClick={() => { setEditTarget(undefined); setModalOpen(true); }}
+            className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary/90 active:scale-95 transition-all duration-200 shadow-md shadow-primary/20 flex-shrink-0"
+          >
+            <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" className="text-xl" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+              <path fill="none" d="M0 0h24v24H0V0z" />
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+            </svg>
+            Add Committee
+          </button>
+        }
         data={committees}
         columns={columns}
         isLoading={isLoading}
@@ -658,7 +688,7 @@ const CommitteesView = ({
         onSearchChange={setSearch}
         searchPlaceholder="Search committees…"
         emptyMessage="No committees yet"
-        isDark={isDark}
+        darkMode={isDark}
         renderMobileCard={item => (
           <AdminMobileCard
             isDark={isDark}
@@ -815,12 +845,22 @@ const MembersView = ({
 
   return (
     <div className="space-y-5">
-      <AdminDataTable
+      <DataTable
         title="Members"
         subtitle={`Manage members of ${committee.name}`}
-        icon={<FiUsers className="w-5 h-5 text-primary" />}
-        addLabel="Add Member"
-        onAdd={() => { setEditTarget(undefined); setModalOpen(true); }}
+        headerIcon={<FiUsers className="w-5 h-5 text-primary" />}
+        headerAction={
+          <button
+            onClick={() => { setEditTarget(undefined); setModalOpen(true); }}
+            className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary/90 active:scale-95 transition-all duration-200 shadow-md shadow-primary/20 flex-shrink-0"
+          >
+            <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" className="text-xl" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+              <path fill="none" d="M0 0h24v24H0V0z" />
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+            </svg>
+            Add Member
+          </button>
+        }
         data={members}
         columns={columns}
         isLoading={isLoading}
@@ -828,7 +868,7 @@ const MembersView = ({
         onSearchChange={setSearch}
         searchPlaceholder="Search members…"
         emptyMessage="No members yet"
-        isDark={isDark}
+        darkMode={isDark}
         renderMobileCard={item => (
           <AdminMobileCard
             isDark={isDark}

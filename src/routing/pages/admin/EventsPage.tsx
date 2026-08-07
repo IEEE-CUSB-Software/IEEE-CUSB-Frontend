@@ -7,7 +7,7 @@ import { EventRegistrationsModal } from '@/features/admin/components/eventAdminP
 import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
 import { AdminMobileCard } from '@/shared/components/AdminMobileCard';
 import { type ColumnDef } from '@ieee-ui/ui';
-import { AdminDataTable } from '@/features/admin/components/shared/AdminDataTable';
+import { DataTable } from '@ieee-ui/ui';
 import {
   useEvents,
   useCreateEvent,
@@ -312,12 +312,22 @@ export const EventsPage = () => {
 
   return (
     <div className="space-y-6">
-      <AdminDataTable
+      <DataTable
         title="Event Management"
         subtitle="Create and manage upcoming events"
-        icon={<FiCalendar className="w-5 h-5 text-primary" />}
-        addLabel="Add Event"
-        onAdd={handleAdd}
+        headerIcon={<FiCalendar className="w-5 h-5 text-primary" />}
+        headerAction={
+          <button
+            onClick={handleAdd}
+            className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary/90 active:scale-95 transition-all duration-200 shadow-md shadow-primary/20 flex-shrink-0"
+          >
+            <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" className="text-xl" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+              <path fill="none" d="M0 0h24v24H0V0z" />
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+            </svg>
+            Add Event
+          </button>
+        }
         data={events}
         columns={columns}
         isLoading={isLoading}
@@ -329,7 +339,7 @@ export const EventsPage = () => {
         totalCount={totalCount}
         onPageChange={handlePageChange}
         emptyMessage="No events yet"
-        isDark={isDark}
+        darkMode={isDark}
         renderMobileCard={(event) => (
           <AdminMobileCard
             isDark={isDark}

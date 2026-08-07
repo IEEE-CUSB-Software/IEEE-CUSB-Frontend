@@ -8,7 +8,7 @@ import {
 import { type ColumnDef } from '@ieee-ui/ui';
 import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
 import { AdminMobileCard } from '@/shared/components/AdminMobileCard';
-import { AdminDataTable } from '@/features/admin/components/shared/AdminDataTable';
+import { DataTable } from '@ieee-ui/ui';
 import AddUserModal from '@/features/admin/components/usersAdminPanel/AddUserModal';
 import UserDetailModal from '@/features/admin/components/usersAdminPanel/UserDetailModal';
 import ChangeUserRoleModal from '@/features/admin/components/usersAdminPanel/ChangeUserRoleModal';
@@ -149,12 +149,22 @@ export const UsersPage = () => {
 
   return (
     <div className="space-y-6">
-      <AdminDataTable
+      <DataTable
         title="User Management"
         subtitle="View and manage student branch users and their CVs"
-        icon={<FiUsers className="h-5 w-5 text-primary" />}
-        addLabel="Add User"
-        onAdd={() => setIsAddUserModalOpen(true)}
+        headerIcon={<FiUsers className="h-5 w-5 text-primary" />}
+        headerAction={
+          <button
+            onClick={() => setIsAddUserModalOpen(true)}
+            className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary/90 active:scale-95 transition-all duration-200 shadow-md shadow-primary/20 flex-shrink-0"
+          >
+            <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" className="text-xl" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+              <path fill="none" d="M0 0h24v24H0V0z" />
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+            </svg>
+            Add User
+          </button>
+        }
         data={users}
         columns={columns}
         isLoading={isLoading}
@@ -166,7 +176,7 @@ export const UsersPage = () => {
         totalCount={totalCount}
         onPageChange={handlePageChange}
         emptyMessage="No users yet."
-        isDark={isDark}
+        darkMode={isDark}
         renderMobileCard={(user) => (
           <AdminMobileCard
             isDark={isDark}

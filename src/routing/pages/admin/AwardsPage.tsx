@@ -4,7 +4,7 @@ import { HiTrophy } from 'react-icons/hi2';
 import { FiEdit2, FiTrash2, FiAward } from 'react-icons/fi';
 import { type ColumnDef } from '@ieee-ui/ui';
 import { AdminMobileCard } from '@/shared/components/AdminMobileCard';
-import { AdminDataTable } from '@/features/admin/components/shared/AdminDataTable';
+import { DataTable } from '@ieee-ui/ui';
 import AddEditAwardModal from '@/features/admin/components/awardAdminPanel/AddEditAwardModal';
 import AwardDetailModal from '@/features/admin/components/awardAdminPanel/AwardDetailModal';
 import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
@@ -216,12 +216,22 @@ export const AwardsPage = () => {
 
   return (
     <div className="space-y-6">
-      <AdminDataTable
+      <DataTable
         title="Awards Management"
         subtitle="Manage IEEE awards and recognitions"
-        icon={<FiAward className="w-5 h-5 text-primary" />}
-        addLabel="Add Award"
-        onAdd={handleAdd}
+        headerIcon={<FiAward className="w-5 h-5 text-primary" />}
+        headerAction={
+          <button
+            onClick={handleAdd}
+            className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary/90 active:scale-95 transition-all duration-200 shadow-md shadow-primary/20 flex-shrink-0"
+          >
+            <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" className="text-xl" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+              <path fill="none" d="M0 0h24v24H0V0z" />
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+            </svg>
+            Add Award
+          </button>
+        }
         data={awards}
         columns={columns}
         isLoading={isLoading}
@@ -229,7 +239,7 @@ export const AwardsPage = () => {
         onSearchChange={setSearch}
         searchPlaceholder="Search by title or description…"
         emptyMessage="No awards yet"
-        isDark={isDark}
+        darkMode={isDark}
         renderMobileCard={award => (
           <AdminMobileCard
             isDark={isDark}

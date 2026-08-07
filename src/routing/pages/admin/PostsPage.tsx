@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { type ColumnDef } from '@ieee-ui/ui';
-import { AdminDataTable } from '@/features/admin/components/shared/AdminDataTable';
+import { DataTable } from '@ieee-ui/ui';
 import AddEditPostModal from '../../../features/admin/components/posts/AddEditPostModal';
 // Mock Data
 const posts = [
@@ -113,12 +113,22 @@ export const PostsPage = () => {
 
   return (
     <div className="space-y-6">
-      <AdminDataTable
+      <DataTable
         title="Blog Posts"
         subtitle="Manage blog posts and articles"
-        icon={<FiEdit2 className="w-5 h-5 text-primary" />}
-        addLabel="Create Post"
-        onAdd={() => setIsPostModalOpen(true)}
+        headerIcon={<FiEdit2 className="w-5 h-5 text-primary" />}
+        headerAction={
+          <button
+            onClick={() => setIsPostModalOpen(true)}
+            className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary/90 active:scale-95 transition-all duration-200 shadow-md shadow-primary/20 flex-shrink-0"
+          >
+            <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" className="text-xl" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+              <path fill="none" d="M0 0h24v24H0V0z" />
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+            </svg>
+            Create Post
+          </button>
+        }
         data={filteredPosts}
         columns={columns}
         isLoading={false}
@@ -126,7 +136,7 @@ export const PostsPage = () => {
         onSearchChange={setSearch}
         searchPlaceholder="Search posts..."
         emptyMessage="No posts found"
-        isDark={isDark}
+        darkMode={isDark}
         renderMobileCard={post => (
           <div className={`p-4 rounded-xl border ${isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'} space-y-4`}>
             <div className="flex justify-between items-start gap-4">
