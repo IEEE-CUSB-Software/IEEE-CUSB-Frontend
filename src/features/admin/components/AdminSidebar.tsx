@@ -2,12 +2,10 @@ import React from 'react';
 import {
   FiHome,
   FiCalendar,
-  FiMapPin,
+  FiAward,
   FiUsers,
-  FiBarChart2,
   FiLogOut,
   FiBookOpen,
-  FiAward,
 } from 'react-icons/fi';
 import { RiUserCommunityLine } from 'react-icons/ri';
 import { BsPersonWorkspace } from 'react-icons/bs';
@@ -69,28 +67,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       path: '/admin/awards',
     },
     {
-      id: 'posts',
-      label: 'Posts',
-      icon: <FiBookOpen className="w-5 h-5" />,
-      path: '/admin/posts',
-    },
-    {
-      id: 'locations',
-      label: 'Locations',
-      icon: <FiMapPin className="w-5 h-5" />,
-      path: '/admin/locations',
-    },
-    {
       id: 'users',
       label: 'Users',
       icon: <FiUsers className="w-5 h-5" />,
       path: '/admin/users',
-    },
-    {
-      id: 'statistics',
-      label: 'Statistics',
-      icon: <FiBarChart2 className="w-5 h-5" />,
-      path: '/admin/statistics',
     },
     {
       id: 'recruitment',

@@ -3,6 +3,7 @@ import { useWorkshops } from '@/shared/queries/workshops';
 import { Pagination } from '@/shared/components/ui/Pagination';
 import type { Workshop } from '@/shared/types/workshops.types';
 import { useTheme } from '@/shared/hooks/useTheme';
+import { useDebounce } from '@/shared/hooks/useDebounce';
 import { WorkshopsFilterBar } from './WorkshopsFilterBar';
 import { WorkshopCard } from './WorkshopCard';
 
@@ -75,10 +76,13 @@ export const WorkshopsListSection = () => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('All');
   const [page, setPage] = useState(1);
   const limit = 12;
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
 
   const { data, isLoading, isError, error, isFetching } = useWorkshops({
     page,
-    limit
+    limit,
+    search: debouncedSearch
   });
 
   // Safely extract workshops array - handle different response structures
@@ -113,6 +117,8 @@ export const WorkshopsListSection = () => {
           <WorkshopsFilterBar
             activeFilter={activeFilter}
             onFilterChange={setActiveFilter}
+            search={search}
+            onSearchChange={setSearch}
             darkMode={isDark}
           />
 
@@ -185,6 +191,8 @@ export const WorkshopsListSection = () => {
         <WorkshopsFilterBar
           activeFilter={activeFilter}
           onFilterChange={setActiveFilter}
+          search={search}
+          onSearchChange={setSearch}
           darkMode={isDark}
         />
 

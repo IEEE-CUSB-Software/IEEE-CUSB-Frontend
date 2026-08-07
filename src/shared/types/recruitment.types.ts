@@ -70,10 +70,12 @@ export interface GetAllApplicationsParams {
   endDate?: string;
   page?: number;
   limit?: number;
+  [key: string]: any;
 }
 
 export interface ExportApplicationsParams {
   vacancyId: string;
   startDate?: string;
   endDate?: string;
+  [key: string]: any;
 }

@@ -16,6 +16,8 @@ import {
   EventRegistrationStatus,
 } from '@/shared/types/events.types';
 import { useTheme } from '@/shared/hooks/useTheme';
+import { useDebounce } from '@/shared/hooks/useDebounce';
+import UniversityList from '@/constants/universityList';
 import { MobileRegistrationCard } from './MobileRegistrationCard';
 
 interface EventRegistrationsModalProps {
@@ -34,10 +36,23 @@ export const EventRegistrationsModal = ({
   const { isDark } = useTheme();
   const [page, setPage] = useState(1);
   const limit = 10;
+  
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+  
+  const searchType = filterValues.searchBy || 'name';
 
   const { data, isLoading, isError } = useEventRegistrations(
     eventId,
-    { page, limit },
+    { 
+      page, 
+      limit,
+      search: searchType === 'name' ? debouncedSearch : undefined,
+      username: searchType === 'username' ? debouncedSearch : undefined,
+      email: searchType === 'email' ? debouncedSearch : undefined,
+      university: filterValues.university || undefined,
+    },
     isOpen
   );
 
@@ -189,6 +204,33 @@ export const EventRegistrationsModal = ({
             darkMode={isDark}
             emptyMessage="No registrations found for this event."
             isLoading={isLoading}
+            search={search}
+            onSearchChange={setSearch}
+            searchPlaceholder={`Search by ${filterValues.searchBy || 'name'}...`}
+            filters={[
+              {
+                key: 'searchBy',
+                label: 'Search Field',
+                placeholder: 'Name',
+                options: [
+                  { label: 'Name', value: 'name' },
+                  { label: 'Username', value: 'username' },
+                  { label: 'Email', value: 'email' },
+                ],
+              },
+              {
+                key: 'university',
+                label: 'University',
+                placeholder: 'All Universities',
+                options: UniversityList.map(u => ({
+                  label: u,
+                  value: u,
+                })),
+              },
+            ]}
+            filterValues={filterValues}
+            onFilterChange={(key, value) => setFilterValues(prev => ({ ...prev, [key]: value }))}
+            onClearFilters={() => setFilterValues({})}
             renderMobileCard={reg => (
               <MobileRegistrationCard
                 registration={reg}

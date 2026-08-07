@@ -76,20 +76,8 @@ const routes: RouteObject[] = [
         element: <AdminWorkshopsPage />, // Workshops - Working
       },
       {
-        path: 'posts',
-        element: <UnderConstructionPage />, // Posts - Under Construction
-      },
-      {
-        path: 'locations',
-        element: <UnderConstructionPage />, // Locations - Under Construction
-      },
-      {
         path: 'users',
         element: <AdminUsersPage />, // Users - Working
-      },
-      {
-        path: 'statistics',
-        element: <UnderConstructionPage />, // Statistics - Under Construction
       },
       {
         path: 'recruitment',

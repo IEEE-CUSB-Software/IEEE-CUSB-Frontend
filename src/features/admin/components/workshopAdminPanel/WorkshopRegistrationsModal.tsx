@@ -16,6 +16,8 @@ import {
   WorkshopRegistrationStatus,
 } from '@/shared/types/workshops.types';
 import { useTheme } from '@/shared/hooks/useTheme';
+import { useDebounce } from '@/shared/hooks/useDebounce';
+import UniversityList from '@/constants/universityList';
 import { MobileWorkshopRegistrationCard } from './MobileWorkshopRegistrationCard';
 
 interface WorkshopRegistrationsModalProps {
@@ -35,10 +37,21 @@ export const WorkshopRegistrationsModal = ({
   const [page, setPage] = useState(1);
   const limit = 10;
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+  
+  const searchType = filterValues.searchBy || 'name';
 
   const { data, isLoading, isError } = useGetWorkshopRegistrations(
     workshopId,
-    { page, limit }
+    { 
+      page, 
+      limit,
+      search: searchType === 'name' ? debouncedSearch : undefined,
+      username: searchType === 'username' ? debouncedSearch : undefined,
+      email: searchType === 'email' ? debouncedSearch : undefined,
+      university: filterValues.university || undefined,
+    }
   );
 
   const { mutate: updateStatus, isPending: isUpdating } =
@@ -46,16 +59,6 @@ export const WorkshopRegistrationsModal = ({
 
   const registrations = Array.isArray(data?.data) ? data.data : [];
   const totalPages = data?.totalPages ?? 1;
-  // Filtered registrations (in-memory filtering for current page)
-  const filteredRegistrations = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return registrations;
-    return registrations.filter(
-      r =>
-        (r.user?.name && r.user.name.toLowerCase().includes(q)) ||
-        (r.user?.email && r.user.email.toLowerCase().includes(q))
-    );
-  }, [registrations, search]);
 
   const handleUpdateStatus = (
     registrationId: string,
@@ -202,14 +205,38 @@ export const WorkshopRegistrationsModal = ({
           />
         ) : (
           <DataTable
-            data={filteredRegistrations}
+            data={registrations}
             columns={columns}
             darkMode={isDark}
             emptyMessage="No registrations found for this workshop."
             isLoading={isLoading}
             search={search}
             onSearchChange={setSearch}
-            searchPlaceholder="Search registrations by name or email..."
+            searchPlaceholder={`Search by ${filterValues.searchBy || 'name'}...`}
+            filters={[
+              {
+                key: 'searchBy',
+                label: 'Search Field',
+                placeholder: 'Name',
+                options: [
+                  { label: 'Name', value: 'name' },
+                  { label: 'Username', value: 'username' },
+                  { label: 'Email', value: 'email' },
+                ],
+              },
+              {
+                key: 'university',
+                label: 'University',
+                placeholder: 'All Universities',
+                options: UniversityList.map(u => ({
+                  label: u,
+                  value: u,
+                })),
+              },
+            ]}
+            filterValues={filterValues}
+            onFilterChange={(key, value) => setFilterValues(prev => ({ ...prev, [key]: value }))}
+            onClearFilters={() => setFilterValues({})}
             renderMobileCard={reg => (
               <MobileWorkshopRegistrationCard
                 registration={reg}

@@ -17,6 +17,7 @@ import {
 } from '@/shared/types/recruitment.types';
 import { useGetAllApplications, useUpdateApplicationStatus } from '@/shared/queries/recruitment/recruitment.queries';
 import { useDebounce } from '@/shared/hooks/useDebounce';
+import UniversityList from '@/constants/universityList';
 
 import UserInfo from '../shared/UserInfo';
 
@@ -41,14 +42,21 @@ export const VacancyApplicationsModal = ({
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [activeApps, setActiveApps] = useState<ApplicationFilter>('ALL');
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
   const [menuOpen, setMenuOpen] = useState(false);
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 300);
+
+  const searchType = filterValues.searchBy || 'name';
 
   const { data, isLoading, isError } = useGetAllApplications({
     vacancyId,
     page,
     limit,
+    search: searchType === 'name' ? debouncedSearch : undefined,
+    username: searchType === 'username' ? debouncedSearch : undefined,
+    email: searchType === 'email' ? debouncedSearch : undefined,
+    university: filterValues.university || undefined,
     /////// to be implemented later for filtering by date range
     // startDate: startDate || undefined,
     // endDate: endDate || undefined,
@@ -255,7 +263,29 @@ export const VacancyApplicationsModal = ({
               darkMode={isDark}
               emptyMessage="No applications found"
               isLoading={isLoading}
+              search={search}
+              onSearchChange={setSearch}
+              searchPlaceholder={`Search by ${filterValues.searchBy || 'name'}...`}
               filters={[
+                {
+                  key: 'searchBy',
+                  label: 'Search Field',
+                  placeholder: 'Name',
+                  options: [
+                    { label: 'Name', value: 'name' },
+                    { label: 'Username', value: 'username' },
+                    { label: 'Email', value: 'email' },
+                  ],
+                },
+                {
+                  key: 'university',
+                  label: 'University',
+                  placeholder: 'All Universities',
+                  options: UniversityList.map(u => ({
+                    label: u,
+                    value: u,
+                  })),
+                },
                 {
                   key: 'status',
                   label: 'Status',
@@ -267,21 +297,21 @@ export const VacancyApplicationsModal = ({
                   ],
                 },
               ]}
-              filterValues={{ status: activeApps === 'ALL' ? '' : activeApps }}
+              filterValues={{ ...filterValues, status: activeApps === 'ALL' ? '' : activeApps }}
               onFilterChange={(key, value) => {
                 if (key === 'status') {
                   setActiveApps((value as ApplicationFilter) || 'ALL');
+                } else {
+                  setFilterValues(prev => ({ ...prev, [key]: value }));
                 }
               }}
               onClearFilters={() => {
                 setActiveApps('ALL');
+                setFilterValues({});
                 setStartDate('');
                 setEndDate('');
                 setSearch('');
               }}
-              search={search}
-              onSearchChange={setSearch}
-              searchPlaceholder="Search applicants by name or email..."
               customFilters={
                 <>
                   <div className="w-[140px]">

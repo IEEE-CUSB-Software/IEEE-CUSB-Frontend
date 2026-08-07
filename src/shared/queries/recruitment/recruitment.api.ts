@@ -61,6 +61,7 @@ export const getAllApplications = async ({
   endDate,
   page = 1,
   limit = 100,
+  ...rest
 }: GetAllApplicationsParams): Promise<PaginatedPayload<Application, 'data'>> => {
   const response = await apiClient.get<BackendPaginatedResponse<Application, 'data'>>(
     API_ENDPOINTS.RECRUITMENT.GET_ALL_APPLICATIONS(vacancyId),
@@ -70,6 +71,7 @@ export const getAllApplications = async ({
         endDate,
         page,
         limit,
+        ...rest,
       },
     }
   );

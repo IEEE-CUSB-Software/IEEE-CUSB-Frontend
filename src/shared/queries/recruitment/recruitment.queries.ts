@@ -95,6 +95,7 @@ export const useGetAllApplications = ({
   limit = 10,
   startDate,
   endDate,
+  ...params
 }: GetAllApplicationsParams) => {
   return useQuery({
     queryKey: [
@@ -103,6 +104,7 @@ export const useGetAllApplications = ({
       limit,
       startDate,
       endDate,
+      params,
     ],
     queryFn: () =>
       api.getAllApplications({
@@ -111,6 +113,7 @@ export const useGetAllApplications = ({
         limit,
         startDate,
         endDate,
+        ...params,
       }),
   });
 };
