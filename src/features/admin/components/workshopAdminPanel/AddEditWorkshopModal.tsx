@@ -11,7 +11,7 @@ import {
 import { SearchableMultiSelect } from '@/shared/components/ui/SearchableMultiSelect';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { toast } from 'react-hot-toast';
-import { FiUpload, FiTrash2, FiImage, FiX } from 'react-icons/fi';
+import { FiUpload, FiTrash2, FiImage, FiX, FiPlus } from 'react-icons/fi';
 import {
   useGetInstructors,
   useUploadWorkshopCover,
@@ -24,6 +24,7 @@ import type {
   CreateWorkshopRequest,
   UpdateWorkshopRequest,
   WorkshopCategory,
+  WorkshopContent,
 } from '@/shared/types/workshops.types';
 
 interface ExtendedAddEditWorkshopModalProps {
@@ -38,7 +39,7 @@ interface ExtendedAddEditWorkshopModalProps {
 interface FormValues {
   title: string;
   description: string;
-  content: string;
+  content: WorkshopContent[];
   category: WorkshopCategory;
   location: string;
   start_time: string;
@@ -51,7 +52,7 @@ interface FormValues {
 const empty = (): FormValues => ({
   title: '',
   description: '',
-  content: '',
+  content: [],
   category: 'Technical',
   location: '',
   start_time: '',
@@ -72,7 +73,7 @@ const toForm = (w?: Workshop): FormValues =>
     ? {
         title: w.title,
         description: w.description,
-        content: w.content || '',
+        content: w.content && Array.isArray(w.content) ? w.content : [],
         category: w.category || 'Technical',
         location: w.location,
         start_time: formatDateForInput(w.start_time),
@@ -92,6 +93,11 @@ const validate = (v: FormValues): Errs => {
   if (!v.start_time) e.start_time = 'Start time is required.';
   if (!v.end_time) e.end_time = 'End time is required.';
   if (Number(v.capacity) <= 0) e.capacity = 'Capacity must be greater than 0.';
+  
+  if (v.content.some(sec => !sec.sectionTitle.trim())) {
+    e.content = 'All sections must have a title.';
+  }
+  
   return e;
 };
 
@@ -174,9 +180,78 @@ export const AddEditWorkshopModal: React.FC<ExtendedAddEditWorkshopModalProps> =
       if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }));
     };
 
-  const handleTextAreaChange = (field: 'description' | 'content') => (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleTextAreaChange = (field: 'description') => (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setFormValues(prev => ({ ...prev, [field]: e.target.value }));
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }));
+  };
+
+  const handleAddSection = () => {
+    setFormValues(prev => ({
+      ...prev,
+      content: [...prev.content, { sectionTitle: '', subSection: [''] }],
+    }));
+  };
+
+  const handleRemoveSection = (index: number) => {
+    setFormValues(prev => ({
+      ...prev,
+      content: prev.content.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleSectionTitleChange = (index: number, value: string) => {
+    setFormValues(prev => {
+      const newContent = [...prev.content];
+      if (newContent[index]) {
+        newContent[index] = {
+          ...newContent[index],
+          sectionTitle: value,
+        };
+      }
+      return { ...prev, content: newContent };
+    });
+    if (errors.content) setErrors(prev => ({ ...prev, content: undefined }));
+  };
+
+  const handleAddSubSection = (sectionIndex: number) => {
+    setFormValues(prev => {
+      const newContent = [...prev.content];
+      if (newContent[sectionIndex]) {
+        newContent[sectionIndex] = {
+          ...newContent[sectionIndex],
+          subSection: [...newContent[sectionIndex].subSection, ''],
+        };
+      }
+      return { ...prev, content: newContent };
+    });
+  };
+
+  const handleRemoveSubSection = (sectionIndex: number, subIndex: number) => {
+    setFormValues(prev => {
+      const newContent = [...prev.content];
+      if (newContent[sectionIndex]) {
+        newContent[sectionIndex] = {
+          ...newContent[sectionIndex],
+          subSection: newContent[sectionIndex].subSection.filter((_: any, i: number) => i !== subIndex),
+        };
+      }
+      return { ...prev, content: newContent };
+    });
+  };
+
+  const handleSubSectionChange = (sectionIndex: number, subIndex: number, value: string) => {
+    setFormValues(prev => {
+      const newContent = [...prev.content];
+      if (newContent[sectionIndex]) {
+        const newSubSection = [...newContent[sectionIndex].subSection];
+        newSubSection[subIndex] = value;
+        newContent[sectionIndex] = {
+          ...newContent[sectionIndex],
+          subSection: newSubSection,
+        };
+      }
+      return { ...prev, content: newContent };
+    });
   };
 
   const handleDateChange = (field: keyof FormValues) => (timestamp: number) => {
@@ -246,6 +321,7 @@ export const AddEditWorkshopModal: React.FC<ExtendedAddEditWorkshopModalProps> =
     }
 
     const validationErrors = validate(formValues);
+    
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -271,7 +347,10 @@ export const AddEditWorkshopModal: React.FC<ExtendedAddEditWorkshopModalProps> =
     const payload: CreateWorkshopRequest | UpdateWorkshopRequest = {
       title: formValues.title.trim(),
       description: formValues.description.trim(),
-      content: formValues.content.trim(),
+      content: formValues.content.map((sec) => ({
+        sectionTitle: sec.sectionTitle.trim(),
+        subSection: sec.subSection.map((sub: string) => sub.trim()).filter(Boolean),
+      })).filter((sec) => sec.sectionTitle),
       category: formValues.category,
       location: formValues.location.trim(),
       start_time: new Date(formValues.start_time).toISOString(),
@@ -326,16 +405,81 @@ export const AddEditWorkshopModal: React.FC<ExtendedAddEditWorkshopModalProps> =
               darkMode={isDark}
             />
           </div>
-          <div className="md:col-span-2">
-            <TextArea
-              label="Detailed Content"
-              value={formValues.content}
-              placeholder="HTML, CSS, JavaScript, React..."
-              onChange={handleTextAreaChange('content')}
-              id="content"
-              error={errors.content}
-              darkMode={isDark}
-            />
+          <div className="md:col-span-2 space-y-4">
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                Detailed Content (Sections & Subsections)
+              </label>
+              <div className="space-y-4">
+                {formValues.content.map((section, secIdx) => (
+                  <div key={secIdx} className={`p-4 rounded-xl border ${isDark ? 'border-gray-700 bg-gray-800/50' : 'border-gray-200 bg-gray-50'}`}>
+                    <div className="flex gap-3 items-start mb-3">
+                      <div className="flex-1">
+                        <InputField
+                          placeholder="Section Title (e.g. HTML Basics)"
+                          value={section.sectionTitle}
+                          onChange={(e) => handleSectionTitleChange(secIdx, e.target.value)}
+                          darkMode={isDark}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSection(secIdx)}
+                        className={`p-2.5 rounded-lg shrink-0 transition-colors ${
+                          isDark ? 'bg-red-900/30 text-red-400 hover:bg-red-900/50' : 'bg-red-50 text-red-500 hover:bg-red-100'
+                        }`}
+                      >
+                        <FiTrash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="pl-4 space-y-2 border-l-2 border-dashed border-gray-300 dark:border-gray-600 ml-2">
+                      {section.subSection.map((sub: string, subIdx: number) => (
+                        <div key={subIdx} className="flex gap-2 items-center">
+                          <div className="flex-1">
+                            <InputField
+                              placeholder="Topic or detail..."
+                              value={sub}
+                              onChange={(e) => handleSubSectionChange(secIdx, subIdx, e.target.value)}
+                              darkMode={isDark}
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSubSection(secIdx, subIdx)}
+                            className={`p-2 rounded-lg shrink-0 transition-colors ${
+                              isDark ? 'text-gray-400 hover:text-red-400 hover:bg-gray-700' : 'text-gray-400 hover:text-red-500 hover:bg-gray-200'
+                            }`}
+                          >
+                            <FiX className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => handleAddSubSection(secIdx)}
+                        className={`text-xs font-medium flex items-center gap-1 mt-2 px-2 py-1 rounded transition-colors ${
+                          isDark ? 'text-primary-light hover:bg-primary/20' : 'text-primary hover:bg-primary/10'
+                        }`}
+                      >
+                        <FiPlus className="w-3 h-3" /> Add Topic
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                
+                <button
+                  type="button"
+                  onClick={handleAddSection}
+                  className={`w-full py-3 rounded-xl border border-dashed flex items-center justify-center gap-2 text-sm font-medium transition-colors ${
+                    isDark ? 'border-primary/50 text-primary-light hover:bg-primary/10' : 'border-primary/40 text-primary hover:bg-primary/5'
+                  }`}
+                >
+                  <FiPlus className="w-4 h-4" /> Add Section
+                </button>
+              </div>
+              {errors.content && <p className="text-red-500 text-xs mt-1">{errors.content}</p>}
+            </div>
           </div>
           <DateTimePicker
             id="startTime"

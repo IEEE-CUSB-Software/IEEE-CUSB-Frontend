@@ -21,6 +21,7 @@ const WorkshopsTab: React.FC = () => {
   
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 300);
+  const [filterValues, setFilterValues] = useState<Record<string, any>>({});
   const [page, setPage] = useState(1);
   const limit = 10;
 
@@ -30,7 +31,13 @@ const WorkshopsTab: React.FC = () => {
   }, [debouncedSearch]);
 
   // Queries & Mutations
-  const { data, isLoading } = useGetAdminWorkshops({ page, limit, search: debouncedSearch });
+  const searchType = filterValues.searchBy || 'search';
+  const { data, isLoading } = useGetAdminWorkshops({
+    page,
+    limit,
+    search: searchType === 'search' ? debouncedSearch : undefined,
+    location: searchType === 'location' ? debouncedSearch : undefined,
+  });
   const workshops = data?.data || [];
   
   const createMutation = useCreateWorkshop();
@@ -208,7 +215,24 @@ const WorkshopsTab: React.FC = () => {
         isLoading={isLoading}
         search={search}
         onSearchChange={setSearch}
-        searchPlaceholder="Search by title, description, or location..."
+        searchPlaceholder={`Search by ${filterValues.searchBy === 'location' ? 'location' : 'title or description'}...`}
+        filters={[
+          {
+            key: 'searchBy',
+            label: 'Search Field',
+            placeholder: 'Search By...',
+            options: [
+              { label: 'Title/Description', value: 'search' },
+              { label: 'Location', value: 'location' },
+            ],
+          },
+        ]}
+        filterValues={filterValues}
+        onFilterChange={(key, value) => setFilterValues(prev => ({ ...prev, [key]: value }))}
+        onClearFilters={() => {
+          setFilterValues({});
+          setSearch('');
+        }}
         emptyMessage="No workshops found. Click 'Add Workshop' to create one."
         darkMode={isDark}
         page={page}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   HiCheckCircle,
   HiChevronDown,
@@ -143,19 +143,32 @@ export const WorkshopDetailsContent = ({
                       />
                     </button>
 
-                    {isOpen && (
-                      <div
-                        className={`px-6 pb-5 ${
-                          darkMode ? 'text-gray-300' : 'text-gray-600'
-                        }`}
-                      >
-                        <ul className="space-y-3 pl-8 list-disc text-sm sm:text-base">
-                          {section.subSection.map((item, subIndex) => (
-                            <li key={`${item}-${subIndex}`}>{item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.3, ease: 'easeInOut' }}
+                          className="overflow-hidden"
+                        >
+                          <div
+                            className={`px-6 pb-5 ${
+                              darkMode ? 'text-gray-300' : 'text-gray-600'
+                            }`}
+                          >
+                            <ul className="space-y-3 pl-2 sm:pl-4 text-sm sm:text-base">
+                              {section.subSection.map((item, subIndex) => (
+                                <li key={`${item}-${subIndex}`} className="flex items-start gap-3">
+                                  <HiCheckCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${darkMode ? 'text-blue-400' : 'text-blue-500'}`} />
+                                  <span>{item}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 );
               })

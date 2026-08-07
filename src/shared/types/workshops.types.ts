@@ -25,8 +25,7 @@ export interface Workshop {
   instructor?: string;
   instructors?: Instructor[];
   instructor_ids?: string[];
-  // TODO: change this back to WorkshopContent[] when the backend is updated to return an array for workshop content
-  content?: string;
+  content: WorkshopContent[];
   location: string;
   start_time: string;
   end_time: string;
@@ -89,7 +88,7 @@ export interface CreateWorkshopRequest {
   title: string;
   description: string;
   category: WorkshopCategory;
-  content: string;
+  content: WorkshopContent[];
   location: string;
   start_time: string;
   end_time: string;
@@ -121,7 +120,7 @@ export interface UpdateWorkshopRequest {
   title?: string;
   description?: string;
   category?: WorkshopCategory;
-  content?: string;
+  content?: WorkshopContent[];
   location?: string;
   start_time?: string;
   end_time?: string;

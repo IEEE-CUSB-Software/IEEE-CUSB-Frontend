@@ -192,7 +192,7 @@ export const UsersPage = () => {
           {
             key: 'searchBy',
             label: 'Search Field',
-            placeholder: 'Name',
+            placeholder: 'Search By',
             options: [
               { label: 'Name', value: 'name' },
               { label: 'Username', value: 'username' },
