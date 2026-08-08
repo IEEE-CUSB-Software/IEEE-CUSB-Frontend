@@ -3,6 +3,7 @@ import { initSmoothScroll } from '@/shared/utils/smoothScroll';
 import { PageHeroSection } from '@/shared/components/PageHeroSection';
 import { OrgChartView } from '@/features/committees/components/OrgChartView';
 import { TabbedView } from '@/features/committees/components/TabbedView';
+import { DevTeamSection } from '@/features/committees/components/DevTeamSection';
 import { CommitteeDetailModal } from '@/features/committees/components/CommitteeDetailModal';
 import { ChaptersSection } from '@/features/committees/components/ChaptersSection';
 import { useBoard } from '@/shared/queries/board';
@@ -85,6 +86,10 @@ export const CommitteesPage = () => {
       
       <ChaptersSection />
       
+      {/* Hardcoded Dev Team Section */}
+      <DevTeamSection />
+
+      {/* Modal overlays on top when a committee is clicked */}
       <CommitteeDetailModal
         committeeId={selectedCommitteeId}
         onClose={handleCloseModal}
