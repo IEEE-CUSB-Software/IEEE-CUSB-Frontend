@@ -1,4 +1,5 @@
 import { useForm, Controller } from 'react-hook-form';
+import { useState } from 'react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,6 +15,7 @@ import { useAppSelector } from '@/shared/store/hooks';
 import { RoleName } from '@/shared/types/auth.types';
 import { Select, InputField, TextArea, Button, Loader } from '@ieee-ui/ui';
 import { useNavigate } from 'react-router-dom';
+import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
 import {
   useGetVacancies,
   useApplyToVacancy,
@@ -46,15 +48,20 @@ export const RecruitmentApplicationForm = () => {
     user?.role?.name === RoleName.ADMIN ||
     user?.role?.name === RoleName.SUPER_ADMIN;
 
-  const { data: vacanciesData, isLoading: isLoadingVacancies } =
+  const { data: vacanciesData = [], isLoading: isLoadingVacancies } =
     useGetVacancies();
-  const vacancies = vacanciesData?.vacancies || [];
   const { data: myApplications = [], isLoading: isLoadingMyApps } =
     useGetMyApplications();
   const applyMutation = useApplyToVacancy();
   const revokeMutation = useRevokeApplication();
+  const [isRevokeModalOpen, setIsRevokeModalOpen] = useState(false);
+  const [selectedApplicationId, setSelectedApplicationId] = useState<
+    string | null
+  >(null);
+  const [selectedApplicationVacancyTitle, setSelectedApplicationVacancyTitle] =
+    useState('');
 
-  const openVacancies = vacancies.filter(v => v.is_open);
+  const openVacancies = vacanciesData.filter(v => v.is_open);
 
   const {
     control,
@@ -87,6 +94,21 @@ export const RecruitmentApplicationForm = () => {
     });
 
     reset();
+  };
+
+  const handleRevokeClick = (applicationId: string, vacancyTitle: string) => {
+    setSelectedApplicationId(applicationId);
+    setSelectedApplicationVacancyTitle(vacancyTitle);
+    setIsRevokeModalOpen(true);
+  };
+
+  const handleConfirmRevoke = async () => {
+    if (!selectedApplicationId) return;
+
+    await revokeMutation.mutateAsync(selectedApplicationId);
+    setIsRevokeModalOpen(false);
+    setSelectedApplicationId(null);
+    setSelectedApplicationVacancyTitle('');
   };
 
   const getStatusColor = (status: Application['status']) => {
@@ -303,7 +325,7 @@ export const RecruitmentApplicationForm = () => {
               <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                 <AnimatePresence>
                   {myApplications.map(app => {
-                    const vacancy = vacancies.find(
+                    const vacancy = vacanciesData.find(
                       v => v.id === app.vacancy_id
                     );
                     return (
@@ -344,15 +366,12 @@ export const RecruitmentApplicationForm = () => {
 
                           {app.status === 'PENDING' && (
                             <button
-                              onClick={() => {
-                                if (
-                                  window.confirm(
-                                    'Are you sure you want to revoke this application?'
-                                  )
-                                ) {
-                                  revokeMutation.mutate(app.id);
-                                }
-                              }}
+                              onClick={() =>
+                                handleRevokeClick(
+                                  app.id,
+                                  vacancy?.title || 'this vacancy'
+                                )
+                              }
                               disabled={revokeMutation.isPending}
                               className={`text-[10px] font-medium flex items-center gap-1 px-2 py-1 rounded transition-colors ${
                                 isDark
@@ -374,6 +393,21 @@ export const RecruitmentApplicationForm = () => {
           </motion.div>
         )}
       </div>
+
+      <ConfirmDeleteModal
+        isOpen={isRevokeModalOpen}
+        onClose={() => {
+          setIsRevokeModalOpen(false);
+          setSelectedApplicationId(null);
+          setSelectedApplicationVacancyTitle('');
+        }}
+        onConfirm={handleConfirmRevoke}
+        title="Revoke Application"
+        itemName={selectedApplicationVacancyTitle}
+        entityLabel="application"
+        isDark={isDark}
+        isPending={revokeMutation.isPending}
+      />
     </section>
   );
 };
