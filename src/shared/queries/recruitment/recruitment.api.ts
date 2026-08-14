@@ -12,7 +12,11 @@ import type {
   UpdateStatus,
   ExportApplicationsParams,
 } from '@/shared/types/recruitment.types';
-import { PaginationParams, BackendPaginatedResponse, PaginatedPayload } from '@/shared/types/auth.types';
+import {
+  PaginationParams,
+  BackendPaginatedResponse,
+  PaginatedPayload,
+} from '@/shared/types/auth.types';
 
 export const addVacancy = async (data: AddVacancy): Promise<Vacancy> => {
   const response = await apiClient.post<ApiResponse<Vacancy>>(
@@ -22,19 +26,20 @@ export const addVacancy = async (data: AddVacancy): Promise<Vacancy> => {
   return response.data.data;
 };
 
-export const getAdminVacancies = async (params?: PaginationParams): Promise<PaginatedPayload<Vacancy, 'vacancies'>> => {
+export const getAdminVacancies = async (
+  params?: PaginationParams
+): Promise<PaginatedPayload<Vacancy, 'vacancies'>> => {
   const filteredParams = params
     ? Object.fromEntries(
         Object.entries(params)
-          .filter(([_, v]) => v !== undefined && v !== '')
+          .filter(([, v]) => v !== undefined && v !== '')
           .map(([k, v]) => [k, String(v)])
       )
     : undefined;
 
-  const response = await apiClient.get<BackendPaginatedResponse<Vacancy, 'vacancies'>>(
-    API_ENDPOINTS.RECRUITMENT.GET_ALL_VACANCIES,
-    { params: filteredParams }
-  );
+  const response = await apiClient.get<
+    BackendPaginatedResponse<Vacancy, 'vacancies'>
+  >(API_ENDPOINTS.RECRUITMENT.GET_ALL_VACANCIES, { params: filteredParams });
   return response.data.data;
 };
 
@@ -62,19 +67,20 @@ export const getAllApplications = async ({
   page = 1,
   limit = 100,
   ...rest
-}: GetAllApplicationsParams): Promise<PaginatedPayload<Application, 'data'>> => {
-  const response = await apiClient.get<BackendPaginatedResponse<Application, 'data'>>(
-    API_ENDPOINTS.RECRUITMENT.GET_ALL_APPLICATIONS(vacancyId),
-    {
-      params: {
-        startDate,
-        endDate,
-        page,
-        limit,
-        ...rest,
-      },
-    }
-  );
+}: GetAllApplicationsParams): Promise<
+  PaginatedPayload<Application, 'data'>
+> => {
+  const response = await apiClient.get<
+    BackendPaginatedResponse<Application, 'data'>
+  >(API_ENDPOINTS.RECRUITMENT.GET_ALL_APPLICATIONS(vacancyId), {
+    params: {
+      startDate,
+      endDate,
+      page,
+      limit,
+      ...rest,
+    },
+  });
   return response.data.data;
 };
 
@@ -121,16 +127,18 @@ export const viewApplicationCV = async (
   return response.data;
 };
 
-export const getVacancies = async (params?: PaginationParams): Promise<PaginatedPayload<Vacancy, 'vacancies'>> => {
+export const getVacancies = async (
+  params?: PaginationParams
+): Promise<Vacancy[]> => {
   const filteredParams = params
     ? Object.fromEntries(
         Object.entries(params)
-          .filter(([_, v]) => v !== undefined && v !== '')
+          .filter(([, v]) => v !== undefined && v !== '')
           .map(([k, v]) => [k, String(v)])
       )
     : undefined;
 
-  const response = await apiClient.get<BackendPaginatedResponse<Vacancy, 'vacancies'>>(
+  const response = await apiClient.get<ApiResponse<Vacancy[]>>(
     API_ENDPOINTS.RECRUITMENT.GET_VACANCIES,
     { params: filteredParams }
   );
@@ -163,7 +171,9 @@ export const revokeApplication = async (id: string): Promise<void> => {
  * GET /admin/recruitment/applications/:id/cv — admin: view an applicant's CV
  * Streams the PDF binary directly to a new browser tab with proper auth headers.
  */
-export const adminViewApplicationCv = async (applicationId: string): Promise<void> => {
+export const adminViewApplicationCv = async (
+  applicationId: string
+): Promise<void> => {
   const response = await apiClient.get<any>(
     API_ENDPOINTS.RECRUITMENT.ADMIN_VIEW_APPLICATION_CV(applicationId),
     { responseType: 'blob' }
