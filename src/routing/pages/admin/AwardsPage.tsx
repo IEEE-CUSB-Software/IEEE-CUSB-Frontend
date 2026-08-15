@@ -65,23 +65,19 @@ export const AwardsPage = () => {
   }, [deleteAward, deleteAwardTarget]);
 
   const handleSave = useCallback(
-    (data: CreateAwardRequest | UpdateAwardRequest, id?: string) => {
+    async (data: CreateAwardRequest | UpdateAwardRequest, id?: string) => {
       if (id) {
-        updateAward.mutate(
-          { id, data: data as UpdateAwardRequest },
-          {
-            onSuccess: () => {
-              setIsModalOpen(false);
-              setSelectedAward(undefined);
-            },
-          }
-        );
-      } else {
-        createAward.mutate(data as CreateAwardRequest, {
-          onSuccess: () => {
-            setIsModalOpen(false);
-          },
+        const updated = await updateAward.mutateAsync({
+          id,
+          data: data as UpdateAwardRequest,
         });
+        setIsModalOpen(false);
+        setSelectedAward(undefined);
+        return updated;
+      } else {
+        const created = await createAward.mutateAsync(data as CreateAwardRequest);
+        setIsModalOpen(false);
+        return created;
       }
     },
     [createAward, updateAward]

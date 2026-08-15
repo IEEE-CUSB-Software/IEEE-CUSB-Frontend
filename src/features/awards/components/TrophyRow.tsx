@@ -99,7 +99,7 @@ export const TrophyRow = ({
               alt={award.title}
               className="w-24 h-32 sm:w-32 sm:h-40 md:w-36 md:h-44 lg:w-40 lg:h-48 object-contain"
             />
-            {award.won_count > 0 && (
+            {award.won_count > 0 ? (
               <div
                 className={`flex -ml-3 sm:-ml-5 md:-ml-6 items-end gap-1 sm:gap-1.5 md:gap-2 ${
                   darkMode ? 'text-white' : 'text-primary'
@@ -113,6 +113,16 @@ export const TrophyRow = ({
                   <p>Winner</p>
                 </div>
               </div>
+            ) : (
+              <span
+                className={`absolute bottom-1 right-1 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                  darkMode
+                    ? 'bg-gray-800/80 border-gray-600 text-gray-400'
+                    : 'bg-white/80 border-gray-300 text-gray-500'
+                } backdrop-blur-sm shadow-sm`}
+              >
+                Not Acquired
+              </span>
             )}
           </div>
 

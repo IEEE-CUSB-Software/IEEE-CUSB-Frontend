@@ -17,14 +17,14 @@ interface AddEditAwardModalProps {
   award?: Award;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: CreateAwardRequest | UpdateAwardRequest, id?: string) => void;
+  onSave: (data: CreateAwardRequest | UpdateAwardRequest, id?: string) => Promise<Award | undefined>;
   isPending?: boolean;
 }
 
 const emptyForm = (): AwardFormValues => ({
   title: '',
   description: '',
-  won_count: '0',
+  won_count: '',
   year: String(new Date().getFullYear()),
   source: AwardSource.EGYPT_SECTION,
 });
@@ -58,8 +58,8 @@ const validate = (values: AwardFormValues): AwardFormErrors => {
     errors.description = 'Description must be less than 1000 characters.';
   }
   const count = Number(values.won_count);
-  if (values.won_count !== '' && (isNaN(count) || count < 0))
-    errors.won_count = 'Won count must be a non-negative number.';
+  if (values.won_count === '' || isNaN(count) || !Number.isInteger(count) || count < 1)
+    errors.won_count = 'Times Won is required and must be at least 1.';
   if (!values.year.trim()) {
     errors.year = 'Year is required.';
   } else {
@@ -167,24 +167,41 @@ const AddEditAwardModal: React.FC<AddEditAwardModalProps> = ({
       source: formValues.source,
     };
 
-    // If we have a new image to upload (and an existing award id), upload it first
-    if (award?.id) {
+    if (isEditMode && award?.id) {
+      // ── EDIT MODE: upload/delete image first, then update metadata ──
       try {
         const promises = [];
         if (pendingFile) promises.push(uploadImage.mutateAsync({ id: award.id, file: pendingFile }));
         if (deleteImage) promises.push(removeImage.mutateAsync(award.id));
         await Promise.all(promises);
-      } catch (err) {
+      } catch {
         setIsSaving(false);
-        return; // Errors are handled by the mutations, stop save if it fails
+        return;
       }
-    }
 
-    // Call parent save last (create/update metadata), which closes the modal
-    try {
-      await onSave(payload, award?.id);
-    } catch {
-      setIsSaving(false);
+      try {
+        await onSave(payload, award.id);
+      } catch {
+        setIsSaving(false);
+      }
+    } else {
+      // ── CREATE MODE: create award first, then upload image with the new id ──
+      let newAward: Award | undefined;
+      try {
+        newAward = await onSave(payload);
+      } catch {
+        setIsSaving(false);
+        return;
+      }
+
+      if (newAward?.id && pendingFile) {
+        try {
+          await uploadImage.mutateAsync({ id: newAward.id, file: pendingFile });
+        } catch {
+          // Image upload failure is already toasted by the mutation;
+          // the award itself was created successfully so we don't block.
+        }
+      }
     }
   };
 
@@ -260,7 +277,7 @@ const AddEditAwardModal: React.FC<AddEditAwardModalProps> = ({
             <InputField
               label="Times Won"
               value={formValues.won_count}
-              placeholder="0"
+              placeholder="1"
               onChange={handleChange('won_count')}
               id="award-won-count"
               error={errors.won_count}
@@ -289,7 +306,7 @@ const AddEditAwardModal: React.FC<AddEditAwardModalProps> = ({
                 isDark ? 'text-gray-300' : 'text-gray-700'
               }`}
             >
-              Award Image{!isEditMode && <span className={`ml-1 text-xs font-normal ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>(saved after creating)</span>}
+              Award Image
             </label>
 
             <div
