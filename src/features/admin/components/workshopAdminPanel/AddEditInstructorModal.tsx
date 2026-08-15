@@ -37,8 +37,21 @@ type Errs = Partial<Record<keyof FormValues, string>>;
 
 const validate = (v: FormValues): Errs => {
   const e: Errs = {};
-  if (!v.name.trim()) e.name = 'Name is required.';
-  if (!v.bio.trim()) e.bio = 'Bio is required.';
+  if (!v.name.trim()) {
+    e.name = 'Name is required.';
+  } else if (v.name.trim().length < 6) {
+    e.name = 'Name must be at least 6 characters.';
+  } else if (v.name.trim().length > 100) {
+    e.name = 'Name must be less than 100 characters.';
+  }
+  
+  if (!v.bio.trim()) {
+    e.bio = 'Bio is required.';
+  } else if (v.bio.trim().length < 6) {
+    e.bio = 'Bio must be at least 6 characters.';
+  } else if (v.bio.trim().length > 1000) {
+    e.bio = 'Bio must be less than 1000 characters.';
+  }
   return e;
 };
 

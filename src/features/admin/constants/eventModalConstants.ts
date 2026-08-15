@@ -1,11 +1,11 @@
 export const EVENT_FORM_CONSTRAINTS = {
   title: {
-    minLength: 5,
+    minLength: 6,
     maxLength: 100,
   },
   description: {
-    minLength: 20,
-    maxLength: 2000,
+    minLength: 6,
+    maxLength: 1000,
   },
   location: {
     minLength: 3,

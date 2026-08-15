@@ -7,7 +7,7 @@ const locationNameSchema = z
   .string()
   .trim()
   .min(1, "Location name is required")
-  .min(3, "Location name must be at least 3 characters")
+  .min(6, "Location name must be at least 6 characters")
   .max(100, "Location name must not exceed 100 characters");
 
 /**
@@ -63,19 +63,19 @@ const descriptionSchema = z
   .refine(
     (value) => {
       if (!value || value.length === 0) return true;
-      return value.length >= 10;
+      return value.length >= 6;
     },
     {
-      message: "Description should be at least 10 characters",
+      message: "Description should be at least 6 characters",
     }
   )
   .refine(
     (value) => {
       if (!value) return true;
-      return value.length <= 500;
+      return value.length <= 1000;
     },
     {
-      message: "Description must not exceed 500 characters",
+      message: "Description must not exceed 1000 characters",
     }
   );
 

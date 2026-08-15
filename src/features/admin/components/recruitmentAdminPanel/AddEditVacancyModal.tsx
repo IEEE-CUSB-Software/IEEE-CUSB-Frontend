@@ -56,8 +56,21 @@ type Errs = Partial<Record<keyof FormValues, string>>;
 
 const validate = (v: FormValues): Errs => {
   const e: Errs = {};
-  if (!v.title.trim()) e.title = 'Title is required.';
-  if (!v.description.trim()) e.description = 'Description is required.';
+  if (!v.title.trim()) {
+    e.title = 'Title is required.';
+  } else if (v.title.trim().length < 6) {
+    e.title = 'Title must be at least 6 characters.';
+  } else if (v.title.trim().length > 100) {
+    e.title = 'Title must be less than 100 characters.';
+  }
+
+  if (!v.description.trim()) {
+    e.description = 'Description is required.';
+  } else if (v.description.trim().length < 6) {
+    e.description = 'Description must be at least 6 characters.';
+  } else if (v.description.trim().length > 1000) {
+    e.description = 'Description must be less than 1000 characters.';
+  }
   return e;
 };
 
