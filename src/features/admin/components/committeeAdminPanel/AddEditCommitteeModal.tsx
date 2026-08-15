@@ -68,8 +68,21 @@ const AddEditCommitteeModal: React.FC<Props> = ({
 
   const handleSave = () => {
     const errs: Errs = {};
-    if (!form.name.trim()) errs.name = 'Name is required.';
-    if (!form.about.trim()) errs.about = 'Description is required.';
+    if (!form.name.trim()) {
+      errs.name = 'Name is required.';
+    } else if (form.name.trim().length < 6) {
+      errs.name = 'Name must be at least 6 characters.';
+    } else if (form.name.trim().length > 100) {
+      errs.name = 'Name must be less than 100 characters.';
+    }
+
+    if (!form.about.trim()) {
+      errs.about = 'Description is required.';
+    } else if (form.about.trim().length < 6) {
+      errs.about = 'Description must be at least 6 characters.';
+    } else if (form.about.trim().length > 1000) {
+      errs.about = 'Description must be less than 1000 characters.';
+    }
     if (!form.category_id) errs.category_id = 'Category is required.';
     if (Object.keys(errs).length) {
       setErrors(errs);
@@ -141,7 +154,7 @@ const AddEditCommitteeModal: React.FC<Props> = ({
           placeholder="Describe this committee…"
           onChange={handleTextArea}
           id="comm-about"
-          maxLength={500}
+          maxLength={1000}
           error={errors.about}
           darkMode={isDark}
         />

@@ -49,8 +49,20 @@ type Errs = Partial<Record<keyof FormValues, string>>;
 
 const validate = (v: FormValues): Errs => {
   const e: Errs = {};
-  if (!v.name.trim()) e.name = 'Name is required.';
-  if (!v.email.trim()) e.email = 'Email is required.';
+  if (!v.name.trim()) {
+    e.name = 'Name is required.';
+  } else if (v.name.trim().length < 6) {
+    e.name = 'Name must be at least 6 characters.';
+  } else if (v.name.trim().length > 100) {
+    e.name = 'Name must be less than 100 characters.';
+  }
+
+  if (!v.email.trim()) {
+    e.email = 'Email is required.';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email.trim())) {
+    e.email = 'Invalid email format.';
+  }
+
   if (!v.role.trim()) e.role = 'Role is required.';
   return e;
 };

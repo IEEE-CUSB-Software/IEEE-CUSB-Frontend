@@ -42,9 +42,21 @@ const awardToForm = (award?: Award): AwardFormValues => {
 
 const validate = (values: AwardFormValues): AwardFormErrors => {
   const errors: AwardFormErrors = {};
-  if (!values.title.trim()) errors.title = 'Title is required.';
-  if (!values.description.trim())
+  if (!values.title.trim()) {
+    errors.title = 'Title is required.';
+  } else if (values.title.trim().length < 6) {
+    errors.title = 'Title must be at least 6 characters.';
+  } else if (values.title.trim().length > 100) {
+    errors.title = 'Title must be less than 100 characters.';
+  }
+
+  if (!values.description.trim()) {
     errors.description = 'Description is required.';
+  } else if (values.description.trim().length < 6) {
+    errors.description = 'Description must be at least 6 characters.';
+  } else if (values.description.trim().length > 1000) {
+    errors.description = 'Description must be less than 1000 characters.';
+  }
   const count = Number(values.won_count);
   if (values.won_count !== '' && (isNaN(count) || count < 0))
     errors.won_count = 'Won count must be a non-negative number.';
@@ -264,7 +276,7 @@ const AddEditAwardModal: React.FC<AddEditAwardModalProps> = ({
               placeholder="Enter award description"
               onChange={handleTextAreaChange}
               id="award-description"
-              maxLength={500}
+              maxLength={1000}
               error={errors.description}
               darkMode={isDark}
             />

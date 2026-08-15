@@ -60,8 +60,21 @@ const AddEditCategoryModal: React.FC<Props> = ({
 
   const handleSave = () => {
     const errs: Errs = {};
-    if (!form.name.trim()) errs.name = 'Name is required.';
-    if (!form.description.trim()) errs.description = 'Description is required.';
+    if (!form.name.trim()) {
+      errs.name = 'Name is required.';
+    } else if (form.name.trim().length < 6) {
+      errs.name = 'Name must be at least 6 characters.';
+    } else if (form.name.trim().length > 100) {
+      errs.name = 'Name must be less than 100 characters.';
+    }
+
+    if (!form.description.trim()) {
+      errs.description = 'Description is required.';
+    } else if (form.description.trim().length < 6) {
+      errs.description = 'Description must be at least 6 characters.';
+    } else if (form.description.trim().length > 1000) {
+      errs.description = 'Description must be less than 1000 characters.';
+    }
     if (Object.keys(errs).length) {
       setErrors(errs);
       return;
@@ -96,7 +109,7 @@ const AddEditCategoryModal: React.FC<Props> = ({
           placeholder="Describe this category…"
           onChange={handleTextArea}
           id="cat-desc"
-          maxLength={300}
+          maxLength={1000}
           error={errors.description}
           darkMode={isDark}
         />

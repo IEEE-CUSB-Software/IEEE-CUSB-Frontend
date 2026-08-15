@@ -117,8 +117,19 @@ const AddEditMemberModal: React.FC<Props> = ({
 
   const handleSave = async () => {
     const errs: Errs = {};
-    if (!form.name.trim()) errs.name = 'Name is required.';
-    if (!form.email.trim()) errs.email = 'Email is required.';
+    if (!form.name.trim()) {
+      errs.name = 'Name is required.';
+    } else if (form.name.trim().length < 6) {
+      errs.name = 'Name must be at least 6 characters.';
+    } else if (form.name.trim().length > 100) {
+      errs.name = 'Name must be less than 100 characters.';
+    }
+
+    if (!form.email.trim()) {
+      errs.email = 'Email is required.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      errs.email = 'Invalid email format.';
+    }
     if (Object.keys(errs).length) {
       setErrors(errs);
       return;
