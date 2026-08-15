@@ -23,8 +23,11 @@ import {
 } from '@/shared/queries/auth/auth.queries';
 import { motion } from 'framer-motion';
 import { HiArrowLeft } from 'react-icons/hi2';
-import { useGetMyApplications } from '@/shared/queries/recruitment/recruitment.queries';
-import { usersApi, useDeleteCv, useUploadCv } from '@/shared/queries/users/users.queries';
+
+import { usersApi, useDeleteCv, useUploadCv, useGetUserApplications } from '@/shared/queries/users/users.queries';
+import { useEvents } from '@/shared/queries/events/events.queries';
+import { useWorkshops } from '@/shared/queries/workshops/workshops.queries';
+import { useGetVacancies } from '@/shared/queries/recruitment';
 import toast from 'react-hot-toast';
 
 const formatValue = (value: string | number | boolean | null | undefined) => {
@@ -41,7 +44,11 @@ export const ProfilePage = () => {
   const uploadCvMutation = useUploadCv();
   const deleteCvMutation = useDeleteCv();
   const { data: myApplications, isLoading: isLoadingApplications } =
-    useGetMyApplications();
+    useGetUserApplications();
+
+  const { data: eventsData } = useEvents({ page: 1, limit: 1000 });
+  const { data: workshopsData } = useWorkshops({ page: 1, limit: 1000 });
+  const { data: vacanciesData } = useGetVacancies();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [cvLoading, setCvLoading] = useState<'view' | 'download' | null>(null);
   const [formData, setFormData] = useState({
@@ -313,28 +320,98 @@ export const ProfilePage = () => {
               <h2 className="mt-6 text-lg font-semibold text-foreground">
                 My Applications
               </h2>
-              <dl className="mt-5 space-y-4">
-                <div>
-                  <dt className="text-sm font-medium text-foreground">
-                    My Recruitment Applications
-                  </dt>
-                  {isLoadingApplications ? (
-                    <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                      <Loader2 className="h-4 w-4 animate-spin " />
-                    </div>
-                  ) : (
-                    <div className="mt-2 text-sm text-muted-foreground">
-                      {myApplications?.length ? (
-                        myApplications.map(application => (
-                          <div key={application.id}>{application.vacancy_id}</div>
-                        ))
-                      ) : (
-                        <div>No applications found.</div>
-                      )}
-                    </div>
-                  )}
+              
+              {isLoadingApplications ? (
+                <div className="mt-5 flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin " />
+                  Loading applications...
                 </div>
-              </dl>
+              ) : myApplications ? (
+                <div className="mt-5 space-y-6">
+                  {/* Events */}
+                  <div>
+                    <h3 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                      <GraduationCap className="h-4 w-4" />
+                      Event Registrations
+                    </h3>
+                    {myApplications.eventRegistrations.length > 0 ? (
+                      <ul className="space-y-3">
+                        {myApplications.eventRegistrations.map(reg => {
+                          const eventName = eventsData?.data.find(e => e.id === reg.event_id)?.title;
+                          return (
+                            <li key={reg.id} className="text-sm bg-background rounded-xl p-3 border border-border flex flex-col gap-2 shadow-sm">
+                              <div className="flex justify-between items-center w-full">
+                                <span className="font-medium text-foreground truncate mr-2" title={eventName || reg.event_id}>
+                                  {eventName || `ID: ${reg.event_id.split('-')[0]}`}
+                                </span>
+                                <span className="font-bold px-2 py-1 bg-primary/10 text-primary border border-primary/20 rounded-md text-[10px] uppercase tracking-wider whitespace-nowrap">{reg.status}</span>
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-muted-foreground bg-background/50 p-3 rounded-md border border-dashed border-border">No event registrations.</p>
+                    )}
+                  </div>
+                  
+                  {/* Workshops */}
+                  <div>
+                    <h3 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      Workshop Registrations
+                    </h3>
+                    {myApplications.workshopRegistrations.length > 0 ? (
+                      <ul className="space-y-3">
+                        {myApplications.workshopRegistrations.map(reg => {
+                          const workshopName = workshopsData?.data.find(w => w.id === reg.workshop_id)?.title;
+                          return (
+                            <li key={reg.id} className="text-sm bg-background rounded-xl p-3 border border-border flex flex-col gap-2 shadow-sm">
+                              <div className="flex justify-between items-center w-full">
+                                <span className="font-medium text-foreground truncate mr-2" title={workshopName || reg.workshop_id}>
+                                  {workshopName || `ID: ${reg.workshop_id.split('-')[0]}`}
+                                </span>
+                                <span className="font-bold px-2 py-1 bg-primary/10 text-primary border border-primary/20 rounded-md text-[10px] uppercase tracking-wider whitespace-nowrap">{reg.status}</span>
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-muted-foreground bg-background/50 p-3 rounded-md border border-dashed border-border">No workshop registrations.</p>
+                    )}
+                  </div>
+                  
+                  {/* Vacancies */}
+                  <div>
+                    <h3 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                      <Building2 className="h-4 w-4" />
+                      Vacancy Applications
+                    </h3>
+                    {myApplications.vacancyApplications.length > 0 ? (
+                      <ul className="space-y-3">
+                        {myApplications.vacancyApplications.map(app => {
+                          const vacancyName = vacanciesData?.find(v => v.id === app.vacancy_id)?.title;
+                          return (
+                            <li key={app.id} className="text-sm bg-background rounded-xl p-3 border border-border flex flex-col gap-2 shadow-sm">
+                              <div className="flex justify-between items-center w-full">
+                                <span className="font-medium text-foreground truncate mr-2" title={vacancyName || app.vacancy_id}>
+                                  {vacancyName || `ID: ${app.vacancy_id.split('-')[0]}`}
+                                </span>
+                                <span className="font-bold px-2 py-1 bg-primary/10 text-primary border border-primary/20 rounded-md text-[10px] uppercase tracking-wider whitespace-nowrap">{app.status}</span>
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-muted-foreground bg-background/50 p-3 rounded-md border border-dashed border-border">No vacancy applications.</p>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                 <div className="mt-5 text-sm text-muted-foreground text-center p-4">No applications found.</div>
+              )}
             </div>
           </div>
         </div>

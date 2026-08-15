@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/shared/config/api.config';
 import { API_ENDPOINTS, QUERY_KEYS } from '@/shared/constants/apiConstants';
-import type { User, Role, ApiResponse, PaginationParams, PaginatedUsersResponse } from '@/shared/types/auth.types';
+import type { User, Role, ApiResponse, PaginationParams, PaginatedUsersResponse, UserApplicationsData, UserApplicationsResponse } from '@/shared/types/auth.types';
 import toast from 'react-hot-toast';
 
 // ─── Response Shapes ───────────────────────────────────────────────────────────
@@ -159,6 +159,26 @@ export const usersApi = {
     if (Array.isArray(resData?.data)) return resData.data;
     return [];
   },
+
+  /**
+   * GET /users/me/applications
+   */
+  getMyApplications: async (): Promise<UserApplicationsData> => {
+    const response = await apiClient.get<UserApplicationsResponse>(
+      API_ENDPOINTS.USERS.GET_MY_APPLICATIONS
+    );
+    return response.data.data;
+  },
+
+  /**
+   * GET /admin/users/:id/applications
+   */
+  getAdminUserApplications: async (id: string): Promise<UserApplicationsData> => {
+    const response = await apiClient.get<UserApplicationsResponse>(
+      API_ENDPOINTS.USERS.ADMIN_GET_USER_APPLICATIONS(id)
+    );
+    return response.data.data;
+  },
 };
 
 // ─── Query Hooks ───────────────────────────────────────────────────────────────
@@ -235,6 +255,27 @@ export const useUpdateUserRole = () => {
         error?.response?.data?.message || 'Failed to update user role.';
       toast.error(message);
     },
+  });
+};
+
+/**
+ * Hook to fetch current user's applications
+ */
+export const useGetUserApplications = () => {
+  return useQuery({
+    queryKey: QUERY_KEYS.USERS.MY_APPLICATIONS,
+    queryFn: () => usersApi.getMyApplications(),
+  });
+};
+
+/**
+ * Hook to fetch a specific user's applications (Admin only)
+ */
+export const useGetAdminUserApplications = (id: string, enabled = true) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.USERS.USER_APPLICATIONS(id),
+    queryFn: () => usersApi.getAdminUserApplications(id),
+    enabled: enabled && !!id,
   });
 };
 

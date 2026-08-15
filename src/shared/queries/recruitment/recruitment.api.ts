@@ -5,7 +5,6 @@ import type {
   Application,
   ApplyToVacancyRequest,
   ApiResponse,
-  PaginatedResponse,
   AddVacancy,
   UpdateVacancy,
   GetAllApplicationsParams,
@@ -152,13 +151,6 @@ export const applyToVacancy = async (
   const response = await apiClient.post<ApiResponse<Application>>(
     API_ENDPOINTS.RECRUITMENT.APPLY(vacancyId),
     data
-  );
-  return response.data.data;
-};
-
-export const getMyApplications = async (): Promise<Application[]> => {
-  const response = await apiClient.get<PaginatedResponse<Application>>(
-    API_ENDPOINTS.RECRUITMENT.GET_MY_APPLICATIONS
   );
   return response.data.data;
 };

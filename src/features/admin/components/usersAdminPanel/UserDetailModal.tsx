@@ -13,7 +13,10 @@ import {
   FiUsers,
 } from 'react-icons/fi';
 import { Modal } from '@ieee-ui/ui';
-import { usersApi, useRoles } from '@/shared/queries/users/users.queries';
+import { usersApi, useRoles, useGetAdminUserApplications } from '@/shared/queries/users/users.queries';
+import { useEvents } from '@/shared/queries/events/events.queries';
+import { useWorkshops } from '@/shared/queries/workshops/workshops.queries';
+import { useGetVacancies } from '@/shared/queries/recruitment';
 import type { User } from '@/shared/types/auth.types';
 import toast from 'react-hot-toast';
 
@@ -41,6 +44,11 @@ export const UserDetailModal = ({
   const isSuperAdmin = currentUser?.role?.name === RoleName.SUPER_ADMIN;
   const [cvLoading, setCvLoading] = useState<'view' | 'download' | null>(null);
   const { data: roles } = useRoles();
+  const { data: userApplications, isLoading: isLoadingApplications } = useGetAdminUserApplications(user?.id || '', !!user);
+
+  const { data: eventsData } = useEvents({ page: 1, limit: 1000 });
+  const { data: workshopsData } = useWorkshops({ page: 1, limit: 1000 });
+  const { data: vacanciesData } = useGetVacancies();
 
   if (!user) return null;
 
@@ -183,6 +191,101 @@ export const UserDetailModal = ({
                 No CV uploaded for this user.
               </div>
             )}
+          </div>
+          
+          <div className="rounded-2xl border border-border bg-background/70 p-5 lg:col-span-2">
+            <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
+              <FiFileText className="h-5 w-5 text-primary" />
+              Applications
+            </div>
+            {isLoadingApplications ? (
+                <div className="mt-5 flex items-center gap-2 text-sm text-muted-foreground">
+                  <FiLoader className="h-4 w-4 animate-spin " />
+                  Loading applications...
+                </div>
+              ) : userApplications ? (
+                <div className="mt-5 grid sm:grid-cols-3 gap-6">
+                  {/* Events */}
+                  <div>
+                    <h3 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                      Event Registrations
+                    </h3>
+                    {userApplications.eventRegistrations.length > 0 ? (
+                      <ul className="space-y-3">
+                        {userApplications.eventRegistrations.map(reg => {
+                          const eventName = eventsData?.data.find(e => e.id === reg.event_id)?.title;
+                          return (
+                            <li key={reg.id} className="text-sm bg-background rounded-xl p-3 border border-border flex flex-col gap-2 shadow-sm">
+                              <div className="flex justify-between items-center w-full">
+                                <span className="font-medium text-foreground truncate mr-2" title={eventName || reg.event_id}>
+                                  {eventName || `ID: ${reg.event_id.split('-')[0]}`}
+                                </span>
+                                <span className="font-bold px-2 py-1 bg-primary/10 text-primary border border-primary/20 rounded-md text-[10px] uppercase tracking-wider whitespace-nowrap">{reg.status}</span>
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-muted-foreground bg-background/50 p-3 rounded-md border border-dashed border-border">No event registrations.</p>
+                    )}
+                  </div>
+                  
+                  {/* Workshops */}
+                  <div>
+                    <h3 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                      Workshop Registrations
+                    </h3>
+                    {userApplications.workshopRegistrations.length > 0 ? (
+                      <ul className="space-y-3">
+                        {userApplications.workshopRegistrations.map(reg => {
+                          const workshopName = workshopsData?.data.find(w => w.id === reg.workshop_id)?.title;
+                          return (
+                            <li key={reg.id} className="text-sm bg-background rounded-xl p-3 border border-border flex flex-col gap-2 shadow-sm">
+                              <div className="flex justify-between items-center w-full">
+                                <span className="font-medium text-foreground truncate mr-2" title={workshopName || reg.workshop_id}>
+                                  {workshopName || `ID: ${reg.workshop_id.split('-')[0]}`}
+                                </span>
+                                <span className="font-bold px-2 py-1 bg-primary/10 text-primary border border-primary/20 rounded-md text-[10px] uppercase tracking-wider whitespace-nowrap">{reg.status}</span>
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-muted-foreground bg-background/50 p-3 rounded-md border border-dashed border-border">No workshop registrations.</p>
+                    )}
+                  </div>
+                  
+                  {/* Vacancies */}
+                  <div>
+                    <h3 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                      Vacancy Applications
+                    </h3>
+                    {userApplications.vacancyApplications.length > 0 ? (
+                      <ul className="space-y-3">
+                        {userApplications.vacancyApplications.map(app => {
+                          const vacancyName = vacanciesData?.find(v => v.id === app.vacancy_id)?.title;
+                          return (
+                            <li key={app.id} className="text-sm bg-background rounded-xl p-3 border border-border flex flex-col gap-2 shadow-sm">
+                              <div className="flex justify-between items-center w-full">
+                                <span className="font-medium text-foreground truncate mr-2" title={vacancyName || app.vacancy_id}>
+                                  {vacancyName || `ID: ${app.vacancy_id.split('-')[0]}`}
+                                </span>
+                                <span className="font-bold px-2 py-1 bg-primary/10 text-primary border border-primary/20 rounded-md text-[10px] uppercase tracking-wider whitespace-nowrap">{app.status}</span>
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-muted-foreground bg-background/50 p-3 rounded-md border border-dashed border-border">No vacancy applications.</p>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                 <div className="mt-5 text-sm text-muted-foreground text-center p-4">No applications found.</div>
+              )}
           </div>
         </div>
       </div>

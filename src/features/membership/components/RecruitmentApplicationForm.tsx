@@ -19,9 +19,9 @@ import { ConfirmDeleteModal } from '@/shared/components/ConfirmDeleteModal';
 import {
   useGetVacancies,
   useApplyToVacancy,
-  useGetMyApplications,
   useRevokeApplication,
 } from '@/shared/queries/recruitment';
+import { useGetUserApplications } from '@/shared/queries/users/users.queries';
 import { Application } from '@/shared/types/recruitment.types';
 
 const recruitmentSchema = z.object({
@@ -50,8 +50,9 @@ export const RecruitmentApplicationForm = () => {
 
   const { data: vacanciesData = [], isLoading: isLoadingVacancies } =
     useGetVacancies();
-  const { data: myApplications = [], isLoading: isLoadingMyApps } =
-    useGetMyApplications();
+  const { data: myApplicationsData, isLoading: isLoadingMyApps } =
+    useGetUserApplications();
+  const myApplications = myApplicationsData?.vacancyApplications || [];
   const applyMutation = useApplyToVacancy();
   const revokeMutation = useRevokeApplication();
   const [isRevokeModalOpen, setIsRevokeModalOpen] = useState(false);
@@ -324,7 +325,7 @@ export const RecruitmentApplicationForm = () => {
             ) : (
               <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                 <AnimatePresence>
-                  {myApplications.map(app => {
+                  {myApplications.map((app: Application) => {
                     const vacancy = vacanciesData.find(
                       v => v.id === app.vacancy_id
                     );

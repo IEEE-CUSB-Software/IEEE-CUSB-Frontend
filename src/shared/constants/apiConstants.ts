@@ -34,6 +34,9 @@ export const API_ENDPOINTS = {
     UPLOAD_CV: '/users/me/cv/upload',
     DOWNLOAD_CV: '/users/me/cv/download',
     DELETE_CV: '/users/me/cv',
+    // Applications endpoints
+    GET_MY_APPLICATIONS: '/users/me/applications',
+    ADMIN_GET_USER_APPLICATIONS: (id: string) => `/admin/users/${id}/applications`,
     // Admin CV endpoints
     ADMIN_DOWNLOAD_CV: (userId: string) => `/admin/users/${userId}/cv/download`,
     // Admin Role endpoint
@@ -165,7 +168,6 @@ export const API_ENDPOINTS = {
     //user
     GET_VACANCIES: '/recruitment/vacancies',
     APPLY: (id: string) => `/recruitment/vacancies/${id}/apply`,
-    GET_MY_APPLICATIONS: '/recruitment/my-applications',
     REVOKE_APPLICATION: (id: string) => `/recruitment/applications/${id}`,
     // Admin recruitment endpoints
     ADMIN_VIEW_APPLICATION_CV: (id: string) => `/admin/recruitment/applications/${id}/cv`,
@@ -182,6 +184,8 @@ export const QUERY_KEYS = {
   USERS: {
     ALL: ['users'],
     ONE: (id: string) => ['users', id],
+    MY_APPLICATIONS: ['users', 'my-applications'],
+    USER_APPLICATIONS: (id: string) => ['users', id, 'applications'],
   },
   ROLES: {
     ALL: ['roles'],
@@ -231,6 +235,5 @@ export const QUERY_KEYS = {
       id,
       'applications',
     ],
-    MY_APPLICATIONS: ['recruitment', 'my-applications'],
   },
 } as const;

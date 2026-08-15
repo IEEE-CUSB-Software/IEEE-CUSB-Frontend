@@ -1,3 +1,7 @@
+import type { EventRegistration } from './events.types';
+import type { WorkshopRegistration } from './workshops.types';
+import type { Application as VacancyApplication } from './recruitment.types';
+
 export enum RoleName {
   SUPER_ADMIN = 'Super Admin',
   ADMIN = 'Admin',
@@ -209,4 +213,16 @@ export interface BackendPaginatedResponse<T, K extends string> {
   data: PaginatedPayload<T, K>;
   count?: number;
   message?: string;
+}
+
+export interface UserApplicationsData {
+  eventRegistrations: EventRegistration[];
+  workshopRegistrations: WorkshopRegistration[];
+  vacancyApplications: VacancyApplication[];
+}
+
+export interface UserApplicationsResponse {
+  data: UserApplicationsData;
+  count: number;
+  message: string;
 }

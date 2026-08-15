@@ -168,13 +168,6 @@ export const useGetVacancies = (params?: PaginationParams) => {
   });
 };
 
-export const useGetMyApplications = () => {
-  return useQuery({
-    queryKey: QUERY_KEYS.RECRUITMENT.MY_APPLICATIONS,
-    queryFn: api.getMyApplications,
-  });
-};
-
 export const useApplyToVacancy = () => {
   const queryClient = useQueryClient();
 
@@ -189,7 +182,7 @@ export const useApplyToVacancy = () => {
     onSuccess: () => {
       toast.success('Successfully applied to the vacancy!');
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.RECRUITMENT.MY_APPLICATIONS,
+        queryKey: QUERY_KEYS.USERS.MY_APPLICATIONS,
       });
     },
     onError: (error: any) => {
@@ -209,7 +202,7 @@ export const useRevokeApplication = () => {
     onSuccess: () => {
       toast.success('Application revoked successfully.');
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.RECRUITMENT.MY_APPLICATIONS,
+        queryKey: QUERY_KEYS.USERS.MY_APPLICATIONS,
       });
     },
     onError: (error: any) => {
