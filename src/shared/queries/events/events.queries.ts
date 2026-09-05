@@ -134,6 +134,10 @@ export const useRegisterForEvent = () => {
     mutationFn: (eventId: string) => eventsApi.registerForEvent(eventId),
     onSuccess: (_, eventId) => {
       queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.EVENTS.ALL,
+      });
+
+      queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.EVENTS.ONE(eventId),
       });
       queryClient.invalidateQueries({
@@ -158,6 +162,9 @@ export const useCancelRegistration = () => {
   return useMutation({
     mutationFn: (eventId: string) => eventsApi.cancelRegistration(eventId),
     onSuccess: (_, eventId) => {
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.EVENTS.ALL,
+      });
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.EVENTS.ONE(eventId),
       });
@@ -259,7 +266,7 @@ export const useDeleteEventImage = () => {
 
   return useMutation({
     mutationFn: (id: string) => eventsApi.deleteEventImage(id),
-    onSuccess: (updatedEvent) => {
+    onSuccess: updatedEvent => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.EVENTS.ALL });
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.EVENTS.ONE(updatedEvent.id),
@@ -286,7 +293,9 @@ export const useUploadEventGallery = () => {
     onSuccess: (_, variables) => {
       // Invalidate both the list and the single event so event.images stays fresh
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.EVENTS.ALL });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.EVENTS.ONE(variables.id) });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.EVENTS.ONE(variables.id),
+      });
       toast.success('Gallery images uploaded successfully!');
     },
     onError: (error: any) => {
@@ -308,7 +317,9 @@ export const useDeleteEventGalleryImage = () => {
       eventsApi.deleteEventGalleryImage(eventId, imageId),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.EVENTS.ALL });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.EVENTS.ONE(variables.eventId) });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.EVENTS.ONE(variables.eventId),
+      });
       toast.success('Gallery image deleted successfully!');
     },
     onError: (error: any) => {
@@ -318,4 +329,3 @@ export const useDeleteEventGalleryImage = () => {
     },
   });
 };
-
