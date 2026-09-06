@@ -9,6 +9,7 @@ import type {
   UpdateWorkshopRequest,
   UpdateRegistrationStatusRequest,
   PaginatedWorkshopsResponse,
+  PaginatedRegistrationsResponse,
   Workshop,
 } from '@/shared/types/workshops.types';
 import { PaginationParams } from '@/shared/types/auth.types';
@@ -60,6 +61,14 @@ const updateWorkshopRegistrationState = (
         : workshop
     ),
   };
+};
+
+const workshopListQueryFilter = {
+  queryKey: QUERY_KEYS.WORKSHOPS.ALL,
+  predicate: (query: { queryKey: readonly unknown[] }) =>
+    query.queryKey.length === 2 &&
+    (query.queryKey[1] === undefined ||
+      typeof query.queryKey[1] === 'object'),
 };
 
 export const useGetInstructors = (params?: PaginationParams) => {
@@ -380,12 +389,15 @@ export const useRegisterWorkshop = () => {
       await queryClient.cancelQueries({
         queryKey: QUERY_KEYS.WORKSHOPS.ONE(workshopId),
       });
+      await queryClient.cancelQueries({
+        queryKey: QUERY_KEYS.WORKSHOPS.REGISTRATIONS(workshopId),
+      });
 
       const previousWorkshop = queryClient.getQueryData<Workshop>(
         QUERY_KEYS.WORKSHOPS.ONE(workshopId)
       );
       const previousWorkshops = queryClient.getQueriesData<WorkshopsCache>({
-        queryKey: QUERY_KEYS.WORKSHOPS.ALL,
+        ...workshopListQueryFilter,
       });
 
       queryClient.setQueryData<Workshop>(
@@ -394,7 +406,7 @@ export const useRegisterWorkshop = () => {
       );
 
       queryClient.setQueriesData<WorkshopsCache>(
-        { queryKey: QUERY_KEYS.WORKSHOPS.ALL },
+        workshopListQueryFilter,
         old => updateWorkshopRegistrationState(old, workshopId, true)
       );
 
@@ -436,13 +448,20 @@ export const useCancelWorkshopRegistration = () => {
       await queryClient.cancelQueries({
         queryKey: QUERY_KEYS.WORKSHOPS.ONE(workshopId),
       });
+      await queryClient.cancelQueries({
+        queryKey: QUERY_KEYS.WORKSHOPS.REGISTRATIONS(workshopId),
+      });
 
       const previousWorkshop = queryClient.getQueryData<Workshop>(
         QUERY_KEYS.WORKSHOPS.ONE(workshopId)
       );
       const previousWorkshops = queryClient.getQueriesData<WorkshopsCache>({
-        queryKey: QUERY_KEYS.WORKSHOPS.ALL,
+        ...workshopListQueryFilter,
       });
+      const previousRegistrations =
+        queryClient.getQueriesData<PaginatedRegistrationsResponse>({
+          queryKey: QUERY_KEYS.WORKSHOPS.REGISTRATIONS(workshopId),
+        });
 
       queryClient.setQueryData<Workshop>(
         QUERY_KEYS.WORKSHOPS.ONE(workshopId),
@@ -450,11 +469,11 @@ export const useCancelWorkshopRegistration = () => {
       );
 
       queryClient.setQueriesData<WorkshopsCache>(
-        { queryKey: QUERY_KEYS.WORKSHOPS.ALL },
+        workshopListQueryFilter,
         old => updateWorkshopRegistrationState(old, workshopId, false)
       );
 
-      return { previousWorkshop, previousWorkshops };
+      return { previousWorkshop, previousWorkshops, previousRegistrations };
     },
     onSuccess: () => {
       toast.success('Registration cancelled successfully');
@@ -466,7 +485,21 @@ export const useCancelWorkshopRegistration = () => {
         queryKey: QUERY_KEYS.WORKSHOPS.REGISTRATIONS(id),
       });
     },
-    onError: (error: any) => {
+    onError: (error: any, workshopId, context) => {
+      if (context?.previousWorkshop) {
+        queryClient.setQueryData(
+          QUERY_KEYS.WORKSHOPS.ONE(workshopId),
+          context.previousWorkshop
+        );
+      }
+      context?.previousWorkshops?.forEach(([queryKey, previousWorkshops]) => {
+        queryClient.setQueryData(queryKey, previousWorkshops);
+      });
+      context?.previousRegistrations?.forEach(
+        ([queryKey, previousRegistrations]) => {
+          queryClient.setQueryData(queryKey, previousRegistrations);
+        }
+      );
       toast.error(
         error?.response?.data?.message || 'Failed to cancel registration'
       );

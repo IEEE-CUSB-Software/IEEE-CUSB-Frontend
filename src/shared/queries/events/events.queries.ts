@@ -15,6 +15,7 @@ import type {
   UpdateRegistrationStatusRequest,
   PaginationParams,
   PaginatedEventsResponse,
+  PaginatedRegistrationsResponse,
 } from '@/shared/types/events.types';
 
 type EventsCache =
@@ -55,6 +56,14 @@ const updateEventRegistrationState = (
       event.id === eventId ? { ...event, is_registered: isRegistered } : event
     ),
   };
+};
+
+const eventListQueryFilter = {
+  queryKey: QUERY_KEYS.EVENTS.ALL,
+  predicate: (query: { queryKey: readonly unknown[] }) =>
+    query.queryKey.length === 2 &&
+    (query.queryKey[1] === 'infinite' ||
+      typeof query.queryKey[1] === 'object'),
 };
 
 /**
@@ -181,24 +190,31 @@ export const useRegisterForEvent = () => {
       await queryClient.cancelQueries({
         queryKey: QUERY_KEYS.EVENTS.ONE(eventId),
       });
+      await queryClient.cancelQueries({
+        queryKey: QUERY_KEYS.EVENTS.REGISTRATIONS(eventId),
+      });
 
       const previousEvent = queryClient.getQueryData<Event>(
         QUERY_KEYS.EVENTS.ONE(eventId)
       );
-      const previousEvents = queryClient.getQueriesData<EventsCache>({
-        queryKey: QUERY_KEYS.EVENTS.ALL,
-      });
+      const previousEvents = queryClient.getQueriesData<EventsCache>(
+        eventListQueryFilter
+      );
+      const previousRegistrations =
+        queryClient.getQueriesData<PaginatedRegistrationsResponse>({
+          queryKey: QUERY_KEYS.EVENTS.REGISTRATIONS(eventId),
+        });
 
       queryClient.setQueryData<Event>(QUERY_KEYS.EVENTS.ONE(eventId), old =>
         old ? { ...old, is_registered: true } : old
       );
 
       queryClient.setQueriesData<EventsCache>(
-        { queryKey: QUERY_KEYS.EVENTS.ALL },
+        eventListQueryFilter,
         old => updateEventRegistrationState(old, eventId, true)
       );
 
-      return { previousEvent, previousEvents };
+      return { previousEvent, previousEvents, previousRegistrations };
     },
 
     onError: (error: any, eventId, context) => {
@@ -211,6 +227,11 @@ export const useRegisterForEvent = () => {
       context?.previousEvents?.forEach(([queryKey, previousEvents]) => {
         queryClient.setQueryData(queryKey, previousEvents);
       });
+      context?.previousRegistrations?.forEach(
+        ([queryKey, previousRegistrations]) => {
+          queryClient.setQueryData(queryKey, previousRegistrations);
+        }
+      );
 
       const message =
         error?.response?.data?.message || 'Failed to register for event.';
@@ -246,23 +267,30 @@ export const useCancelRegistration = () => {
       await queryClient.cancelQueries({
         queryKey: QUERY_KEYS.EVENTS.ONE(eventId),
       });
+      await queryClient.cancelQueries({
+        queryKey: QUERY_KEYS.EVENTS.REGISTRATIONS(eventId),
+      });
 
       const previousEvent = queryClient.getQueryData<Event>(
         QUERY_KEYS.EVENTS.ONE(eventId)
       );
-      const previousEvents = queryClient.getQueriesData<EventsCache>({
-        queryKey: QUERY_KEYS.EVENTS.ALL,
-      });
+      const previousEvents = queryClient.getQueriesData<EventsCache>(
+        eventListQueryFilter
+      );
+      const previousRegistrations =
+        queryClient.getQueriesData<PaginatedRegistrationsResponse>({
+          queryKey: QUERY_KEYS.EVENTS.REGISTRATIONS(eventId),
+        });
 
       queryClient.setQueryData<Event>(QUERY_KEYS.EVENTS.ONE(eventId), old =>
         old ? { ...old, is_registered: false } : old
       );
       queryClient.setQueriesData<EventsCache>(
-        { queryKey: QUERY_KEYS.EVENTS.ALL },
+        eventListQueryFilter,
         old => updateEventRegistrationState(old, eventId, false)
       );
 
-      return { previousEvent, previousEvents };
+      return { previousEvent, previousEvents, previousRegistrations };
     },
     onError: (error: any, eventId, context) => {
       if (context?.previousEvent) {
@@ -274,6 +302,11 @@ export const useCancelRegistration = () => {
       context?.previousEvents?.forEach(([queryKey, previousEvents]) => {
         queryClient.setQueryData(queryKey, previousEvents);
       });
+      context?.previousRegistrations?.forEach(
+        ([queryKey, previousRegistrations]) => {
+          queryClient.setQueryData(queryKey, previousRegistrations);
+        }
+      );
 
       const message =
         error?.response?.data?.message || 'Failed to cancel registration.';
