@@ -67,8 +67,7 @@ const workshopListQueryFilter = {
   queryKey: QUERY_KEYS.WORKSHOPS.ALL,
   predicate: (query: { queryKey: readonly unknown[] }) =>
     query.queryKey.length === 2 &&
-    (query.queryKey[1] === undefined ||
-      typeof query.queryKey[1] === 'object'),
+    (query.queryKey[1] === undefined || typeof query.queryKey[1] === 'object'),
 };
 
 export const useGetInstructors = (params?: PaginationParams) => {
@@ -405,9 +404,8 @@ export const useRegisterWorkshop = () => {
         old => (old ? { ...old, is_registered: true } : old)
       );
 
-      queryClient.setQueriesData<WorkshopsCache>(
-        workshopListQueryFilter,
-        old => updateWorkshopRegistrationState(old, workshopId, true)
+      queryClient.setQueriesData<WorkshopsCache>(workshopListQueryFilter, old =>
+        updateWorkshopRegistrationState(old, workshopId, true)
       );
 
       return { previousWorkshop, previousWorkshops };
@@ -468,9 +466,8 @@ export const useCancelWorkshopRegistration = () => {
         old => (old ? { ...old, is_registered: false } : old)
       );
 
-      queryClient.setQueriesData<WorkshopsCache>(
-        workshopListQueryFilter,
-        old => updateWorkshopRegistrationState(old, workshopId, false)
+      queryClient.setQueriesData<WorkshopsCache>(workshopListQueryFilter, old =>
+        updateWorkshopRegistrationState(old, workshopId, false)
       );
 
       return { previousWorkshop, previousWorkshops, previousRegistrations };

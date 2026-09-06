@@ -62,8 +62,7 @@ const eventListQueryFilter = {
   queryKey: QUERY_KEYS.EVENTS.ALL,
   predicate: (query: { queryKey: readonly unknown[] }) =>
     query.queryKey.length === 2 &&
-    (query.queryKey[1] === 'infinite' ||
-      typeof query.queryKey[1] === 'object'),
+    (query.queryKey[1] === 'infinite' || typeof query.queryKey[1] === 'object'),
 };
 
 /**
@@ -197,9 +196,8 @@ export const useRegisterForEvent = () => {
       const previousEvent = queryClient.getQueryData<Event>(
         QUERY_KEYS.EVENTS.ONE(eventId)
       );
-      const previousEvents = queryClient.getQueriesData<EventsCache>(
-        eventListQueryFilter
-      );
+      const previousEvents =
+        queryClient.getQueriesData<EventsCache>(eventListQueryFilter);
       const previousRegistrations =
         queryClient.getQueriesData<PaginatedRegistrationsResponse>({
           queryKey: QUERY_KEYS.EVENTS.REGISTRATIONS(eventId),
@@ -209,9 +207,8 @@ export const useRegisterForEvent = () => {
         old ? { ...old, is_registered: true } : old
       );
 
-      queryClient.setQueriesData<EventsCache>(
-        eventListQueryFilter,
-        old => updateEventRegistrationState(old, eventId, true)
+      queryClient.setQueriesData<EventsCache>(eventListQueryFilter, old =>
+        updateEventRegistrationState(old, eventId, true)
       );
 
       return { previousEvent, previousEvents, previousRegistrations };
@@ -274,9 +271,8 @@ export const useCancelRegistration = () => {
       const previousEvent = queryClient.getQueryData<Event>(
         QUERY_KEYS.EVENTS.ONE(eventId)
       );
-      const previousEvents = queryClient.getQueriesData<EventsCache>(
-        eventListQueryFilter
-      );
+      const previousEvents =
+        queryClient.getQueriesData<EventsCache>(eventListQueryFilter);
       const previousRegistrations =
         queryClient.getQueriesData<PaginatedRegistrationsResponse>({
           queryKey: QUERY_KEYS.EVENTS.REGISTRATIONS(eventId),
@@ -285,9 +281,8 @@ export const useCancelRegistration = () => {
       queryClient.setQueryData<Event>(QUERY_KEYS.EVENTS.ONE(eventId), old =>
         old ? { ...old, is_registered: false } : old
       );
-      queryClient.setQueriesData<EventsCache>(
-        eventListQueryFilter,
-        old => updateEventRegistrationState(old, eventId, false)
+      queryClient.setQueriesData<EventsCache>(eventListQueryFilter, old =>
+        updateEventRegistrationState(old, eventId, false)
       );
 
       return { previousEvent, previousEvents, previousRegistrations };
