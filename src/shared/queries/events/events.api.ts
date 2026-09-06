@@ -102,23 +102,28 @@ export const eventsApi = {
   /**
    * Upload one or more gallery images (Admin only)
    */
-  uploadEventGallery: async (id: string, files: File[]): Promise<EventGalleryImage[]> => {
+  uploadEventGallery: async (
+    id: string,
+    files: File[]
+  ): Promise<EventGalleryImage[]> => {
     const formData = new FormData();
-    files.forEach((file) => formData.append('images', file));
-    const response = await apiClient.post<EventApiResponse<EventGalleryImage[]>>(
-      API_ENDPOINTS.EVENTS.UPLOAD_GALLERY(id),
-      formData
-    );
+    files.forEach(file => formData.append('images', file));
+    const response = await apiClient.post<
+      EventApiResponse<EventGalleryImage[]>
+    >(API_ENDPOINTS.EVENTS.UPLOAD_GALLERY(id), formData);
     return response.data.data;
   },
 
   /**
    * Delete a single gallery image (Admin only)
    */
-  deleteEventGalleryImage: async (id: string, imageId: string): Promise<EventGalleryImage> => {
-    const response = await apiClient.delete<EventApiResponse<EventGalleryImage>>(
-      API_ENDPOINTS.EVENTS.DELETE_GALLERY_IMAGE(id, imageId)
-    );
+  deleteEventGalleryImage: async (
+    id: string,
+    imageId: string
+  ): Promise<EventGalleryImage> => {
+    const response = await apiClient.delete<
+      EventApiResponse<EventGalleryImage>
+    >(API_ENDPOINTS.EVENTS.DELETE_GALLERY_IMAGE(id, imageId));
     return response.data.data;
   },
 
@@ -177,4 +182,3 @@ export const eventsApi = {
     return response.data.data;
   },
 };
-

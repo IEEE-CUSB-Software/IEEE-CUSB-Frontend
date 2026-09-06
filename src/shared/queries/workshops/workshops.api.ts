@@ -69,7 +69,9 @@ export const deleteInstructorImage = async (
   return response.data.data;
 };
 
-export const getInstructors = async (params?: PaginationParams): Promise<Instructor[]> => {
+export const getInstructors = async (
+  params?: PaginationParams
+): Promise<Instructor[]> => {
   const filteredParams = params
     ? Object.fromEntries(
         Object.entries(params)
@@ -240,5 +242,5 @@ export const registerToWorkshop = async (
 };
 
 export const cancelWorkshopRegistration = async (id: string): Promise<void> => {
-  await api.post(API_ENDPOINTS.WORKSHOPS.CANCEL_REGISTRATION(id));
+  await api.patch(API_ENDPOINTS.WORKSHOPS.CANCEL_REGISTRATION(id));
 };
