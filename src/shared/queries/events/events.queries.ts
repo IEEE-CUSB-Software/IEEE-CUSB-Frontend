@@ -4,15 +4,58 @@ import {
   useQueryClient,
   useInfiniteQuery,
 } from '@tanstack/react-query';
+import type { InfiniteData } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { eventsApi } from './events.api';
 import { QUERY_KEYS } from '@/shared/constants/apiConstants';
 import type {
+  Event,
   CreateEventRequest,
   UpdateEventRequest,
   UpdateRegistrationStatusRequest,
   PaginationParams,
+  PaginatedEventsResponse,
 } from '@/shared/types/events.types';
+
+type EventsCache =
+  | PaginatedEventsResponse
+  | InfiniteData<PaginatedEventsResponse>
+  | Event[];
+
+const updateEventRegistrationState = (
+  cache: EventsCache | undefined,
+  eventId: string,
+  isRegistered: boolean
+): EventsCache | undefined => {
+  if (!cache) return cache;
+
+  if (Array.isArray(cache)) {
+    return cache.map(event =>
+      event.id === eventId ? { ...event, is_registered: isRegistered } : event
+    );
+  }
+
+  if ('pages' in cache) {
+    return {
+      ...cache,
+      pages: cache.pages.map(page => ({
+        ...page,
+        data: page.data.map(event =>
+          event.id === eventId
+            ? { ...event, is_registered: isRegistered }
+            : event
+        ),
+      })),
+    };
+  }
+
+  return {
+    ...cache,
+    data: cache.data.map(event =>
+      event.id === eventId ? { ...event, is_registered: isRegistered } : event
+    ),
+  };
+};
 
 /**
  * Hook to get all events with pagination
@@ -132,23 +175,60 @@ export const useRegisterForEvent = () => {
 
   return useMutation({
     mutationFn: (eventId: string) => eventsApi.registerForEvent(eventId),
-    onSuccess: (_, eventId) => {
-      queryClient.invalidateQueries({
+
+    onMutate: async (eventId: string) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.EVENTS.ALL });
+      await queryClient.cancelQueries({
+        queryKey: QUERY_KEYS.EVENTS.ONE(eventId),
+      });
+
+      const previousEvent = queryClient.getQueryData<Event>(
+        QUERY_KEYS.EVENTS.ONE(eventId)
+      );
+      const previousEvents = queryClient.getQueriesData<EventsCache>({
         queryKey: QUERY_KEYS.EVENTS.ALL,
       });
 
+      queryClient.setQueryData<Event>(QUERY_KEYS.EVENTS.ONE(eventId), old =>
+        old ? { ...old, is_registered: true } : old
+      );
+
+      queryClient.setQueriesData<EventsCache>(
+        { queryKey: QUERY_KEYS.EVENTS.ALL },
+        old => updateEventRegistrationState(old, eventId, true)
+      );
+
+      return { previousEvent, previousEvents };
+    },
+
+    onError: (error: any, eventId, context) => {
+      if (context?.previousEvent) {
+        queryClient.setQueryData(
+          QUERY_KEYS.EVENTS.ONE(eventId),
+          context.previousEvent
+        );
+      }
+      context?.previousEvents?.forEach(([queryKey, previousEvents]) => {
+        queryClient.setQueryData(queryKey, previousEvents);
+      });
+
+      const message =
+        error?.response?.data?.message || 'Failed to register for event.';
+      toast.error(message);
+    },
+
+    onSuccess: () => {
+      toast.success('Successfully registered for the event!');
+    },
+
+    onSettled: (_, __, eventId) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.EVENTS.ALL });
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.EVENTS.ONE(eventId),
       });
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.EVENTS.REGISTRATIONS(eventId),
       });
-      toast.success('Successfully registered for the event!');
-    },
-    onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || 'Failed to register for event.';
-      toast.error(message);
     },
   });
 };
@@ -161,7 +241,48 @@ export const useCancelRegistration = () => {
 
   return useMutation({
     mutationFn: (eventId: string) => eventsApi.cancelRegistration(eventId),
-    onSuccess: (_, eventId) => {
+    onMutate: async (eventId: string) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.EVENTS.ALL });
+      await queryClient.cancelQueries({
+        queryKey: QUERY_KEYS.EVENTS.ONE(eventId),
+      });
+
+      const previousEvent = queryClient.getQueryData<Event>(
+        QUERY_KEYS.EVENTS.ONE(eventId)
+      );
+      const previousEvents = queryClient.getQueriesData<EventsCache>({
+        queryKey: QUERY_KEYS.EVENTS.ALL,
+      });
+
+      queryClient.setQueryData<Event>(QUERY_KEYS.EVENTS.ONE(eventId), old =>
+        old ? { ...old, is_registered: false } : old
+      );
+      queryClient.setQueriesData<EventsCache>(
+        { queryKey: QUERY_KEYS.EVENTS.ALL },
+        old => updateEventRegistrationState(old, eventId, false)
+      );
+
+      return { previousEvent, previousEvents };
+    },
+    onError: (error: any, eventId, context) => {
+      if (context?.previousEvent) {
+        queryClient.setQueryData(
+          QUERY_KEYS.EVENTS.ONE(eventId),
+          context.previousEvent
+        );
+      }
+      context?.previousEvents?.forEach(([queryKey, previousEvents]) => {
+        queryClient.setQueryData(queryKey, previousEvents);
+      });
+
+      const message =
+        error?.response?.data?.message || 'Failed to cancel registration.';
+      toast.error(message);
+    },
+    onSuccess: () => {
+      toast.success('Registration cancelled successfully!');
+    },
+    onSettled: (_, __, eventId) => {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.EVENTS.ALL,
       });
@@ -171,12 +292,6 @@ export const useCancelRegistration = () => {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.EVENTS.REGISTRATIONS(eventId),
       });
-      toast.success('Registration cancelled successfully!');
-    },
-    onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || 'Failed to cancel registration.';
-      toast.error(message);
     },
   });
 };
