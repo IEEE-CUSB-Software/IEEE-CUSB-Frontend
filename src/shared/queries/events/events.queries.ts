@@ -4,15 +4,100 @@ import {
   useQueryClient,
   useInfiniteQuery,
 } from '@tanstack/react-query';
+import type { InfiniteData } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { eventsApi } from './events.api';
 import { QUERY_KEYS } from '@/shared/constants/apiConstants';
 import type {
+  Event,
   CreateEventRequest,
   UpdateEventRequest,
   UpdateRegistrationStatusRequest,
   PaginationParams,
+  PaginatedEventsResponse,
 } from '@/shared/types/events.types';
+
+type EventsCache =
+  | PaginatedEventsResponse
+  | InfiniteData<PaginatedEventsResponse>
+  | Event[]
+  | Event;
+
+const updateSingleEventRegistration = (
+  event: Event,
+  eventId: string,
+  isRegistered: boolean
+): Event => {
+  if (event.id !== eventId) return event;
+
+  const currentSpots = event.remainingSpots ?? event.capacity ?? 0;
+  const newSpots = isRegistered
+    ? Math.max(0, currentSpots - 1)
+    : currentSpots + 1;
+
+  return {
+    ...event,
+    is_registered: isRegistered,
+    remainingSpots: newSpots,
+    is_full: newSpots === 0,
+  };
+};
+
+const updateEventRegistrationState = (
+  cache: EventsCache | undefined,
+  eventId: string,
+  isRegistered: boolean
+): EventsCache | undefined => {
+  if (!cache) return cache;
+
+  // 1. Array of events
+  if (Array.isArray(cache)) {
+    return cache.map(event =>
+      updateSingleEventRegistration(event, eventId, isRegistered)
+    );
+  }
+
+  // 2. Infinite query structure { pages: [{ data: Event[] }] }
+  if ('pages' in cache && Array.isArray(cache.pages)) {
+    return {
+      ...cache,
+      pages: cache.pages.map(page => ({
+        ...page,
+        data: Array.isArray(page.data)
+          ? page.data.map(event =>
+              updateSingleEventRegistration(event, eventId, isRegistered)
+            )
+          : page.data,
+      })),
+    };
+  }
+
+  // 3. Paginated response { data: Event[] }
+  if ('data' in cache && Array.isArray(cache.data)) {
+    return {
+      ...cache,
+      data: cache.data.map(event =>
+        updateSingleEventRegistration(event, eventId, isRegistered)
+      ),
+    };
+  }
+
+  // 4. Single Event object { id: string, ... }
+  if ('id' in cache && (cache as Event).id === eventId) {
+    return updateSingleEventRegistration(cache as Event, eventId, isRegistered);
+  }
+
+  return cache;
+};
+
+const eventListQueryFilter = {
+  queryKey: QUERY_KEYS.EVENTS.ALL,
+  predicate: (query: { queryKey: readonly unknown[] }) =>
+    query.queryKey.length === 2 &&
+    (query.queryKey[1] === 'infinite' ||
+      query.queryKey[1] === undefined ||
+      typeof query.queryKey[1] === 'object'),
+};
 
 /**
  * Hook to get all events with pagination
@@ -132,19 +217,52 @@ export const useRegisterForEvent = () => {
 
   return useMutation({
     mutationFn: (eventId: string) => eventsApi.registerForEvent(eventId),
-    onSuccess: (_, eventId) => {
-      queryClient.invalidateQueries({
+
+    onMutate: async (eventId: string) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.EVENTS.ALL });
+      await queryClient.cancelQueries({
         queryKey: QUERY_KEYS.EVENTS.ONE(eventId),
       });
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.EVENTS.REGISTRATIONS(eventId),
-      });
-      toast.success('Successfully registered for the event!');
+
+      const previousEvent = queryClient.getQueryData<Event>(
+        QUERY_KEYS.EVENTS.ONE(eventId)
+      );
+      const previousEvents =
+        queryClient.getQueriesData<EventsCache>(eventListQueryFilter);
+
+      queryClient.setQueryData<Event>(QUERY_KEYS.EVENTS.ONE(eventId), old =>
+        old ? updateSingleEventRegistration(old, eventId, true) : old
+      );
+
+      queryClient.setQueriesData<EventsCache>(eventListQueryFilter, old =>
+        updateEventRegistrationState(old, eventId, true)
+      );
+
+      return { previousEvent, previousEvents };
     },
-    onError: (error: any) => {
+
+    onError: (error: any, eventId, context) => {
+      if (context?.previousEvent) {
+        queryClient.setQueryData(
+          QUERY_KEYS.EVENTS.ONE(eventId),
+          context.previousEvent
+        );
+      }
+      context?.previousEvents?.forEach(([queryKey, previousEvents]) => {
+        queryClient.setQueryData(queryKey, previousEvents);
+      });
+
       const message =
         error?.response?.data?.message || 'Failed to register for event.';
       toast.error(message);
+    },
+
+    onSuccess: () => {
+      toast.success('Successfully registered for the event!');
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.EVENTS.ALL });
     },
   });
 };
@@ -157,19 +275,49 @@ export const useCancelRegistration = () => {
 
   return useMutation({
     mutationFn: (eventId: string) => eventsApi.cancelRegistration(eventId),
-    onSuccess: (_, eventId) => {
-      queryClient.invalidateQueries({
+    onMutate: async (eventId: string) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.EVENTS.ALL });
+      await queryClient.cancelQueries({
         queryKey: QUERY_KEYS.EVENTS.ONE(eventId),
       });
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.EVENTS.REGISTRATIONS(eventId),
-      });
-      toast.success('Registration cancelled successfully!');
+
+      const previousEvent = queryClient.getQueryData<Event>(
+        QUERY_KEYS.EVENTS.ONE(eventId)
+      );
+      const previousEvents =
+        queryClient.getQueriesData<EventsCache>(eventListQueryFilter);
+
+      queryClient.setQueryData<Event>(QUERY_KEYS.EVENTS.ONE(eventId), old =>
+        old ? updateSingleEventRegistration(old, eventId, false) : old
+      );
+      queryClient.setQueriesData<EventsCache>(eventListQueryFilter, old =>
+        updateEventRegistrationState(old, eventId, false)
+      );
+
+      return { previousEvent, previousEvents };
     },
-    onError: (error: any) => {
+    onError: (error: any, eventId, context) => {
+      if (context?.previousEvent) {
+        queryClient.setQueryData(
+          QUERY_KEYS.EVENTS.ONE(eventId),
+          context.previousEvent
+        );
+      }
+      context?.previousEvents?.forEach(([queryKey, previousEvents]) => {
+        queryClient.setQueryData(queryKey, previousEvents);
+      });
+
       const message =
         error?.response?.data?.message || 'Failed to cancel registration.';
       toast.error(message);
+    },
+    onSuccess: () => {
+      toast.success('Registration cancelled successfully!');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.EVENTS.ALL,
+      });
     },
   });
 };
@@ -259,7 +407,7 @@ export const useDeleteEventImage = () => {
 
   return useMutation({
     mutationFn: (id: string) => eventsApi.deleteEventImage(id),
-    onSuccess: (updatedEvent) => {
+    onSuccess: updatedEvent => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.EVENTS.ALL });
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.EVENTS.ONE(updatedEvent.id),
@@ -286,7 +434,9 @@ export const useUploadEventGallery = () => {
     onSuccess: (_, variables) => {
       // Invalidate both the list and the single event so event.images stays fresh
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.EVENTS.ALL });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.EVENTS.ONE(variables.id) });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.EVENTS.ONE(variables.id),
+      });
       toast.success('Gallery images uploaded successfully!');
     },
     onError: (error: any) => {
@@ -308,7 +458,9 @@ export const useDeleteEventGalleryImage = () => {
       eventsApi.deleteEventGalleryImage(eventId, imageId),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.EVENTS.ALL });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.EVENTS.ONE(variables.eventId) });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.EVENTS.ONE(variables.eventId),
+      });
       toast.success('Gallery image deleted successfully!');
     },
     onError: (error: any) => {
@@ -318,4 +470,3 @@ export const useDeleteEventGalleryImage = () => {
     },
   });
 };
-
