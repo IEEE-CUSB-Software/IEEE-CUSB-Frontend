@@ -15,13 +15,33 @@ import type {
   UpdateRegistrationStatusRequest,
   PaginationParams,
   PaginatedEventsResponse,
-  PaginatedRegistrationsResponse,
 } from '@/shared/types/events.types';
 
 type EventsCache =
   | PaginatedEventsResponse
   | InfiniteData<PaginatedEventsResponse>
-  | Event[];
+  | Event[]
+  | Event;
+
+const updateSingleEventRegistration = (
+  event: Event,
+  eventId: string,
+  isRegistered: boolean
+): Event => {
+  if (event.id !== eventId) return event;
+
+  const currentSpots = event.remainingSpots ?? event.capacity ?? 0;
+  const newSpots = isRegistered
+    ? Math.max(0, currentSpots - 1)
+    : currentSpots + 1;
+
+  return {
+    ...event,
+    is_registered: isRegistered,
+    remainingSpots: newSpots,
+    is_full: newSpots === 0,
+  };
+};
 
 const updateEventRegistrationState = (
   cache: EventsCache | undefined,
@@ -30,39 +50,53 @@ const updateEventRegistrationState = (
 ): EventsCache | undefined => {
   if (!cache) return cache;
 
+  // 1. Array of events
   if (Array.isArray(cache)) {
     return cache.map(event =>
-      event.id === eventId ? { ...event, is_registered: isRegistered } : event
+      updateSingleEventRegistration(event, eventId, isRegistered)
     );
   }
 
-  if ('pages' in cache) {
+  // 2. Infinite query structure { pages: [{ data: Event[] }] }
+  if ('pages' in cache && Array.isArray(cache.pages)) {
     return {
       ...cache,
       pages: cache.pages.map(page => ({
         ...page,
-        data: page.data.map(event =>
-          event.id === eventId
-            ? { ...event, is_registered: isRegistered }
-            : event
-        ),
+        data: Array.isArray(page.data)
+          ? page.data.map(event =>
+              updateSingleEventRegistration(event, eventId, isRegistered)
+            )
+          : page.data,
       })),
     };
   }
 
-  return {
-    ...cache,
-    data: cache.data.map(event =>
-      event.id === eventId ? { ...event, is_registered: isRegistered } : event
-    ),
-  };
+  // 3. Paginated response { data: Event[] }
+  if ('data' in cache && Array.isArray(cache.data)) {
+    return {
+      ...cache,
+      data: cache.data.map(event =>
+        updateSingleEventRegistration(event, eventId, isRegistered)
+      ),
+    };
+  }
+
+  // 4. Single Event object { id: string, ... }
+  if ('id' in cache && (cache as Event).id === eventId) {
+    return updateSingleEventRegistration(cache as Event, eventId, isRegistered);
+  }
+
+  return cache;
 };
 
 const eventListQueryFilter = {
   queryKey: QUERY_KEYS.EVENTS.ALL,
   predicate: (query: { queryKey: readonly unknown[] }) =>
     query.queryKey.length === 2 &&
-    (query.queryKey[1] === 'infinite' || typeof query.queryKey[1] === 'object'),
+    (query.queryKey[1] === 'infinite' ||
+      query.queryKey[1] === undefined ||
+      typeof query.queryKey[1] === 'object'),
 };
 
 /**
@@ -189,29 +223,22 @@ export const useRegisterForEvent = () => {
       await queryClient.cancelQueries({
         queryKey: QUERY_KEYS.EVENTS.ONE(eventId),
       });
-      await queryClient.cancelQueries({
-        queryKey: QUERY_KEYS.EVENTS.REGISTRATIONS(eventId),
-      });
 
       const previousEvent = queryClient.getQueryData<Event>(
         QUERY_KEYS.EVENTS.ONE(eventId)
       );
       const previousEvents =
         queryClient.getQueriesData<EventsCache>(eventListQueryFilter);
-      const previousRegistrations =
-        queryClient.getQueriesData<PaginatedRegistrationsResponse>({
-          queryKey: QUERY_KEYS.EVENTS.REGISTRATIONS(eventId),
-        });
 
       queryClient.setQueryData<Event>(QUERY_KEYS.EVENTS.ONE(eventId), old =>
-        old ? { ...old, is_registered: true } : old
+        old ? updateSingleEventRegistration(old, eventId, true) : old
       );
 
       queryClient.setQueriesData<EventsCache>(eventListQueryFilter, old =>
         updateEventRegistrationState(old, eventId, true)
       );
 
-      return { previousEvent, previousEvents, previousRegistrations };
+      return { previousEvent, previousEvents };
     },
 
     onError: (error: any, eventId, context) => {
@@ -224,11 +251,6 @@ export const useRegisterForEvent = () => {
       context?.previousEvents?.forEach(([queryKey, previousEvents]) => {
         queryClient.setQueryData(queryKey, previousEvents);
       });
-      context?.previousRegistrations?.forEach(
-        ([queryKey, previousRegistrations]) => {
-          queryClient.setQueryData(queryKey, previousRegistrations);
-        }
-      );
 
       const message =
         error?.response?.data?.message || 'Failed to register for event.';
@@ -239,14 +261,8 @@ export const useRegisterForEvent = () => {
       toast.success('Successfully registered for the event!');
     },
 
-    onSettled: (_, __, eventId) => {
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.EVENTS.ALL });
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.EVENTS.ONE(eventId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.EVENTS.REGISTRATIONS(eventId),
-      });
     },
   });
 };
@@ -264,28 +280,21 @@ export const useCancelRegistration = () => {
       await queryClient.cancelQueries({
         queryKey: QUERY_KEYS.EVENTS.ONE(eventId),
       });
-      await queryClient.cancelQueries({
-        queryKey: QUERY_KEYS.EVENTS.REGISTRATIONS(eventId),
-      });
 
       const previousEvent = queryClient.getQueryData<Event>(
         QUERY_KEYS.EVENTS.ONE(eventId)
       );
       const previousEvents =
         queryClient.getQueriesData<EventsCache>(eventListQueryFilter);
-      const previousRegistrations =
-        queryClient.getQueriesData<PaginatedRegistrationsResponse>({
-          queryKey: QUERY_KEYS.EVENTS.REGISTRATIONS(eventId),
-        });
 
       queryClient.setQueryData<Event>(QUERY_KEYS.EVENTS.ONE(eventId), old =>
-        old ? { ...old, is_registered: false } : old
+        old ? updateSingleEventRegistration(old, eventId, false) : old
       );
       queryClient.setQueriesData<EventsCache>(eventListQueryFilter, old =>
         updateEventRegistrationState(old, eventId, false)
       );
 
-      return { previousEvent, previousEvents, previousRegistrations };
+      return { previousEvent, previousEvents };
     },
     onError: (error: any, eventId, context) => {
       if (context?.previousEvent) {
@@ -297,11 +306,6 @@ export const useCancelRegistration = () => {
       context?.previousEvents?.forEach(([queryKey, previousEvents]) => {
         queryClient.setQueryData(queryKey, previousEvents);
       });
-      context?.previousRegistrations?.forEach(
-        ([queryKey, previousRegistrations]) => {
-          queryClient.setQueryData(queryKey, previousRegistrations);
-        }
-      );
 
       const message =
         error?.response?.data?.message || 'Failed to cancel registration.';
@@ -310,15 +314,9 @@ export const useCancelRegistration = () => {
     onSuccess: () => {
       toast.success('Registration cancelled successfully!');
     },
-    onSettled: (_, __, eventId) => {
+    onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.EVENTS.ALL,
-      });
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.EVENTS.ONE(eventId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.EVENTS.REGISTRATIONS(eventId),
       });
     },
   });
