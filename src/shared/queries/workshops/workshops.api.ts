@@ -75,7 +75,7 @@ export const getInstructors = async (
   const filteredParams = params
     ? Object.fromEntries(
         Object.entries(params)
-          .filter(([_, v]) => v !== undefined && v !== '')
+          .filter(([, v]) => v !== undefined && v !== '')
           .map(([k, v]) => [k, String(v)])
       )
     : undefined;
@@ -163,7 +163,7 @@ export const getWorkshops = async (
   const filteredParams = params
     ? Object.fromEntries(
         Object.entries(params)
-          .filter(([_, v]) => v !== undefined && v !== '')
+          .filter(([, v]) => v !== undefined && v !== '')
           .map(([k, v]) => [k, String(v)])
       )
     : undefined;
@@ -195,7 +195,7 @@ export const getWorkshopRegistrations = async (
   const filteredParams = params
     ? Object.fromEntries(
         Object.entries(params)
-          .filter(([_, v]) => v !== undefined && v !== '')
+          .filter(([, v]) => v !== undefined && v !== '')
           .map(([k, v]) => [k, String(v)])
       )
     : undefined;

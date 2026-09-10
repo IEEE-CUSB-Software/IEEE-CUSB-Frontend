@@ -19,6 +19,9 @@ export const MobileWorkshopRegistrationCard: React.FC<MobileWorkshopRegistration
   onUpdateStatus,
 }) => {
   const statusColors: Record<WorkshopRegistrationStatus, string> = {
+    [WorkshopRegistrationStatus.PENDING]: isDark
+      ? 'bg-yellow-900/30 text-yellow-300'
+      : 'bg-yellow-50 text-yellow-700',
     [WorkshopRegistrationStatus.REGISTERED]: isDark
       ? 'bg-blue-900/30 text-blue-300'
       : 'bg-blue-50 text-blue-700',
@@ -84,7 +87,8 @@ export const MobileWorkshopRegistrationCard: React.FC<MobileWorkshopRegistration
       </div>
 
       <div className="flex gap-2 justify-end">
-        {registration.status !== WorkshopRegistrationStatus.ACCEPTED && (
+        {registration.status !== WorkshopRegistrationStatus.ACCEPTED &&
+          registration.status !== WorkshopRegistrationStatus.ATTENDED && (
             <Button
               buttonText="Accept"
               onClick={() =>
@@ -100,19 +104,39 @@ export const MobileWorkshopRegistrationCard: React.FC<MobileWorkshopRegistration
               type="primary"
             />
           )}
-        {registration.status !== WorkshopRegistrationStatus.REJECTED && (
+        {registration.status === WorkshopRegistrationStatus.ACCEPTED && (
           <Button
-            buttonText="Reject"
+            buttonText="Mark Attended"
             onClick={() =>
-              onUpdateStatus(registration.id, WorkshopRegistrationStatus.REJECTED)
+              onUpdateStatus(
+                registration.id,
+                WorkshopRegistrationStatus.ATTENDED
+              )
             }
             disabled={isUpdating}
-            className="text-xs px-3 py-1.5 h-auto min-h-0 bg-red-50 hover:bg-red-100 text-red-600 border-red-200"
+            className="text-xs px-3 py-1.5 h-auto min-h-0"
             width="fit"
             darkMode={isDark}
-            type="basic"
+            type="primary"
           />
         )}
+        {registration.status !== WorkshopRegistrationStatus.REJECTED &&
+          registration.status !== WorkshopRegistrationStatus.CANCELLED && (
+            <Button
+              buttonText="Reject"
+              onClick={() =>
+                onUpdateStatus(
+                  registration.id,
+                  WorkshopRegistrationStatus.REJECTED
+                )
+              }
+              disabled={isUpdating}
+              className="text-xs px-3 py-1.5 h-auto min-h-0 bg-red-50 hover:bg-red-100 text-red-600 border-red-200"
+              width="fit"
+              darkMode={isDark}
+              type="basic"
+            />
+          )}
       </div>
     </div>
   );

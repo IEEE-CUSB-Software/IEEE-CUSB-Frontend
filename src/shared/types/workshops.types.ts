@@ -60,6 +60,7 @@ export interface WorkshopGalleryImage {
  * Workshop registration status enum
  */
 export enum WorkshopRegistrationStatus {
+  PENDING = 'pending',
   REGISTERED = 'registered',
   WAITLISTED = 'waitlisted',
   CANCELLED = 'cancelled',
