@@ -37,6 +37,28 @@ const formatValue = (value: string | number | boolean | null | undefined) => {
   return String(value);
 };
 
+const getStatusBadgeClass = (status?: string): string => {
+  const normalized = status?.toLowerCase().trim();
+  switch (normalized) {
+    case 'accepted':
+      return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20';
+    case 'attended':
+      return 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20';
+    case 'registered':
+      return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20';
+    case 'pending':
+      return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
+    case 'waitlisted':
+      return 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20';
+    case 'rejected':
+      return 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20';
+    case 'cancelled':
+      return 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20';
+    default:
+      return 'bg-muted text-muted-foreground border-border';
+  }
+};
+
 export const ProfilePage = () => {
   const navigate = useNavigate();
   const { data: user, isLoading, error } = useCurrentUser();
@@ -344,7 +366,9 @@ export const ProfilePage = () => {
                                 <span className="font-medium text-foreground truncate mr-2" title={eventName || reg.event_id}>
                                   {eventName || `ID: ${reg.event_id.split('-')[0]}`}
                                 </span>
-                                <span className="font-bold px-2 py-1 bg-primary/10 text-primary border border-primary/20 rounded-md text-[10px] uppercase tracking-wider whitespace-nowrap">{reg.status}</span>
+                                <span className={`font-bold px-2.5 py-1 border rounded-md text-[10px] uppercase tracking-wider whitespace-nowrap ${getStatusBadgeClass(reg.status)}`}>
+                                  {reg.status}
+                                </span>
                               </div>
                             </li>
                           );
@@ -371,7 +395,9 @@ export const ProfilePage = () => {
                                 <span className="font-medium text-foreground truncate mr-2" title={workshopName || reg.workshop_id}>
                                   {workshopName || `ID: ${reg.workshop_id.split('-')[0]}`}
                                 </span>
-                                <span className="font-bold px-2 py-1 bg-primary/10 text-primary border border-primary/20 rounded-md text-[10px] uppercase tracking-wider whitespace-nowrap">{reg.status}</span>
+                                <span className={`font-bold px-2.5 py-1 border rounded-md text-[10px] uppercase tracking-wider whitespace-nowrap ${getStatusBadgeClass(reg.status)}`}>
+                                  {reg.status}
+                                </span>
                               </div>
                             </li>
                           );
@@ -398,7 +424,9 @@ export const ProfilePage = () => {
                                 <span className="font-medium text-foreground truncate mr-2" title={vacancyName || app.vacancy_id}>
                                   {vacancyName || `ID: ${app.vacancy_id.split('-')[0]}`}
                                 </span>
-                                <span className="font-bold px-2 py-1 bg-primary/10 text-primary border border-primary/20 rounded-md text-[10px] uppercase tracking-wider whitespace-nowrap">{app.status}</span>
+                                <span className={`font-bold px-2.5 py-1 border rounded-md text-[10px] uppercase tracking-wider whitespace-nowrap ${getStatusBadgeClass(app.status)}`}>
+                                  {app.status}
+                                </span>
                               </div>
                             </li>
                           );
