@@ -2,10 +2,10 @@ import { motion } from 'framer-motion';
 import { HiCalendar, HiLocationMarker, HiClock } from 'react-icons/hi';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '@/shared/store/hooks';
-// import {
-//   useRegisterForWorkshop,
-//   useCancelRegistration,
-// } from '@/shared/queries/workshops';
+import {
+  useRegisterWorkshop,
+  useCancelWorkshopRegistration,
+} from '@/shared/queries/workshops';
 import { RoleName } from '@/shared/types/auth.types';
 
 interface WorkshopCardProps {
@@ -43,16 +43,15 @@ export const WorkshopCard = ({
     user?.role?.name === RoleName.ADMIN ||
     user?.role?.name === RoleName.SUPER_ADMIN;
 
-  //   const { mutate: register, isPending: isRegistering } = useRegisterForWorkshop();
-  //   const { mutate: cancelRegistration, isPending: isCancelling } =
-  //     useCancelRegistration();
+  const { mutate: register, isPending: isRegistering } = useRegisterWorkshop();
+  const { mutate: cancelRegistration, isPending: isCancelling } =
+    useCancelWorkshopRegistration();
 
   const isRegistrationClosed = workshop.registrationDeadline
     ? new Date() > new Date(workshop.registrationDeadline)
     : false;
 
-  // const isPending = isRegistering || isCancelling;
-  const isPending = false; // Placeholder until hooks are implemented
+  const isPending = isRegistering || isCancelling;
 
   const handleRegister = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -60,13 +59,13 @@ export const WorkshopCard = ({
       navigate('/login');
       return;
     }
-    // register(workshop.id.toString());
+    register(workshop.id.toString());
   };
 
   const handleCancelRegistration = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (workshop.id) {
-      //cancelRegistration(workshop.id.toString());
+      cancelRegistration(workshop.id.toString());
     }
   };
 

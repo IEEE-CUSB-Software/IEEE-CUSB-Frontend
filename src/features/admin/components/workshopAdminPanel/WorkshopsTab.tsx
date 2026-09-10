@@ -119,7 +119,13 @@ const WorkshopsTab: React.FC = () => {
         accessorKey: 'capacity',
         cell: item => (
           <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-            {item.capacity - (item.remainingSpots ?? item.capacity)} / {item.capacity}
+            {item.is_full ? (
+              <span className={isDark ? 'text-red-400 font-medium' : 'text-red-500 font-medium'}>
+                Full ({item.capacity})
+              </span>
+            ) : (
+              `${item.remainingSpots ?? item.capacity}/${item.capacity}`
+            )}
           </span>
         ),
       },
@@ -251,7 +257,7 @@ const WorkshopsTab: React.FC = () => {
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit'
-              })} · ${workshop.capacity - (workshop.remainingSpots ?? workshop.capacity)}/${workshop.capacity} capacity`}
+              })} · ${workshop.is_full ? `Full (${workshop.capacity})` : `${workshop.remainingSpots ?? workshop.capacity}/${workshop.capacity} spots`}`}
               badge={badgeText}
               description={workshop.description}
               avatar={

@@ -358,7 +358,7 @@ export const AddEditWorkshopModal: React.FC<ExtendedAddEditWorkshopModalProps> =
         if (pendingGallery.length > 0) promises.push(uploadGallery.mutateAsync({ id: workshopId, files: pendingGallery }));
         
         await Promise.all(promises);
-      } catch (err) {
+      } catch {
         setIsSaving(false);
         return; // Stop save if images failed to upload
       }

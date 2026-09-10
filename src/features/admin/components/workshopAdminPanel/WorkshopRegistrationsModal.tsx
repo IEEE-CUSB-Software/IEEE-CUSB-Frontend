@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import {
   Modal,
   type ColumnDef,
@@ -51,7 +51,8 @@ export const WorkshopRegistrationsModal = ({
       username: searchType === 'username' ? debouncedSearch : undefined,
       email: searchType === 'email' ? debouncedSearch : undefined,
       university: filterValues.university || undefined,
-    }
+    },
+    isOpen
   );
 
   const { mutate: updateStatus, isPending: isUpdating } =
@@ -60,16 +61,16 @@ export const WorkshopRegistrationsModal = ({
   const registrations = Array.isArray(data?.data) ? data.data : [];
   const totalPages = data?.totalPages ?? 1;
 
-  const handleUpdateStatus = (
-    registrationId: string,
-    status: WorkshopRegistrationStatus
-  ) => {
-    updateStatus({
-      id: workshopId,
-      registrationId,
-      status: { status },
-    });
-  };
+  const handleUpdateStatus = useCallback(
+    (registrationId: string, status: WorkshopRegistrationStatus) => {
+      updateStatus({
+        id: workshopId,
+        registrationId,
+        status: { status },
+      });
+    },
+    [updateStatus, workshopId]
+  );
 
   const columns = useMemo<ColumnDef<WorkshopRegistration>[]>(
     () => [
@@ -112,6 +113,9 @@ export const WorkshopRegistrationsModal = ({
         header: 'Status',
         cell: item => {
           const statusColors: Record<WorkshopRegistrationStatus, string> = {
+            [WorkshopRegistrationStatus.PENDING]: isDark
+              ? 'bg-yellow-900/30 text-yellow-300'
+              : 'bg-yellow-50 text-yellow-700',
             [WorkshopRegistrationStatus.REGISTERED]: isDark
               ? 'bg-blue-900/30 text-blue-300'
               : 'bg-blue-50 text-blue-700',
@@ -148,13 +152,30 @@ export const WorkshopRegistrationsModal = ({
         className: 'text-right',
         cell: item => (
           <div className="flex justify-end gap-2">
-            {item.status !== WorkshopRegistrationStatus.ACCEPTED && (
+            {item.status !== WorkshopRegistrationStatus.ACCEPTED &&
+              item.status !== WorkshopRegistrationStatus.ATTENDED && (
+                <Button
+                  buttonText="Accept"
+                  onClick={() =>
+                    handleUpdateStatus(
+                      item.id,
+                      WorkshopRegistrationStatus.ACCEPTED
+                    )
+                  }
+                  disabled={isUpdating}
+                  className="text-xs px-2 py-1"
+                  width="fit"
+                  darkMode={isDark}
+                  type="primary"
+                />
+              )}
+            {item.status === WorkshopRegistrationStatus.ACCEPTED && (
               <Button
-                buttonText="Accept"
+                buttonText="Mark Attended"
                 onClick={() =>
                   handleUpdateStatus(
                     item.id,
-                    WorkshopRegistrationStatus.ACCEPTED
+                    WorkshopRegistrationStatus.ATTENDED
                   )
                 }
                 disabled={isUpdating}
@@ -164,27 +185,28 @@ export const WorkshopRegistrationsModal = ({
                 type="primary"
               />
             )}
-            {item.status !== WorkshopRegistrationStatus.REJECTED && (
-              <Button
-                buttonText="Reject"
-                onClick={() =>
-                  handleUpdateStatus(
-                    item.id,
-                    WorkshopRegistrationStatus.REJECTED
-                  )
-                }
-                disabled={isUpdating}
-                className="text-xs px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 border-red-200"
-                width="fit"
-                darkMode={isDark}
-                type="basic"
-              />
-            )}
+            {item.status !== WorkshopRegistrationStatus.REJECTED &&
+              item.status !== WorkshopRegistrationStatus.CANCELLED && (
+                <Button
+                  buttonText="Reject"
+                  onClick={() =>
+                    handleUpdateStatus(
+                      item.id,
+                      WorkshopRegistrationStatus.REJECTED
+                    )
+                  }
+                  disabled={isUpdating}
+                  className="text-xs px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 border-red-200"
+                  width="fit"
+                  darkMode={isDark}
+                  type="basic"
+                />
+              )}
           </div>
         ),
       },
     ],
-    [isDark, isUpdating]
+    [isDark, isUpdating, handleUpdateStatus]
   );
 
   return (
@@ -211,7 +233,10 @@ export const WorkshopRegistrationsModal = ({
             emptyMessage="No registrations found for this workshop."
             isLoading={isLoading}
             search={search}
-            onSearchChange={setSearch}
+            onSearchChange={val => {
+              setSearch(val);
+              setPage(1);
+            }}
             searchPlaceholder={`Search by ${filterValues.searchBy || 'name'}...`}
             filters={[
               {
@@ -235,8 +260,15 @@ export const WorkshopRegistrationsModal = ({
               },
             ]}
             filterValues={filterValues}
-            onFilterChange={(key, value) => setFilterValues(prev => ({ ...prev, [key]: value }))}
-            onClearFilters={() => setFilterValues({})}
+            onFilterChange={(key, value) => {
+              setFilterValues(prev => ({ ...prev, [key]: value }));
+              setPage(1);
+            }}
+            onClearFilters={() => {
+              setFilterValues({});
+              setSearch('');
+              setPage(1);
+            }}
             renderMobileCard={reg => (
               <MobileWorkshopRegistrationCard
                 registration={reg}
